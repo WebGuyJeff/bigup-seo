@@ -1,0 +1,41 @@
+{
+	"head": [],
+	"style":
+	[
+		"type",
+		"media"
+	],
+	"script":
+	[
+		"type",
+		"style",
+		"async",
+		"crossorigin",
+		"defer",
+		"integrity",
+		"nomodule",
+		"referrerpolicy",
+		"src"
+	],
+	"title": [],
+	"meta":
+	[
+		"charset",
+		"name",
+		"content",
+		"property",
+		"http-equiv"
+	],
+	"link":
+	[
+		"rel",
+		"href",
+		"sizes",
+		"crossorigin",
+		"hreflang",
+		"media",
+		"referrerpolicy",
+		"title",
+		"type"
+	]
+}

@@ -1,0 +1,15 @@
+./assets
+./build
+./classes
+./data
+./languages
+./parts
+./patterns
+./styles
+./templates
+./functions.php
+./license.md
+./readme.md
+./screenshot.png
+./style.css
+./theme.json

@@ -1,0 +1,16 @@
+[
+	"accesskey",
+	"class",
+	"contenteditable",
+	"data-*",
+	"dir",
+	"draggable",
+	"hidden",
+	"id",
+	"lang",
+	"spellcheck",
+	"style",
+	"tabindex",
+	"title",
+	"translate"
+]
