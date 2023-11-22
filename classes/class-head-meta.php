@@ -21,7 +21,7 @@ class Head_Meta {
 	/**
 	 * Head metadata markup.
 	 */
-	private array $head_meta = array();
+	private string $head_meta = '';
 
 	/**
 	 * Constants (need a source like wp options perhaps).
@@ -33,21 +33,17 @@ class Head_Meta {
 
 
 	/**
-	 * Populate the properties.
-	 */
-	public function __construct() {
-		$this->seo_vars  = $this->get_seo_vars();
-		$this->head_meta = $this->get_seo_meta( $seo_vars );
-	}
-
-
-	/**
 	 * Generate and print the head meta.
 	 */
 	public function print_head_meta() {
-		$output  = "<!-- Bigup Web Meta START -->\n";
+
+		// Populate when wp_head is called otherwise conditionals like is_category() won't work.
+		$this->seo_vars  = $this->get_seo_vars();
+		$this->head_meta = $this->get_seo_meta( $this->seo_vars );
+
+		$output  = "<!-- Bigup SEO: Meta START -->\n";
 		$output .= $this->head_meta;
-		$output .= "<!-- Bigup Web Meta END -->\n";
+		$output .= "<!-- Bigup SEO: Meta END -->\n";
 
 		Escape::head( $output );
 	}

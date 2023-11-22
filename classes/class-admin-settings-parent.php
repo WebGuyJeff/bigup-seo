@@ -2,7 +2,7 @@
 namespace BigupWeb\Bigup_Seo;
 
 /**
- * Bigup SEO Meta Tags - Admin Settings Parent.
+ * Admin Settings Parent.
  *
  * Check to see if the Bigup Web parent admin settings page already exisits and
  * if not, create it. A hook is created for child pages to add to this parent.
@@ -16,18 +16,15 @@ namespace BigupWeb\Bigup_Seo;
  */
 class Admin_Settings_Parent {
 
-
 	/**
 	 * Settings page slug to add with add_submenu_page().
 	 */
 	public $admin_label = 'Bigup Web';
 
-
 	/**
 	 * Settings page slug to add with add_submenu_page().
 	 */
 	public static $page_slug = 'bigup-web';
-
 
 	/**
 	 * Settings group name called by settings_fields().
@@ -36,14 +33,6 @@ class Admin_Settings_Parent {
 	 * registered for that page MUST BE IN THE SAME 'OPTION GROUP'.
 	 */
 	public $group_name = 'group_bigup_web_settings';
-
-
-	/**
-	 * Init the class by hooking into the admin interface.
-	 */
-	public function __construct() {
-		add_action( 'admin_menu', array( &$this, 'register_admin_menu' ), 1 );
-	}
 
 
 	/**

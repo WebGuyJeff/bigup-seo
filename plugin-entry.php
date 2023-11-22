@@ -19,7 +19,6 @@ namespace BigupWeb\Bigup_Seo;
  */
 
 // Set global constants.
-define( 'BIGUPWEB_NAMESPACE', 'Lonewolf' );
 define( 'BIGUPSEO_DEBUG', defined( 'WP_DEBUG' ) && WP_DEBUG === true );
 define( 'BIGUPSEO_PATH', trailingslashit( __DIR__ ) );
 define( 'BIGUPSEO_URL', trailingslashit( get_site_url( null, strstr( __DIR__, '/wp-content/' ) ) ) );
