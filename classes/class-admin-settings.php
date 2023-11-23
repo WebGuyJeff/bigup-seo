@@ -74,9 +74,8 @@ class Admin_Settings {
 		?>
 
 		<a href="/wp-admin/admin.php?page=<?php echo $this->page_slug; ?>">
-			Go to <?php echo $this->admin_label; ?> settings
+			<?php echo $this->admin_label; ?> settings
 		</a>
-		<br>
 
 		<?php
 	}
@@ -98,7 +97,7 @@ class Admin_Settings {
 			<?php
 			$files = Util::theme_files_contain( '<title' );
 			if ( $files ) {
-				echo "<p>It looks like your current theme may implement the &lt;title&gt; meta tag in the following files.</p>";
+				echo '<p>It looks like your current theme may implement the &lt;title&gt; meta tag in the following files.</p>';
 				echo '<ul style="list-style: disc; margin-left: 2em;">';
 				foreach ( $files as $file ) {
 					echo '<li>' . esc_url( $file ) . '</li>';
