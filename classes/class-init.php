@@ -36,6 +36,9 @@ class Init {
 	 * Hook into wp_head to add meta and modify title tags.
 	 *
 	 * Head_Meta must be instantiated between the wp query and 'wp_head' hook.
+	 *
+	 * Removing theme sopport 'title-tag' and wp_head title action was unreliable, so now we're
+	 * filtering the core document_title instead.
 	 */
 	public function do_head_meta_before_wp_head() {
 		$Head_Meta = new Head_Meta();
