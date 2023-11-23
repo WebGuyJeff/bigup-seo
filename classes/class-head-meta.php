@@ -14,14 +14,19 @@ namespace BigupWeb\Bigup_Seo;
 class Head_Meta {
 
 	/**
-	 * Vars scraped from the website.
+	 * Meta variables scraped from the website.
 	 */
-	private array $seo_vars = array();
+	private array $meta = array();
 
 	/**
-	 * Head metadata markup.
+	 * Head meta tag markup.
 	 */
-	private string $head_meta = '';
+	private string $markup = '';
+
+	/**
+	 * Title tag text.
+	 */
+	private string $title = '';
 
 	/**
 	 * Constants (need a source like wp options perhaps).
@@ -33,17 +38,33 @@ class Head_Meta {
 
 
 	/**
-	 * Generate and print the head meta.
+	 * Populate class properties.
+	 *
+	 * Must be instantiated between the wp query and 'wp_head' hooks so conditionals work.
+	 * Hook 'template_redirect' seems to work nicely.
 	 */
-	public function print_head_meta() {
+	public function __construct() {
+		$this->meta   = $this->get_meta();
+		$this->markup = $this->get_markup( $this->meta );
+		$this->title  = $this->meta['title'];
+	}
 
-		// Populate when wp_head is called otherwise conditionals like is_category() won't work.
-		$this->seo_vars  = $this->get_seo_vars();
-		$this->head_meta = $this->get_seo_meta( $this->seo_vars );
 
-		$output  = "<!-- Bigup SEO: Meta START -->\n";
-		$output .= $this->head_meta;
-		$output .= "<!-- Bigup SEO: Meta END -->\n";
+	/**
+	 * Return the current page title to filter WP document_title with.
+	 */
+	public function get_title_tag_text() {
+		return $this->title;
+	}
+
+
+	/**
+	 * Print the head meta.
+	 */
+	public function print_markup() {
+		$output  = "<!-- Bigup SEO: START -->\n";
+		$output .= $this->markup;
+		$output .= "<!-- Bigup SEO: END -->\n";
 
 		Escape::head( $output );
 	}
@@ -129,123 +150,121 @@ class Head_Meta {
 	 *
 	 * @return array Array of meta variables.
 	 */
-	private function get_seo_vars() {
+	private function get_meta() {
 
 		/* Sitewide */
-		$lw_sitetitle  = wp_strip_all_tags( get_bloginfo( 'name', 'display' ) );
-		$lw_blogtitle  = wp_strip_all_tags( get_the_title( get_option( 'page_for_posts', true ) ) );
-		$lw_siteauthor = wp_strip_all_tags( get_bloginfo( 'name', 'display' ) ) . ' Staff';
-		$lw_sitedesc   = wp_strip_all_tags( get_bloginfo( 'description', 'display' ) );
-		$lw_url        = esc_url( home_url( '/', 'https' ) );
-		$lw_themeuri   = trailingslashit( get_template_directory_uri() );
-		$lw_sitelogo   = esc_url( wp_get_attachment_url( get_theme_mod( 'custom_logo' ) ) );
-		$lw_locale     = wp_strip_all_tags( get_bloginfo( 'language' ) );
-		$lw_charset    = wp_strip_all_tags( get_bloginfo( 'charset' ) );
-		$lw_colour     = get_background_color() ? '#' . get_background_color() : '#ebe8e6';
-		$lw_icon512    = $this->get_favicon_url( 512 );
-		$lw_icon270    = $this->get_favicon_url( 270 );
-		$lw_icon192    = $this->get_favicon_url( 192 );
-		$lw_icon180    = $this->get_favicon_url( 180 );
-		$lw_icon150    = $this->get_favicon_url( 150 );
-		$lw_icon96     = $this->get_favicon_url( 96 );
-		$lw_icon32     = $this->get_favicon_url( 32 );
+		$sitetitle  = wp_strip_all_tags( get_bloginfo( 'name', 'display' ) );
+		$blogtitle  = wp_strip_all_tags( get_the_title( get_option( 'page_for_posts', true ) ) );
+		$siteauthor = wp_strip_all_tags( get_bloginfo( 'name', 'display' ) ) . ' Staff';
+		$sitedesc   = wp_strip_all_tags( get_bloginfo( 'description', 'display' ) );
+		$url        = esc_url( home_url( '/', 'https' ) );
+		$themeuri   = trailingslashit( get_template_directory_uri() );
+		$sitelogo   = esc_url( wp_get_attachment_url( get_theme_mod( 'custom_logo' ) ) );
+		$locale     = wp_strip_all_tags( get_bloginfo( 'language' ) );
+		$colour     = get_background_color() ? '#' . get_background_color() : '#ebe8e6';
+		$icon512    = $this->get_favicon_url( 512 );
+		$icon270    = $this->get_favicon_url( 270 );
+		$icon192    = $this->get_favicon_url( 192 );
+		$icon180    = $this->get_favicon_url( 180 );
+		$icon150    = $this->get_favicon_url( 150 );
+		$icon96     = $this->get_favicon_url( 96 );
+		$icon32     = $this->get_favicon_url( 32 );
 
 		/* Page-Specific */
 		$post = get_post(); // Setup the post manually.
 		setup_postdata( $post );
-		$lw_postid      = get_the_ID();
-		$lw_postcontent = get_post_field( 'post_content', $lw_postid, '' );
-		$lw_postimage   = esc_url( $this->extract_image_from_content( $lw_postcontent ) );
-		$lw_posttitle   = wp_strip_all_tags( get_the_title() );
-		$lw_permalink   = esc_url( get_permalink() );
+		$postid      = get_the_ID();
+		$postcontent = get_post_field( 'post_content', $postid, '' );
+		$postimage   = esc_url( $this->extract_image_from_content( $postcontent ) );
+		$posttitle   = wp_strip_all_tags( get_the_title() );
+		$permalink   = esc_url( get_permalink() );
 
 		/* Set scope */
-		$lw_catexcerpt   = '';
-		$lw_archivetitle = '';
-		$lw_postexcerpt  = '';
+		$catexcerpt   = '';
+		$archivetitle = '';
+		$postexcerpt  = '';
 
 		/* scrape conditionally by page type */
 		if ( is_category() ) { // User may have set desc.
-			$lw_catexcerpt = preg_split( '/[.?!]/', wp_strip_all_tags( category_description(), true ) )[0] . '.';
+			$catexcerpt = preg_split( '/[.?!]/', wp_strip_all_tags( category_description(), true ) )[0] . '.';
 		}
 		if ( is_archive() ) { // Also matches categories (don't set vars twice).
-			$lw_archivetitle = wp_strip_all_tags( post_type_archive_title( '', false ) );
-			$lw_thumbnail    = esc_url( get_the_post_thumbnail_url( $lw_postid ) );
+			$archivetitle = wp_strip_all_tags( post_type_archive_title( '', false ) );
+			$thumbnail    = esc_url( get_the_post_thumbnail_url( $postid ) );
 		} else {
-			$lw_postexcerpt = preg_split( '/[.?!]/', wp_strip_all_tags( $lw_postcontent, true ) )[0] . '.';
-			$lw_postauthor  = wp_strip_all_tags( get_the_author() );
-			$lw_thumbnail   = esc_url( get_the_post_thumbnail_url( $lw_postid ) );
+			$postexcerpt = preg_split( '/[.?!]/', wp_strip_all_tags( $postcontent, true ) )[0] . '.';
+			$postauthor  = wp_strip_all_tags( get_the_author() );
+			$thumbnail   = esc_url( get_the_post_thumbnail_url( $postid ) );
 		}
 
 		/* choose the most suitable scraped value with preference order by page type */
 		if ( is_front_page() ) {
-			$lw_title   = ucwords( $lw_sitetitle . ' - ' . $lw_sitedesc );
-			$lw_desc    = ucfirst( $this->first_not_empty( array( $lw_sitedesc, $lw_postexcerpt ) ) );
-			$lw_author  = ucwords( $this->first_not_empty( array( $lw_siteauthor, $lw_postauthor ) ) );
-			$lw_canon   = $lw_url;
-			$lw_ogimage = $this->first_not_empty( array( $lw_sitelogo, $lw_thumbnail, $lw_postimage ) );
+			$title   = ucwords( $sitetitle . ' - ' . $sitedesc );
+			$desc    = ucfirst( $this->first_not_empty( array( $sitedesc, $postexcerpt ) ) );
+			$author  = ucwords( $this->first_not_empty( array( $siteauthor, $postauthor ) ) );
+			$canon   = $url;
+			$ogimage = $this->first_not_empty( array( $sitelogo, $thumbnail, $postimage ) );
 
 		} elseif ( is_home() ) {
-			$lw_title   = ucwords( $this->first_not_empty( array( $lw_blogtitle, $lw_sitetitle ) ) . ' - ' . $lw_sitedesc );
-			$lw_desc    = ucfirst( $this->first_not_empty( array( $lw_postexcerpt, $lw_sitedesc ) ) );
-			$lw_author  = ucwords( $this->first_not_empty( array( $lw_siteauthor, $lw_postauthor ) ) );
-			$lw_canon   = trailingslashit( $lw_permalink );
-			$lw_ogimage = $this->first_not_empty( array( $lw_thumbnail, $lw_sitelogo, $lw_postimage ) );
+			$title   = ucwords( $this->first_not_empty( array( $blogtitle, $sitetitle ) ) . ' - ' . $sitedesc );
+			$desc    = ucfirst( $this->first_not_empty( array( $postexcerpt, $sitedesc ) ) );
+			$author  = ucwords( $this->first_not_empty( array( $siteauthor, $postauthor ) ) );
+			$canon   = trailingslashit( $permalink );
+			$ogimage = $this->first_not_empty( array( $thumbnail, $sitelogo, $postimage ) );
 
 		} elseif ( is_category() ) {
-			$lw_title   = ucwords( $this->first_not_empty( array( $lw_archivetitle, $lw_posttitle ) ) );
-			$lw_desc    = ucfirst( $this->first_not_empty( array( $lw_catexcerpt, $lw_postexcerpt, $lw_sitedesc ) ) );
-			$lw_author  = ucwords( $this->first_not_empty( array( $lw_postauthor, $lw_siteauthor ) ) );
-			$lw_canon   = trailingslashit( $lw_permalink );
-			$lw_ogimage = $this->first_not_empty( array( $lw_thumbnail, $lw_postimage, $lw_sitelogo ) );
+			$title   = ucwords( $this->first_not_empty( array( $archivetitle, $posttitle ) ) );
+			$desc    = ucfirst( $this->first_not_empty( array( $catexcerpt, $postexcerpt, $sitedesc ) ) );
+			$author  = ucwords( $this->first_not_empty( array( $postauthor, $siteauthor ) ) );
+			$canon   = trailingslashit( $permalink );
+			$ogimage = $this->first_not_empty( array( $thumbnail, $postimage, $sitelogo ) );
 
 		} elseif ( is_archive() ) {
-			$lw_title   = ucwords( $this->first_not_empty( array( $lw_archivetitle, $lw_posttitle ) ) );
-			$lw_desc    = ucfirst( $this->first_not_empty( array( $lw_catexcerpt, $lw_postexcerpt, $lw_sitedesc ) ) );
-			$lw_author  = ucwords( $this->first_not_empty( array( $lw_postauthor, $lw_siteauthor ) ) );
-			$lw_canon   = trailingslashit( $lw_permalink );
-			$lw_ogimage = $this->first_not_empty( array( $lw_thumbnail, $lw_postimage, $lw_sitelogo ) );
+			$title   = ucwords( $this->first_not_empty( array( $archivetitle, $posttitle ) ) );
+			$desc    = ucfirst( $this->first_not_empty( array( $catexcerpt, $postexcerpt, $sitedesc ) ) );
+			$author  = ucwords( $this->first_not_empty( array( $postauthor, $siteauthor ) ) );
+			$canon   = trailingslashit( $permalink );
+			$ogimage = $this->first_not_empty( array( $thumbnail, $postimage, $sitelogo ) );
 
 		} elseif ( is_singular() ) {
-			$lw_title   = ucwords( $lw_posttitle );
-			$lw_desc    = ucfirst( $lw_postexcerpt );
-			$lw_author  = ucwords( $lw_postauthor );
-			$lw_canon   = trailingslashit( $lw_permalink );
-			$lw_ogimage = $this->first_not_empty( array( $lw_postimage, $lw_thumbnail, $lw_sitelogo ) );
+			$title   = ucwords( $posttitle );
+			$desc    = ucfirst( $postexcerpt );
+			$author  = ucwords( $postauthor );
+			$canon   = trailingslashit( $permalink );
+			$ogimage = $this->first_not_empty( array( $postimage, $thumbnail, $sitelogo ) );
 
 		} else {
 			echo '<!-- SEO META FALLBACK - WP TEMLPATE NOT MATCHED -->';
-			$lw_title   = ucwords( $this->first_not_empty( array( $lw_posttitle, $lw_archivetitle, $lw_sitetitle ) ) );
-			$lw_desc    = ucfirst( $this->first_not_empty( array( $lw_postexcerpt, $lw_catexcerpt, $lw_sitedesc ) ) );
-			$lw_author  = ucwords( $this->first_not_empty( array( $lw_postauthor, $lw_siteauthor ) ) );
-			$lw_canon   = trailingslashit( $lw_permalink );
-			$lw_ogimage = $this->first_not_empty( array( $lw_thumbnail, $lw_postimage, $lw_sitelogo ) );
+			$title   = ucwords( $this->first_not_empty( array( $posttitle, $archivetitle, $sitetitle ) ) );
+			$desc    = ucfirst( $this->first_not_empty( array( $postexcerpt, $catexcerpt, $sitedesc ) ) );
+			$author  = ucwords( $this->first_not_empty( array( $postauthor, $siteauthor ) ) );
+			$canon   = trailingslashit( $permalink );
+			$ogimage = $this->first_not_empty( array( $thumbnail, $postimage, $sitelogo ) );
 		}
 
 		$meta = array(
-			'title'       => $lw_title,
-			'desc'        => $lw_desc,
-			'author'      => $lw_author,
-			'canon'       => $lw_canon,
-			'ogimage'     => $lw_ogimage,
-			'ogtitle'     => $lw_title,
+			'title'       => $title,
+			'desc'        => $desc,
+			'author'      => $author,
+			'canon'       => $canon,
+			'ogimage'     => $ogimage,
+			'ogtitle'     => $title,
 			'ogtype'      => self::SETTINGS['objecttype'],
-			'ogurl'       => $lw_canon,
-			'oglocale'    => $lw_locale,
+			'ogurl'       => $canon,
+			'oglocale'    => $locale,
 			'oglocalealt' => self::SETTINGS['localealt'],
-			'ogdesc'      => $lw_desc,
-			'ogsitename'  => $lw_sitetitle,
-			'charset'     => $lw_charset,
-			'url'         => $lw_url,
-			'themeuri'    => $lw_themeuri,
-			'colour'      => $lw_colour,
-			'icon512'     => $lw_icon512,
-			'icon270'     => $lw_icon270,
-			'icon192'     => $lw_icon192,
-			'icon180'     => $lw_icon180,
-			'icon150'     => $lw_icon150,
-			'icon96'      => $lw_icon96,
-			'icon32'      => $lw_icon32,
+			'ogdesc'      => $desc,
+			'ogsitename'  => $sitetitle,
+			'url'         => $url,
+			'themeuri'    => $themeuri,
+			'colour'      => $colour,
+			'icon512'     => $icon512,
+			'icon270'     => $icon270,
+			'icon192'     => $icon192,
+			'icon180'     => $icon180,
+			'icon150'     => $icon150,
+			'icon96'      => $icon96,
+			'icon32'      => $icon32,
 		);
 		return $meta;
 	}
@@ -256,11 +275,8 @@ class Head_Meta {
 	 * @return string HTML to be inserted into head.
 	 * @param array $meta The array of SEO meta data variables.
 	 */
-	private function get_seo_meta( $meta ) {
-		$head_meta =
-			'<meta charset="' . $meta['charset'] . '">' .
-			'<meta name="viewport" content="width=device-width, initial-scale=1">' .
-			'<title>' . $meta['title'] . '</title>' .
+	private function get_markup( $meta ) {
+		$markup =
 			'<meta name="description" content="' . $meta['desc'] . '">' .
 			'<meta name="author" content="' . $meta['author'] . '">' .
 			'<link rel="canonical" href="' . $meta['canon'] . '">' .
@@ -287,36 +303,6 @@ class Head_Meta {
 			'<link rel="icon" type="image/png" href="' . $meta['icon32'] . '" sizes="32x32">' .
 			'<link rel="apple-touch-icon" href="' . $meta['icon180'] . '">' .
 			'<meta name="msapplication-TileImage" content="' . $meta['icon270'] . '">';
-		return $head_meta;
-	}
-
-
-	/**
-	 * Get the verification keys from saved settings.
-	 *
-	 * @return array Array of verification name/content pairs.
-	 */
-	private function get_verification_keys() {
-		$option = get_option( 'lw_settings_verification' );
-		$keys   = array(
-			'google-site-verification' => $option['google_verification_key'],
-			'msvalidate.01'            => $option['microsoft_verification_key'],
-		);
-		return $keys;
-	}
-
-
-	/**
-	 * Generate the verification meta HTML.
-	 *
-	 * @return string HTML to be inserted into head.
-	 * @param array $data The array of verification names and content.
-	 */
-	private function get_verification_meta( $keys ) {
-		$verification_meta = "<!-- Site verification -->\n";
-		foreach ( $keys as $key => $value ) {
-			$verification_meta .= "<meta name=\"{$key}\" content=\"{$value}\" />\n";
-		}
-		return $verification_meta;
+		return $markup;
 	}
 }
