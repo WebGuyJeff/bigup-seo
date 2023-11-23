@@ -72,11 +72,9 @@ class Admin_Settings {
 	 */
 	public function echo_plugin_settings_link() {
 		?>
-
 		<a href="/wp-admin/admin.php?page=<?php echo $this->page_slug; ?>">
 			<?php echo $this->admin_label; ?> settings
 		</a>
-
 		<?php
 	}
 
@@ -97,7 +95,7 @@ class Admin_Settings {
 			<?php
 			$files = Util::theme_files_contain( '<title' );
 			if ( $files ) {
-				echo '<p>It looks like your current theme may implement the &lt;title&gt; meta tag in the following files.</p>';
+				echo '<p>Warning! Your current theme may have the &lt;title&gt; meta tag hard-coded in the following template files:</p>';
 				echo '<ul style="list-style: disc; margin-left: 2em;">';
 				foreach ( $files as $file ) {
 					echo '<li>' . esc_url( $file ) . '</li>';
@@ -105,15 +103,17 @@ class Admin_Settings {
 				echo '</ul>';
 				echo '<p>You should disable this setting to prevent duplicate tags.</p>';
 			} else {
-				echo "<p>It looks like your current theme doesn't implement the <title> meta tag. We can do that for you! </p>";
+				echo "<p>Great! Your current theme doesn't have the &lt;title&gt; meta tag hard-coded in it's template markup. We can manage that for you!</p>";
 			}
+			echo "<p>We've disabled &lt;title&gt; tag theme support to prevent WordPress from generating it on your pages.</p>";
 			$theme_support = get_theme_support( 'title-tag' );
-			echo '<p>Theme "title-tag" support ' . ( $theme_support ? 'enabled' : 'disabled' ) . '</p>';
+			echo '<p>Title tag support status: ' . ( $theme_support ? 'enabled' : 'disabled' ) . '</p>';
 			?>
 
 			<form method="post" action="options.php">
-
 				<?php
+
+					// Settings to control SEO meta to be implemented here.
 
 					// settings_fields( $this->group_name );
 					// do_settings_sections( $this->page_slug );
