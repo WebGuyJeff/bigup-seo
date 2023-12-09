@@ -23,7 +23,7 @@ class Init {
 		$Admin_Settings_Parent = new Admin_Settings_Parent();
 		add_action( 'admin_menu', array( &$Admin_Settings_Parent, 'register_admin_menu' ), 1, 0 );
 		$Admin_Settings = new Admin_Settings();
-		add_action( 'bigup_plugin_settings_dashboard_entry', array( &$Admin_Settings, 'echo_plugin_settings_link' ), 10, 0 );
+		add_action( 'bigup_settings_dashboard_entry', array( &$Admin_Settings, 'echo_plugin_settings_link' ), 10, 0 );
 		add_action( 'admin_menu', array( &$Admin_Settings, 'register_admin_menu' ), 99 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts_and_styles' ), 10, 0 );
 		add_filter( 'site_icon_image_sizes', array( $this, 'add_custom_site_icon_sizes' ), 10, 0 );
