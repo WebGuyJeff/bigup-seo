@@ -15,20 +15,45 @@ namespace BigupWeb\Bigup_Seo;
 
 class Init {
 
+	/**
+	 * Parent settings class.
+	 */
+	public $Settings_Parent;
+
+	/**
+	 * Settings class.
+	 */
+	public $Settings;
+
+
+	/**
+	 * Populate the class properties.
+	 */
+	public function __construct() {
+		$this->Settings_Parent = new Admin_Settings_Parent();
+		$this->Settings        = new Admin_Settings();
+	}
+
 
 	/**
 	 * Setup the plugin.
 	 */
 	public function setup() {
-		$Admin_Settings_Parent = new Admin_Settings_Parent();
-		add_action( 'admin_menu', array( &$Admin_Settings_Parent, 'register_admin_menu' ), 1, 0 );
-		$Admin_Settings = new Admin_Settings();
-		add_action( 'bigup_settings_dashboard_entry', array( &$Admin_Settings, 'echo_plugin_settings_link' ), 10, 0 );
-		add_action( 'admin_menu', array( &$Admin_Settings, 'register_admin_menu' ), 99 );
+		add_action( 'admin_menu', array( &$this->Settings_Parent, 'register_admin_menu' ), 1, 0 );
+		add_action( 'bigup_settings_dashboard_entry', array( &$this->Settings, 'echo_plugin_settings_link' ), 10, 0 );
+		add_action( 'admin_menu', array( &$this->Settings, 'register_admin_menu' ), 99 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts_and_styles' ), 10, 0 );
 		add_filter( 'site_icon_image_sizes', array( $this, 'add_custom_site_icon_sizes' ), 10, 0 );
-		add_theme_support( 'title-tag' );
+		add_action( 'after_setup_theme', array( $this, 'ensure_title_tag_theme_support' ), 1, 0 );
 		add_action( 'template_redirect', array( $this, 'do_head_meta_before_wp_head' ), 1, 0 );
+	}
+
+
+	/**
+	 * Ensure title tag theme support.
+	 */
+	public function ensure_title_tag_theme_support() {
+		add_theme_support( 'title-tag' );
 	}
 
 

@@ -179,20 +179,16 @@ class Head_Meta {
 		$posttitle   = wp_strip_all_tags( get_the_title() );
 		$permalink   = esc_url( get_permalink() );
 
-		/* Set scope */
 		$catexcerpt   = '';
 		$archivetitle = '';
 		$postexcerpt  = '';
-
-		/* scrape conditionally by page type */
-		if ( is_category() ) { // User may have set desc.
-			$catexcerpt = preg_split( '/[.?!]/', wp_strip_all_tags( category_description(), true ) )[0] . '.';
-		}
-		if ( is_archive() ) { // Also matches categories (don't set vars twice).
+		$postauthor   = '';
+		$thumbnail    = '';
+		if ( is_category() || is_archive() ) {
+			$catexcerpt   = preg_split( '/[.?!]/', wp_strip_all_tags( category_description(), true ) )[0];
 			$archivetitle = wp_strip_all_tags( post_type_archive_title( '', false ) );
-			$thumbnail    = esc_url( get_the_post_thumbnail_url( $postid ) );
 		} else {
-			$postexcerpt = preg_split( '/[.?!]/', wp_strip_all_tags( $postcontent, true ) )[0] . '.';
+			$postexcerpt = preg_split( '/[.?!]/', wp_strip_all_tags( $postcontent, true ) )[0];
 			$postauthor  = wp_strip_all_tags( get_the_author() );
 			$thumbnail   = esc_url( get_the_post_thumbnail_url( $postid ) );
 		}
