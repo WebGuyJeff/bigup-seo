@@ -10,7 +10,6 @@ namespace BigupWeb\Bigup_Seo;
  * @license GPL3+
  * @link https://jeffersonreal.uk
  */
-
 class Head_Meta {
 
 	/**
@@ -192,6 +191,8 @@ class Head_Meta {
 			$postauthor  = wp_strip_all_tags( get_the_author() );
 			$thumbnail   = esc_url( get_the_post_thumbnail_url( $postid ) );
 		}
+
+		$warning = false;
 
 		/* choose the most suitable scraped value with preference order by page type */
 		if ( is_front_page() ) {
