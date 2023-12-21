@@ -230,7 +230,7 @@ class Head_Meta {
 			$ogimage = $this->first_not_empty( array( $postimage, $thumbnail, $sitelogo ) );
 
 		} else {
-			echo '<!-- SEO META FALLBACK - WP TEMLPATE NOT MATCHED -->';
+			$warning = '<!-- FALLBACK META IN USE - WP TEMLPATE NOT MATCHED -->';
 			$title   = ucwords( $this->first_not_empty( array( $posttitle, $archivetitle, $sitetitle ) ) );
 			$desc    = ucfirst( $this->first_not_empty( array( $postexcerpt, $catexcerpt, $sitedesc ) ) );
 			$author  = ucwords( $this->first_not_empty( array( $postauthor, $siteauthor ) ) );
@@ -239,6 +239,7 @@ class Head_Meta {
 		}
 
 		$meta = array(
+			'warning'     => $warning,
 			'title'       => $title,
 			'desc'        => $desc,
 			'author'      => $author,
@@ -272,7 +273,14 @@ class Head_Meta {
 	 * @param array $meta The array of SEO meta data variables.
 	 */
 	private function get_markup( $meta ) {
-		$markup =
+
+		$markup = '';
+
+		if ( $meta['warning'] ) {
+			$markup = $meta['warning'];
+		}
+
+		$markup .=
 			'<meta name="description" content="' . $meta['desc'] . '">' .
 			'<meta name="author" content="' . $meta['author'] . '">' .
 			'<link rel="canonical" href="' . $meta['canon'] . '">' .
