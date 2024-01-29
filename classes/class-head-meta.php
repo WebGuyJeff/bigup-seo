@@ -231,7 +231,7 @@ class Head_Meta {
 			$ogimage = $this->first_not_empty( array( $postimage, $thumbnail, $sitelogo ) );
 
 		} else {
-			$warning = '<!-- FALLBACK META IN USE - WP TEMLPATE NOT MATCHED -->';
+			$warning = "<!-- NOTICE: Fallback meta in use as template not matched for this page -->\n";
 			$title   = ucwords( $this->first_not_empty( array( $posttitle, $archivetitle, $sitetitle ) ) );
 			$desc    = ucfirst( $this->first_not_empty( array( $postexcerpt, $catexcerpt, $sitedesc ) ) );
 			$author  = ucwords( $this->first_not_empty( array( $postauthor, $siteauthor ) ) );
@@ -278,7 +278,7 @@ class Head_Meta {
 		$markup = '';
 
 		if ( $meta['warning'] ) {
-			$markup = $meta['warning'];
+			$markup .= $meta['warning'];
 		}
 
 		$markup .=

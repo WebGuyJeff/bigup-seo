@@ -1,6 +1,6 @@
 {
 	"name": "bigup-seo",
-	"version": "0.0.1",
+	"version": "0.1.1",
 	"description": "Bigup your SEO game.",
 	"dependencies": {
 		"@wordpress/block-editor": "^12.10.0",
