@@ -52,7 +52,7 @@ class Settings_Tab_Two {
 		$section = 'testing';
 		add_settings_section( $section, 'Testing', array( $this, 'echo_section_intro_testing' ), self::PAGE );
 
-		add_settings_field( 'output_meta', 'Output meta to front end', array( &$this, 'echo_field_output_meta' ), self::PAGE, $section );
+		add_settings_field( 'output_meta', 'Output meta', array( &$this, 'echo_field_output_meta' ), self::PAGE, $section );
 	}
 
 
@@ -60,7 +60,7 @@ class Settings_Tab_Two {
 	 * Output testing section intro.
 	 */
 	public function echo_section_intro_testing() {
-		echo '<p>Testing meta generation.</p>';
+		echo '<p>Options for site-builders and developers to test SEO generation.</p>';
 	}
 
 
@@ -75,7 +75,7 @@ class Settings_Tab_Two {
 			$setting,
 			isset( $this->settings['output_meta'] ) ? checked( '1', $this->settings['output_meta'], false ) : '',
 			$setting,
-			'Output meta to front end.'
+			'Display meta viewer on the front-end website. Warning: all logged-in admin users will see this!'
 		);
 	}
 

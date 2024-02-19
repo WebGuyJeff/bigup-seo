@@ -15,14 +15,20 @@ const outputMeta = () => {
 		const titleTags = document.querySelectorAll( 'title' )
 		const metaTags  = document.querySelectorAll( 'meta' )
 
-		const panel = document.createElement( 'div' )
-		const print = document.createElement( 'div' )
-		const close = document.createElement( 'button' )
+		const panel  = document.createElement( 'div' )
+		const scroll = document.createElement( 'div' )
+		const print  = document.createElement( 'div' )
+		const header = document.createElement( 'header' )
+		const title  = document.createElement( 'h3' )
+		const close  = document.createElement( 'button' )
 
-		panel.classList.add( 'metaPanel' )
-		panel.appendChild( close )
+		title.innerText = 'Bigup SEO - Meta Tag Viewer'
+		header.appendChild( title )
+		header.appendChild( close )
+		panel.appendChild( header )
 		panel.appendChild( print )
-		close.setAttribute( 'style', 'margin-left: auto;' )
+		panel.classList.add( 'metaPanel' )
+		print.classList.add( 'metaPanel_print' )
 		close.innerText = 'Close'
 		close.addEventListener( 'click', () => panel.remove() )
 
@@ -40,24 +46,7 @@ const outputMeta = () => {
 			print.appendChild( p )
 		} )
 
-		let styles = 'position: fixed; '
-			styles += 'bottom: 0; '
-			styles += 'left: 0; '
-			styles += 'right: 0; '
-			styles += 'width: 100%; '
-			styles += 'height: 50%; '
-			styles += 'background: #fff; '
-			styles += 'border-top: solid 0.15rem #333; '
-			styles += 'padding: 1rem; '
-			styles += 'z-index: 20; '
-
-		panel.setAttribute( 'style', styles )
 		document.body.appendChild( panel )
-
-
-
-		console.log( panel )
-
 	}
 
 

@@ -13,6 +13,7 @@ module.exports = {
 		// Everything outputs to build/.
 		...getWebpackEntryPoints(),
 		'js/bigup-seo': './src/js/bigup-seo.js',
+		'css/bigup-seo': './src/css/bigup-seo.scss',
 	},
 	plugins: [
 		...wordpressConfig.plugins,

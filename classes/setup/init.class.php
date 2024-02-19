@@ -39,19 +39,31 @@ class Init {
 	 * Setup the plugin.
 	 */
 	public function setup() {
-		add_action( 'admin_menu', array( &$this->Settings_Parent, 'register_admin_menu' ), 1, 0 );
-		add_action( 'bigup_settings_dashboard_entry', array( &$this->Settings, 'echo_plugin_settings_link' ), 10, 0 );
-		add_action( 'admin_menu', array( &$this->Settings, 'register_admin_menu' ), 99 );
-		add_action( 'admin_init', array( new Settings_Tab_One(), 'init' ), 10, 0 );
-		add_action( 'admin_init', array( new Settings_Tab_Two(), 'init' ), 10, 0 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_and_styles' ), 10, 0 );
 		add_filter( 'site_icon_image_sizes', array( $this, 'add_custom_site_icon_sizes' ), 10, 0 );
 		add_action( 'after_setup_theme', array( $this, 'ensure_title_tag_theme_support' ), 1, 0 );
 		add_action( 'template_redirect', array( $this, 'do_head_meta_before_wp_head' ), 1, 0 );
+		add_action( 'init', array( $this, 'setup_for_logged_in_admin' ), 10, 0 );
+	}
 
-		$dev_settings = get_option( 'bigupseo_settings_developer' );
-		if ( $dev_settings && $dev_settings['output_meta'] ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'front_end_scripts_and_styles' ), 10, 0 );
+
+	/**
+	 * Setup logged-in admin users.
+	 *
+	 * Must not be called before 'init' hook otherwise current_user_can() will not be loaded.
+	 */
+	public function setup_for_logged_in_admin() {
+		if ( current_user_can( 'manage_options' ) ) {
+			add_action( 'admin_menu', array( &$this->Settings_Parent, 'register_admin_menu' ), 1, 0 );
+			add_action( 'bigup_settings_dashboard_entry', array( &$this->Settings, 'echo_plugin_settings_link' ), 10, 0 );
+			add_action( 'admin_menu', array( &$this->Settings, 'register_admin_menu' ), 99 );
+			add_action( 'admin_init', array( new Settings_Tab_One(), 'init' ), 10, 0 );
+			add_action( 'admin_init', array( new Settings_Tab_Two(), 'init' ), 10, 0 );
+
+			$dev_settings = get_option( 'bigupseo_settings_developer' );
+			if ( $dev_settings && $dev_settings['output_meta'] ) {
+				add_action( 'wp_enqueue_scripts', array( $this, 'front_end_scripts_and_styles' ), 10, 0 );
+			}
 		}
 	}
 
@@ -97,6 +109,7 @@ class Init {
 	 */
 	public function front_end_scripts_and_styles() {
 		wp_enqueue_script( 'bigup_seo_js', BIGUPSEO_URL . 'build/js/bigup-seo.js', array(), filemtime( BIGUPSEO_PATH . 'build/js/bigup-seo.js' ), true );
+		wp_enqueue_style( 'bigup_seo_css', BIGUPSEO_URL . 'build/css/bigup-seo.css', array(), filemtime( BIGUPSEO_PATH . 'build/css/bigup-seo.css' ), 'all' );
 	}
 
 
