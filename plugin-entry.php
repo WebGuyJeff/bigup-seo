@@ -8,22 +8,26 @@ namespace BigupWeb\Bigup_Seo;
  * Version: 0.1.1
  * Author: Jefferson Real
  * Author URI: https://jeffersonreal.uk
- * License: GPL2
+ * License: GPL3+
  *
  * @package bigup-seo
  * @author Jefferson Real <me@jeffersonreal.uk>
- * @copyright Copyright (c) 2023, Jefferson Real
+ * @copyright Copyright (c) 2024, Jefferson Real
  * @license GPL3+
  * @link https://jeffersonreal.uk
  */
 
+$enable_debug = false;
+
 // Set global constants.
-define( 'BIGUPSEO_DEBUG', defined( 'WP_DEBUG' ) && WP_DEBUG === true );
+define( 'BIGUPSEO_DEBUG', $enable_debug );
 define( 'BIGUPSEO_PATH', trailingslashit( __DIR__ ) );
 define( 'BIGUPSEO_URL', trailingslashit( get_site_url( null, strstr( __DIR__, '/wp-content/' ) ) ) );
 
-// Setup PHP namespace.
-require_once BIGUPSEO_PATH . 'classes/autoload.php';
+// Register namespaced autoloader.
+$namespace = 'BigupWeb\\Bigup_Seo\\';
+$root      = BIGUPSEO_PATH . 'classes/';
+require_once $root . 'autoload.php';
 
 // Setup the plugin.
 $Init = new Init();

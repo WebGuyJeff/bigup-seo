@@ -10,7 +10,7 @@ namespace BigupWeb\Bigup_Seo;
  *
  * @package bigup-seo
  * @author Jefferson Real <me@jeffersonreal.uk>
- * @copyright Copyright (c) 2023, Jefferson Real
+ * @copyright Copyright (c) 2024, Jefferson Real
  * @license GPL3+
  * @link https://jeffersonreal.uk
  */

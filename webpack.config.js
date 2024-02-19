@@ -12,12 +12,12 @@ module.exports = {
 	entry: {
 		// Everything outputs to build/.
 		...getWebpackEntryPoints(),
-		// 'example/output': './path/to/dir/entrypoint.js',
+		'js/bigup-seo': './src/js/bigup-seo.js',
 	},
 	plugins: [
 		...wordpressConfig.plugins,
 		new BrowserSyncPlugin( {
-			proxy: 'localhost:8001', // Live WordPress site. Using IP breaks it.
+			proxy: 'localhost:6969', // Live WordPress site. Using IP breaks it.
 			ui: { port: 3001 }, // BrowserSync UI.
 			port: 3000, // Dev port on localhost.
 			logLevel: 'debug',
