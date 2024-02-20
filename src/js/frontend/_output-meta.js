@@ -32,6 +32,7 @@ const outputMeta = () => {
 		close.innerText = 'Close'
 		close.addEventListener( 'click', () => panel.remove() )
 
+		// Title sort works.
 		titleTags.forEach( ( title ) => {
 			const p = document.createElement( 'p' )
 			const nodeString = title.outerHTML
@@ -39,6 +40,11 @@ const outputMeta = () => {
 			print.appendChild( p )
 		} )
 
+		/*
+		 * Sort by rating (number) causes empty value row to be hidden from the list.
+		 * https://awhitepixel.com/modify-add-custom-columns-post-list-wordpress-admin/#:~:text=The%20filter%20for%20modifying%2C%20removing,filter%20name%20would%20be%20manage_post_posts_columns%20.
+		 * https://wordpress.stackexchange.com/questions/293318/make-custom-column-sortable
+		 */
 		metaTags.forEach( ( meta ) => {
 			const p = document.createElement( 'p' )
 			const nodeString = meta.outerHTML
