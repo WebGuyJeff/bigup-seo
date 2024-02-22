@@ -38,12 +38,12 @@ $Init->setup();
 
 // https://wordpress.stackexchange.com/questions/125712/list-all-pages-including-archive
 
-
+/*
 $pages = get_pages();
 foreach ( $pages as $page ) {
 	echo $page->post_title . "\n";
 }
-
+*/
 
 
 /*

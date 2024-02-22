@@ -17,12 +17,12 @@
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-/*!********************************!*\
-  !*** ./src/css/bigup-seo.scss ***!
-  \********************************/
+/*!**************************************!*\
+  !*** ./src/css/bigup-seo-admin.scss ***!
+  \**************************************/
 __webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
 
 /******/ })()
 ;
-//# sourceMappingURL=bigup-seo.js.map
+//# sourceMappingURL=bigup-seo-admin.js.map

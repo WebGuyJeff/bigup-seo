@@ -98,35 +98,44 @@ class Admin_Settings {
 			$theme_support = get_theme_support( 'title-tag' );
 			echo '<p>Title tag theme support status: ' . ( $theme_support ? 'enabled' : 'disabled' ) . '</p>';
 
-
 			// Get the active tab from the $_GET URL param.
-			$tab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : null;
+			$tab = isset( $_GET['tab'] ) ? $_GET['tab'] : null;
 			?>
 
 			<nav class="nav-tab-wrapper">
 				<a
-					href="?page=<?php echo self::SETTINGSLUG; ?>"
-					class="nav-tab <?php if ( $tab === null ) : ?>nav-tab-active<?php endif; ?>"
-				>
-					General
-				</a>
+					href="?page=<?php echo esc_attr( self::SETTINGSLUG ); ?>"
+					class="nav-tab<?php echo ( null === $tab ) ? esc_attr( ' nav-tab-active' ) : ''; ?>"
+				><?php echo esc_html( __( 'General', 'bigup-seo' ) ); ?></a>
 				<a
-					href="?page=<?php echo self::SETTINGSLUG; ?>&tab=tab-2"
-					class="nav-tab <?php if ( $tab === 'tab-2' ) : ?>nav-tab-active<?php endif; ?>"
-				>
-					Developer
-				</a>
+					href="?page=<?php echo esc_attr( self::SETTINGSLUG ); ?>&tab=tab-2"
+					class="nav-tab<?php echo ( 'tab-2' === $tab ) ? esc_attr( ' nav-tab-active' ) : ''; ?>"
+				><?php echo esc_html( __( 'Sitemap', 'bigup-seo' ) ); ?></a>
+				<a
+					href="?page=<?php echo esc_attr( self::SETTINGSLUG ); ?>&tab=tab-3"
+					class="nav-tab<?php echo ( 'tab-3' === $tab ) ? esc_attr( ' nav-tab-active' ) : ''; ?>"
+				><?php echo esc_html( __( 'Robots', 'bigup-seo' ) ); ?></a>
+				<a
+					href="?page=<?php echo esc_attr( self::SETTINGSLUG ); ?>&tab=tab-4"
+					class="nav-tab<?php echo ( 'tab-4' === $tab ) ? esc_attr( ' nav-tab-active' ) : ''; ?>"
+				><?php echo esc_html( __( 'Developer', 'bigup-seo' ) ); ?></a>
 			</nav>
 
 			<div class="tab-content">
 				<form method="post" action="options.php">
 					<?php
 					switch ( $tab ) :
-						case 'tab-2':
-							Settings_Tab_Two::output_tab();
-							break;
 						default:
-							Settings_Tab_One::output_tab();
+							Settings_Tab_1::output_tab();
+							break;
+						case 'tab-2':
+							Settings_Tab_2::output_tab();
+							break;
+						case 'tab-3':
+							Settings_Tab_3::output_tab();
+							break;
+						case 'tab-4':
+							Settings_Tab_4::output_tab();
 							break;
 					endswitch;
 					?>

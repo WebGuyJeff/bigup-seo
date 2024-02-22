@@ -44,6 +44,22 @@ class Init {
 		add_action( 'after_setup_theme', array( $this, 'ensure_title_tag_theme_support' ), 1, 0 );
 		add_action( 'template_redirect', array( $this, 'do_head_meta_before_wp_head' ), 1, 0 );
 		add_action( 'init', array( $this, 'setup_for_logged_in_admin' ), 10, 0 );
+
+		/*
+		Future enhancement: Add options to the general settings tab to enable/disable the
+		following features. This way we can perform an early check to see if any further
+		processing needs to take place.
+		*/
+
+		// Customise the generated sitemap on all pages.
+		$Sitemap = new Sitemap();
+		$Sitemap->apply_options();
+
+		// Only check for and modify robots.txt when in amdin area to save on front end load.
+		if ( is_admin() ) {
+			$Robots = new Robots();
+			$Robots->apply_options();
+		}
 	}
 
 
@@ -57,8 +73,10 @@ class Init {
 			add_action( 'admin_menu', array( &$this->Settings_Parent, 'register_admin_menu' ), 1, 0 );
 			add_action( 'bigup_settings_dashboard_entry', array( &$this->Settings, 'echo_plugin_settings_link' ), 10, 0 );
 			add_action( 'admin_menu', array( &$this->Settings, 'register_admin_menu' ), 99 );
-			add_action( 'admin_init', array( new Settings_Tab_One(), 'init' ), 10, 0 );
-			add_action( 'admin_init', array( new Settings_Tab_Two(), 'init' ), 10, 0 );
+			add_action( 'admin_init', array( new Settings_Tab_1(), 'init' ), 10, 0 );
+			add_action( 'admin_init', array( new Settings_Tab_2(), 'init' ), 10, 0 );
+			add_action( 'admin_init', array( new Settings_Tab_3(), 'init' ), 10, 0 );
+			add_action( 'admin_init', array( new Settings_Tab_4(), 'init' ), 10, 0 );
 
 			$dev_settings = get_option( 'bigupseo_settings_developer' );
 			if ( $dev_settings && $dev_settings['output_meta'] ) {
@@ -101,6 +119,7 @@ class Init {
 		if ( ! wp_script_is( 'bigup_icons', 'enqueued' ) ) {
 			wp_enqueue_style( 'bigup_icons' );
 		}
+		wp_enqueue_style( 'bigup_seo_admin_css', BIGUPSEO_URL . 'build/css/bigup-seo-admin.css', array(), filemtime( BIGUPSEO_PATH . 'build/css/bigup-seo-admin.css' ), 'all' );
 	}
 
 

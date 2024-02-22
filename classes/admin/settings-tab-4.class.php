@@ -2,14 +2,14 @@
 namespace BigupWeb\Bigup_Seo;
 
 /**
- * Settings Tab Two.
+ * Settings Tab 4.
  *
  * @package bigup-seo
  */
-class Settings_Tab_Two {
+class Settings_Tab_4 {
 
-	public const PAGE   = 'bigupseo_page_tab_two';
-	public const GROUP  = 'bigupseo_group_tab_two';
+	public const PAGE   = 'bigupseo_page_tab_4';
+	public const GROUP  = 'bigupseo_group_tab_4';
 	public const OPTION = 'bigupseo_settings_developer';
 
 	public $settings;
@@ -32,7 +32,7 @@ class Settings_Tab_Two {
 
 		$this->settings = get_option( self::OPTION );
 
-		// A single serialsed array holds all plugin settings.
+		// A single serialised array holds all settings.
 		register_setting(
 			self::GROUP,               // option_group.
 			self::OPTION,              // option_name.
@@ -65,7 +65,7 @@ class Settings_Tab_Two {
 
 
 	/**
-	 * Output generate title tags field.
+	 * Output meta viewer field.
 	 */
 	public function echo_field_output_meta() {
 		$setting = self::OPTION . '[output_meta]';
@@ -88,18 +88,9 @@ class Settings_Tab_Two {
 		$sanitised = array();
 
 		if ( isset( $input['output_meta'] ) ) {
-			$sanitised['output_meta'] = self::sanitise_checkbox( $input['output_meta'] );
+			$sanitised['output_meta'] = Sanitise_Setting::checkbox( $input['output_meta'] );
 		}
 
 		return $sanitised;
-	}
-
-
-	/**
-	 * Sanitise a checkbox.
-	 */
-	private static function sanitise_checkbox( $checkbox ) {
-		$bool_checkbox = (bool) $checkbox;
-		return $bool_checkbox;
 	}
 }

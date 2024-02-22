@@ -14,6 +14,7 @@ module.exports = {
 		...getWebpackEntryPoints(),
 		'js/bigup-seo': './src/js/bigup-seo.js',
 		'css/bigup-seo': './src/css/bigup-seo.scss',
+		'css/bigup-seo-admin': './src/css/bigup-seo-admin.scss',
 	},
 	plugins: [
 		...wordpressConfig.plugins,

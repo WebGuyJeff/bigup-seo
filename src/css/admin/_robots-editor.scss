@@ -1,0 +1,28 @@
+.robotsTxtViewer {
+	--darkFrameColour: var(--wp-admin-theme-color-darker-20);
+	width: 100%;
+	border: solid 2px var(--darkFrameColour);
+	border-radius: 3px;
+
+	&_title {
+		background: var(--darkFrameColour);
+		padding: 5px;
+
+		h2 {
+			color: #fff;
+			margin: 2px 0;
+		}
+	}
+
+	&_controls {
+		padding: 5px;
+	}
+
+	.robotsTxt {
+		width: 100%;
+		height: auto;
+		background: #fff;
+		margin: 0;
+		padding: 10px 5px;
+	}
+}

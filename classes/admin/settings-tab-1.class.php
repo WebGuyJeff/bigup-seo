@@ -2,14 +2,14 @@
 namespace BigupWeb\Bigup_Seo;
 
 /**
- * Settings Tab One.
+ * Settings Tab 1.
  *
  * @package bigup-seo
  */
-class Settings_Tab_One {
+class Settings_Tab_1 {
 
-	public const PAGE   = 'bigupseo_page_tab_one';
-	public const GROUP  = 'bigupseo_group_tab_one';
+	public const PAGE   = 'bigupseo_page_tab_1';
+	public const GROUP  = 'bigupseo_group_tab_1';
 	public const OPTION = 'bigupseo_settings_general';
 
 	public $settings;
@@ -32,7 +32,7 @@ class Settings_Tab_One {
 
 		$this->settings = get_option( self::OPTION );
 
-		// A single serialsed array holds all tab settings.
+		// A single serialised array holds all tab settings.
 		register_setting(
 			self::GROUP,               // option_group.
 			self::OPTION,              // option_name.
@@ -41,6 +41,9 @@ class Settings_Tab_One {
 
 		$this->register_section_general();
 	}
+
+
+	// ================================================================== general settings section ====/
 
 
 	/**
@@ -88,18 +91,9 @@ class Settings_Tab_One {
 		$sanitised = array();
 
 		if ( isset( $input['generate_title_tags'] ) ) {
-			$sanitised['generate_title_tags'] = self::sanitise_checkbox( $input['generate_title_tags'] );
+			$sanitised['generate_title_tags'] = Sanitise_Setting::checkbox( $input['generate_title_tags'] );
 		}
 
 		return $sanitised;
-	}
-
-
-	/**
-	 * Sanitise a checkbox.
-	 */
-	private static function sanitise_checkbox( $checkbox ) {
-		$bool_checkbox = (bool) $checkbox;
-		return $bool_checkbox;
 	}
 }
