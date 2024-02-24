@@ -1,8 +1,9 @@
 .sitemapViewer {
 	--darkFrameColour: var(--wp-admin-theme-color-darker-20);
-	width: 100%;
 	border: solid 2px var(--darkFrameColour);
 	border-radius: 3px;
+	background: #fff;
+	width: 100%;
 
 	&_title {
 		background: var(--darkFrameColour);

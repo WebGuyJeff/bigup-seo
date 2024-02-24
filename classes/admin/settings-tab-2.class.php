@@ -19,6 +19,7 @@ class Settings_Tab_2 {
 	 * Output the content for this tab.
 	 */
 	public static function output_tab() {
+		self::output_tab_intro();
 		settings_fields( self::GROUP );
 		do_settings_sections( self::PAGE );
 		submit_button( 'Save' );
@@ -41,6 +42,37 @@ class Settings_Tab_2 {
 		);
 
 		$this->register_section_toggles();
+	}
+
+
+	/**
+	 * Output the intro for the tab.
+	 */
+	public static function output_tab_intro() {
+		?>
+			<div class="copyWidth">
+				<h2>Configure a Sitemap</h2>
+				<p>These settings allow you to customise the sitemap so that only URLs to the pages
+					you want search engines to index are included.</p>
+				<details>
+					<summary>What is a sitemap?</summary>
+					<p>As Google explains: "A sitemap is a file where you provide information about the pages,
+						videos, and other files on your site, and the relationships between them. Search engines
+						like Google read this file to crawl your site more efficiently."</p>
+					<p>By default, WordPress generates a sitemap of all generated pages. This is a great start,
+						but often the default inclusions aren't appropriate for the website type.</p>
+				</details>
+				<details>
+					<summary>How do I use it?</summary>
+					<p>The generated sitemap can be accessed at
+						<a target="_blank" href="/wp-sitemap.xml">/wp-sitemap.xml</a>.
+						The full URL to the sitemap can be submitted to search engines and others
+						services that you want to employ that have the ability to read a sitemap.
+						For exmaple, you can submit your sitemap to Google Search via a Google
+						Search Console account.</p>
+				</details>
+			</div>
+		<?php
 	}
 
 

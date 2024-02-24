@@ -77,27 +77,12 @@ class Admin_Settings {
 			</h1>
 
 			<p>
-				These settings control Bigup SEO features.
+				These settings control Bigup SEO enhancements.
 			</p>
 
 			<?php settings_errors(); // Display the form save notices here. ?>
 
 			<?php
-			$files = Util::theme_files_contain( '<title' );
-			if ( $files ) {
-				echo '<p>Warning! Your current theme may have the &lt;title&gt; meta tag hard-coded in the following template files:</p>';
-				echo '<ul style="list-style: disc; margin-left: 2em;">';
-				foreach ( $files as $file ) {
-					echo '<li>' . esc_url( $file ) . '</li>';
-				}
-				echo '</ul>';
-				echo '<p>This may cause duplicated tags in your markup, harming your SEO. Please review your theme templates to ensure these tags are not present allowing WordPress to handle their generation instead.</p>';
-			} else {
-				echo "<p>Great! Your current theme doesn't have the &lt;title&gt; meta tag hard-coded in it's template markup. This plugin can safely manage that for you.</p>";
-			}
-			$theme_support = get_theme_support( 'title-tag' );
-			echo '<p>Title tag theme support status: ' . ( $theme_support ? 'enabled' : 'disabled' ) . '</p>';
-
 			// Get the active tab from the $_GET URL param.
 			$tab = isset( $_GET['tab'] ) ? $_GET['tab'] : null;
 			?>
