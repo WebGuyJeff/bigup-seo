@@ -25,12 +25,12 @@ class Robots {
 	/**
 	 * Path of robots.txt.
 	 */
-	private const ROBOTSPATH = ABSPATH . 'robots.txt';
+	public const ROBOTSPATH = ABSPATH . 'robots.txt';
 
 	/**
 	 * Default robots.txt contents.
 	 */
-	private $default_contents;
+	public $default_contents;
 
 	/**
 	 * Populate the class properties.
@@ -51,49 +51,44 @@ class Robots {
 		if ( isset( $settings ) && false !== $settings ) {
 
 			if ( array_key_exists( 'enable_robots', $settings ) && true === $settings['enable_robots'] ) {
-				$this->ensure_robots_txt_file_exists();
+
+
+				/* Convert this setting to enable sitemap in robots.txt */
+				$url     = trailingslashit( get_site_url() );
+				$sitemap = 'Sitemap: ' . $url . 'sitemap.xml';
+
+
+
+				if ( ! self::robots_txt_exists() ) {
+					self::write_robots_txt();
+				}
 			}
 		}
 	}
 
 
 	/**
-	 * Check for and write a robots.txt file if it doesn't already exist.
+	 * Robots.txt exists check.
 	 */
-	public function ensure_robots_txt_file_exists() {
-
-		if ( file_exists( self::ROBOTSPATH ) ) {
-			// File exists.
-
-		} else {
-			// If file doesn't exist, create it with default contents.
-			$robots_txt = fopen( self::ROBOTSPATH, 'w' );
-			if ( ! $robots_txt ) {
-				error_log( 'Unable to open ' . self::ROBOTSPATH );
-				return;
-			}
-			fwrite( $robots_txt, $this->default_contents );
-			fclose( $robots_txt );
-		}
+	public static function robots_txt_exists() {
+		$exists = file_exists( self::ROBOTSPATH );
+		return $exists;
 	}
 
 
 	/**
-	 * Display an iframe of the live sitemap to see changes.
+	 * Write a robots.txt file using default parameters unless they have been passed.
 	 */
-	public static function output_robots_txt_editor() {
-		if ( file_exists( self::ROBOTSPATH ) ) {
-			$robots_contents = Util::get_contents( self::ROBOTSPATH );
-			?>
-				<div class="robotsTxtViewer">
-					<header>
-						<div class="robotsTxtViewer_title">
-							<h2><?php echo esc_html( __( 'Robots.txt editor', 'bigup-seo' ) ); ?></2>
-						</div>
-					</header>
-					<pre class="robotsTxt"><?php echo $robots_contents; ?></pre>
-				</div>
-			<?php
+	public static function write_robots_txt( $contents = null ) {
+		if ( null === $contents ) {
+			$contents = $this->default_contents;
 		}
+		$robots_txt = fopen( self::ROBOTSPATH, 'w' );
+		if ( ! $robots_txt ) {
+			error_log( 'Unable to open ' . self::ROBOTSPATH );
+			return;
+		}
+		fwrite( $robots_txt, $contents );
+		fclose( $robots_txt );
 	}
 }

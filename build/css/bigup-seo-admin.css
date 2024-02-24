@@ -8,6 +8,10 @@
   box-sizing: border-box;
 }
 
+details summary {
+  cursor: pointer;
+}
+
 .copyWidth {
   max-width: 35rem;
 }
@@ -48,6 +52,7 @@
   width: 100%;
   border: solid 2px var(--darkFrameColour);
   border-radius: 3px;
+  background: #fff;
 }
 .robotsTxtViewer_title {
   background: var(--darkFrameColour);
@@ -61,11 +66,13 @@
   padding: 5px;
 }
 .robotsTxtViewer .robotsTxt {
+  display: block;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  padding: 10px 5px;
   width: 100%;
   height: auto;
-  background: #fff;
-  margin: 0;
-  padding: 10px 5px;
 }
 
 /*# sourceMappingURL=bigup-seo-admin.css.map*/

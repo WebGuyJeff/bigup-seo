@@ -52,8 +52,8 @@ class Settings_Tab_2 {
 		?>
 			<div class="copyWidth">
 				<h2>Configure a Sitemap</h2>
-				<p>These settings allow you to customise the sitemap so that only URLs to the pages
-					you want search engines to index are included.</p>
+				<p>Here you can customise the sitemap so that only URLs to the pages you want search
+					engines to index are included.</p>
 				<details>
 					<summary>What is a sitemap?</summary>
 					<p>As Google explains: "A sitemap is a file where you provide information about the pages,
@@ -66,7 +66,7 @@ class Settings_Tab_2 {
 					<summary>How do I use it?</summary>
 					<p>The generated sitemap can be accessed at
 						<a target="_blank" href="/wp-sitemap.xml">/wp-sitemap.xml</a>.
-						The full URL to the sitemap can be submitted to search engines and others
+						The full URL to the sitemap can be submitted to search engines and other
 						services that you want to employ that have the ability to read a sitemap.
 						For exmaple, you can submit your sitemap to Google Search via a Google
 						Search Console account.</p>

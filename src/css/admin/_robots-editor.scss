@@ -3,6 +3,7 @@
 	width: 100%;
 	border: solid 2px var(--darkFrameColour);
 	border-radius: 3px;
+	background: #fff;
 
 	&_title {
 		background: var(--darkFrameColour);
@@ -19,10 +20,12 @@
 	}
 
 	.robotsTxt {
+		display: block; // Remove the margin below textarea.
+		margin: 0;
+		border: none;
+		border-radius: 0;
+		padding: 10px 5px;
 		width: 100%;
 		height: auto;
-		background: #fff;
-		margin: 0;
-		padding: 10px 5px;
 	}
 }

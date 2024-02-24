@@ -41,7 +41,7 @@ class Admin_Settings {
 	public function register_admin_menu() {
 		add_submenu_page(
 			Admin_Settings_Parent::$page_slug,       // parent_slug.
-			self::ADMINLABEL . ' Settings',          // page_title.
+			self::ADMINLABEL,                        // page_title.
 			self::ADMINLABEL,                        // menu_title.
 			'manage_options',                        // capability.
 			self::SETTINGSLUG,                       // menu_slug.
@@ -77,7 +77,7 @@ class Admin_Settings {
 			</h1>
 
 			<p>
-				These settings control Bigup SEO enhancements.
+				Apply SEO enhancements to this website.
 			</p>
 
 			<?php settings_errors(); // Display the form save notices here. ?>
