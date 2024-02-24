@@ -190,6 +190,7 @@ class Settings_Tab_3 {
 			$sanitised['robots_contents'] = Sanitise_Setting::robotstxt( $input['robots_contents'] );
 
 			// Write the file here.
+			// apply_options() TODO: Apply options at this stage, maybe not in plugin init.
 			Robots::write_robots_txt( $sanitised['robots_contents'] );
 		}
 
