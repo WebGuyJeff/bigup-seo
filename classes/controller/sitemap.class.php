@@ -22,6 +22,11 @@ class Sitemap {
 	 */
 	private const OPTION = 'bigupseo_settings_sitemap';
 
+	/**
+	 * Relative path of the sitemap.
+	 */
+	public const SITEMAPURI = 'wp-sitemap.xml';
+
 
 	/**
 	 * Populate the class properties.
@@ -46,6 +51,15 @@ class Sitemap {
 			$url = get_site_url();
 			header( 'Content-Security-Policy: frame-src ' . $url );
 		}
+	}
+
+
+	/**
+	 * Get sitemap path.
+	 */
+	public static function get_url() {
+		$url = trailingslashit( get_site_url() );
+		return $url . self::SITEMAPURI;
 	}
 
 

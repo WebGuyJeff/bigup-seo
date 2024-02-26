@@ -137,29 +137,8 @@ class Settings_Tab_3 {
 	 * Output robots.txt editor field.
 	 */
 	public function echo_field_robots_contents() {
-		$robots_contents = '';
-		$settings        = get_option( self::OPTION );
-		$url             = trailingslashit( get_site_url() );
-
-		// Contents from database.
-		if ( $settings && isset( $settings['robots_contents'] ) && 0 !== strlen( $settings['robots_contents'] ) ) {
-			$file_contents = $settings['robots_contents'];
-
-			// Contents from existing file.
-		} elseif ( Robots::file_exists() ) {
-			$file_contents = Util::get_contents( Robots::ROBOTSPATH );
-
-			// Contents from virtual robots.txt.
-		} elseif ( is_string( Util::get_contents( $url . 'robots.txt' ) ) && 0 !== strlen( Util::get_contents( $url . 'robots.txt' ) ) ) {
-			$file_contents = Util::get_contents( $url . 'robots.txt' );
-
-			// Contents from Robots class fallback.
-		} else {
-			$Robots        = new Robots();
-			$file_contents = $Robots->default_contents;
-		}
-
 		$setting   = self::OPTION . '[robots_contents]';
+		$contents  = Robots::get_contents();
 		printf(
 			'<div class="robotsTxtViewer">' .
 				'<header>' .
@@ -175,7 +154,7 @@ class Settings_Tab_3 {
 			$title = __( 'Robots.txt editor', 'bigup-seo' ),
 			$setting,
 			$setting,
-			$file_contents,
+			$contents,
 		);
 	}
 

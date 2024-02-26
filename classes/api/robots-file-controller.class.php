@@ -24,25 +24,14 @@ class Robots_File_Controller {
 	 */
 	public function bigup_seo_rest_api_robots_callback( WP_REST_Request $request ) {
 
-		// Check header is multipart/form-data.
+		// Check header is JSON.
 		if ( ! str_contains( $request->get_header( 'Content-Type' ), 'application/json' ) ) {
-
-
-			error_log( 'BAD TYPE REACHED' );
-			error_log( $request->get_header( 'Content-Type' ) );
-
-
 			$this->send_json_response( array( 405, 'Unexpected payload content-type' ) );
 			exit; // Request handlers should exit() when done.
 		}
 
-		error_log( 'POINT 2 REACHED' );
-
-		// Get REST data.
-		$json_data = $request->get_body_params();
-		$request   = json_decode( $json_data, true );
-		$action    = $request['action'];
-
+		$data   = $request->get_json_params();
+		$action = $data['action'];
 		$result = '';
 		if ( 'create' === $action ) {
 			$result = Robots::write_file();

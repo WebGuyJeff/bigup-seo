@@ -23,22 +23,21 @@ class Robots {
 	private const OPTION = 'bigupseo_settings_robots';
 
 	/**
-	 * Path of robots.txt.
-	 */
-	public const ROBOTSPATH = ABSPATH . 'robots.txt';
-
-	/**
 	 * Default robots.txt contents.
 	 */
-	public $default_contents;
+	public static $default_contents = "User-agent: *\nAllow: /\nDisallow: /wp-admin/\nDisallow: /wp-includes/\nAllow: /wp-admin/admin-ajax.php\n";
+
+	/**
+	 * Relative path of robots.txt.
+	 */
+	public const ROBOTSRELPATH = 'robots.txt';
+
 
 	/**
 	 * Populate the class properties.
 	 */
 	public function __construct() {
-		$this->settings         = get_option( self::OPTION );
-		$url                    = trailingslashit( get_site_url() );
-		$this->default_contents = "User-agent: *\nAllow: /\nDisallow: /wp-admin/\nDisallow: /wp-includes/\nAllow: /wp-admin/admin-ajax.php\nSitemap: " . $url . 'sitemap.xml';
+		$this->settings = get_option( self::OPTION );
 	}
 
 
@@ -68,10 +67,47 @@ class Robots {
 
 
 	/**
+	 * Get robots.txt path.
+	 */
+	public static function get_path() {
+		return ABSPATH . self::ROBOTSRELPATH;
+	}
+
+
+	/**
+	 * Get robots.txt contents.
+	 */
+	public static function get_contents() {
+		$settings = get_option( 'bigupseo_settings_robots' );
+		$url      = trailingslashit( get_site_url() );
+		$contents = '';
+
+		// From database.
+		if ( $settings && isset( $settings['robots_contents'] ) && 0 !== strlen( $settings['robots_contents'] ) ) {
+			$contents = $settings['robots_contents'];
+
+		// From existing file.
+		} elseif ( self::file_exists() ) {
+			$contents = Util::get_contents( self::get_path() );
+
+		// From virtual robots.txt.
+		} elseif ( is_string( Util::get_contents( $url . 'robots.txt' ) ) && 0 !== strlen( Util::get_contents( $url . 'robots.txt' ) ) ) {
+			$contents = Util::get_contents( $url . 'robots.txt' );
+
+		// From default fallback.
+		} else {
+			$contents = self::default_contents . Sitemap::get_url();
+		}
+
+		return $contents;
+	}
+
+
+	/**
 	 * Robots.txt exists check.
 	 */
 	public static function file_exists() {
-		$exists = file_exists( self::ROBOTSPATH );
+		$exists = file_exists( self::get_path() );
 		return $exists;
 	}
 
@@ -81,16 +117,16 @@ class Robots {
 	 */
 	public static function write_file( $contents = null ) {
 		if ( null === $contents ) {
-			$contents = $this->default_contents;
+			$contents = self::get_contents();
 		}
-		$robots_txt = fopen( self::ROBOTSPATH, 'w' );
+		$robots_txt = fopen( self::get_path(), 'w' );
 		if ( ! $robots_txt ) {
-			error_log( 'Unable to open ' . self::ROBOTSPATH );
+			error_log( 'Unable to open ' . self::get_path() );
 			return;
 		}
 		fwrite( $robots_txt, $contents );
 		fclose( $robots_txt );
-		$created = file_exists();
+		$created = self::file_exists();
 		return $created;
 	}
 
@@ -99,7 +135,7 @@ class Robots {
 	 * Delete the robots.txt file.
 	 */
 	public static function delete_file( $contents = null ) {
-		$deleted = unlink( self::ROBOTSPATH );
+		$deleted = unlink( self::get_path() );
 		return $deleted;
 	}
 }

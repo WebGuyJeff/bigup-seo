@@ -34,23 +34,29 @@ const robotsFileRequests = () => {
 		const fetchOptions = {
 			method: "POST",
 			headers: {
-				"X-WP-Nonce" : restNonce,
-				"Accept"     : "application/json"
+				"X-WP-Nonce"  : restNonce,
+				"Content-Type": "application/json",
+				"Accept"      : "application/json"
 			},
 			body: JSON.stringify( { action: action } ),
 		}
 		const controller = new AbortController()
-		const abort = setTimeout( () => controller.abort(), 14000 )
+		const abort = setTimeout( () => controller.abort(), 6000 )
 
 		try {
 
 			const response = await fetch( restRobotsURL, { ...fetchOptions, signal: controller.signal } )
 			clearTimeout( abort )
 			const result     = await response.json()
-			const fileExists = result.exists
-			if ( ! response.ok ) throw result
-			createButton.disabled = fileExists
-			deleteButton.disabled = ! fileExists
+			const fileExists = result?.exists
+			if ( ! response.ok ) {
+				alert( 'There was an error processing the request. Please try again.' )
+				throw result
+			} else {
+				createButton.disabled = fileExists
+				deleteButton.disabled = ! fileExists
+				location.reload()
+			}
 
 		} catch ( error ) {
 			console.error( error )
