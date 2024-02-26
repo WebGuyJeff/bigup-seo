@@ -10,7 +10,7 @@ namespace BigupWeb\Bigup_Seo;
  * @license GPL3+
  * @link https://jeffersonreal.uk
  */
-class Head_Meta {
+class Head {
 
 	/**
 	 * Meta variables scraped from the website.
