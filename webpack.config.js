@@ -13,6 +13,7 @@ module.exports = {
 		// Everything outputs to build/.
 		...getWebpackEntryPoints(),
 		'js/bigup-seo': './src/js/bigup-seo.js',
+		'js/bigup-seo-admin': './src/js/bigup-seo-admin.js',
 		'css/bigup-seo': './src/css/bigup-seo.scss',
 		'css/bigup-seo-admin': './src/css/bigup-seo-admin.scss',
 	},

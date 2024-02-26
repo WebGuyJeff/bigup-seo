@@ -42,6 +42,8 @@ class Init {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_and_styles' ), 10, 0 );
 		add_filter( 'site_icon_image_sizes', array( $this, 'add_custom_site_icon_sizes' ), 10, 0 );
 		add_action( 'after_setup_theme', array( $this, 'ensure_title_tag_theme_support' ), 1, 0 );
+		add_action( 'rest_api_init', array( $this, 'register_rest_api_routes' ), 10, 0 );
+
 		add_action( 'template_redirect', array( $this, 'do_head_meta_before_wp_head' ), 1, 0 );
 		add_action( 'init', array( $this, 'setup_for_logged_in_admin' ), 10, 0 );
 
@@ -120,6 +122,17 @@ class Init {
 			wp_enqueue_style( 'bigup_icons' );
 		}
 		wp_enqueue_style( 'bigup_seo_admin_css', BIGUPSEO_URL . 'build/css/bigup-seo-admin.css', array(), filemtime( BIGUPSEO_PATH . 'build/css/bigup-seo-admin.css' ), 'all' );
+		wp_enqueue_script( 'bigup_seo_admin_js', BIGUPSEO_URL . 'build/js/bigup-seo-admin.js', array(), filemtime( BIGUPSEO_PATH . 'build/js/bigup-seo-admin.js' ), true );
+		wp_add_inline_script(
+			'bigup_seo_admin_js',
+			'bigupSeoWpInlinedScript' . ' = ' . wp_json_encode(
+				array(
+					'restRobotsURL' => get_rest_url( null, 'bigup/seo/v1/robots' ),
+					'restNonce'     => wp_create_nonce( 'wp_rest' ),
+				)
+			),
+			'before'
+		);
 	}
 
 
@@ -138,5 +151,24 @@ class Init {
 	public function add_custom_site_icon_sizes( $sizes ) {
 		$sizes[] = 96;
 		return $sizes;
+	}
+
+
+	/**
+	 * Register rest api routes.
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/register_rest_route/
+	 */
+	public function register_rest_api_routes() {
+		// Manage robots.txt endpoint.
+		register_rest_route(
+			'bigup/seo/v1',
+			'/robots',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new Robots_File_Controller(), 'bigup_seo_rest_api_robots_callback' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 }

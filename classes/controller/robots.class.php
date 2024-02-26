@@ -59,8 +59,8 @@ class Robots {
 
 
 
-				if ( ! self::robots_txt_exists() ) {
-					self::write_robots_txt();
+				if ( ! self::file_exists() ) {
+					self::write_file();
 				}
 			}
 		}
@@ -70,7 +70,7 @@ class Robots {
 	/**
 	 * Robots.txt exists check.
 	 */
-	public static function robots_txt_exists() {
+	public static function file_exists() {
 		$exists = file_exists( self::ROBOTSPATH );
 		return $exists;
 	}
@@ -79,7 +79,7 @@ class Robots {
 	/**
 	 * Write a robots.txt file using default parameters unless they have been passed.
 	 */
-	public static function write_robots_txt( $contents = null ) {
+	public static function write_file( $contents = null ) {
 		if ( null === $contents ) {
 			$contents = $this->default_contents;
 		}
@@ -90,5 +90,16 @@ class Robots {
 		}
 		fwrite( $robots_txt, $contents );
 		fclose( $robots_txt );
+		$created = file_exists();
+		return $created;
+	}
+
+
+	/**
+	 * Delete the robots.txt file.
+	 */
+	public static function delete_file( $contents = null ) {
+		$deleted = unlink( self::ROBOTSPATH );
+		return $deleted;
 	}
 }

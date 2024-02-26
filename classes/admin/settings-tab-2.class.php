@@ -83,11 +83,11 @@ class Settings_Tab_2 {
 	 */
 	private function register_section_toggles() {
 		$section = 'toggles';
-		add_settings_section( $section, 'Page-type Toggles', array( $this, 'echo_section_intro_toggles' ), self::PAGE );
+		add_settings_section( $section, 'Page exclusions', array( $this, 'echo_section_intro_toggles' ), self::PAGE );
 
-		add_settings_field( 'remove_users', 'Remove all user pages', array( &$this, 'echo_field_remove_users' ), self::PAGE, $section );
-		add_settings_field( 'remove_tags', 'Remove all tag taxonomy pages', array( &$this, 'echo_field_remove_tags' ), self::PAGE, $section );
-		add_settings_field( 'remove_categories', 'Remove all category taxonomy pages', array( &$this, 'echo_field_remove_categories' ), self::PAGE, $section );
+		add_settings_field( 'remove_users', 'User pages', array( &$this, 'echo_field_remove_users' ), self::PAGE, $section );
+		add_settings_field( 'remove_tags', 'Tag pages', array( &$this, 'echo_field_remove_tags' ), self::PAGE, $section );
+		add_settings_field( 'remove_categories', 'Category pages', array( &$this, 'echo_field_remove_categories' ), self::PAGE, $section );
 	}
 
 
@@ -95,7 +95,7 @@ class Settings_Tab_2 {
 	 * Output toggles section intro.
 	 */
 	public function echo_section_intro_toggles() {
-		echo '<p>Enable/disable parts of the sitemap.</p>';
+		echo '<p>Exclude default page-types from the sitemap.</p>';
 	}
 
 
@@ -110,7 +110,7 @@ class Settings_Tab_2 {
 			$setting,
 			isset( $this->settings['remove_users'] ) ? checked( '1', $this->settings['remove_users'], false ) : '',
 			$setting,
-			'Check to remove all user pages from the sitemap'
+			'Check to exclude all user pages'
 		);
 	}
 
@@ -126,7 +126,7 @@ class Settings_Tab_2 {
 			$setting,
 			isset( $this->settings['remove_tags'] ) ? checked( '1', $this->settings['remove_tags'], false ) : '',
 			$setting,
-			'Check to remove all tag taxonomy pages from the sitemap'
+			'Check to exclude all tag taxonomy pages'
 		);
 	}
 
@@ -142,7 +142,7 @@ class Settings_Tab_2 {
 			$setting,
 			isset( $this->settings['remove_categories'] ) ? checked( '1', $this->settings['remove_categories'], false ) : '',
 			$setting,
-			'Check to remove all tag category pages from the sitemap'
+			'Check to exclude all category taxonomy pages'
 		);
 	}
 

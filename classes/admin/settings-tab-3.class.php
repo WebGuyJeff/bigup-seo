@@ -19,13 +19,13 @@ class Settings_Tab_3 {
 	 */
 	public static function output_tab() {
 		self::output_tab_intro();
-		self::output_robots_txt_exists_status();
+		$exists = self::output_robots_txt_file_controls();
 
-		// if ( file_exists( Robots::ROBOTSPATH ) ) {
+		if ( $exists ) {
 			settings_fields( self::GROUP );
 			do_settings_sections( self::PAGE );
 			submit_button( 'Save' );
-		// }
+		}
 	}
 
 
@@ -82,11 +82,16 @@ class Settings_Tab_3 {
 	/**
 	 * Output robots.txt exists status.
 	 */
-	public static function output_robots_txt_exists_status() {
-		echo '<div class="copyWidth">';
-		$exists = Robots::robots_txt_exists();
-		echo '<p>Status of robots.txt file: <span class="inlineStatusOutput">' . ( $exists ? '✅ file exists' : '❌ none detected' ) . '</span></p>';
-		echo '</div>';
+	public static function output_robots_txt_file_controls() {
+		$exists = Robots::file_exists();
+		?>
+			<div class="copyWidth">
+				<p>Status of robots.txt file: <span class="inlineStatusOutput"><?php echo $exists ? '✅ file exists' : '❌ none detected'; ?></span></p>
+				<input type="button" data-action="create" class="button robotsFile" value="Create file" <?php echo $exists ? 'disabled' : ''; ?>>
+				<input type="button" data-action="delete" class="button button-delete robotsFile" value="Delete file" <?php echo ( ! $exists ) ? 'disabled' : ''; ?>>
+			</div>
+		<?php
+		return $exists;
 	}
 
 
@@ -140,21 +145,21 @@ class Settings_Tab_3 {
 		if ( $settings && isset( $settings['robots_contents'] ) && 0 !== strlen( $settings['robots_contents'] ) ) {
 			$file_contents = $settings['robots_contents'];
 
-		// Contents from existing file.
-		} elseif ( Robots::robots_txt_exists() ) {
+			// Contents from existing file.
+		} elseif ( Robots::file_exists() ) {
 			$file_contents = Util::get_contents( Robots::ROBOTSPATH );
 
-		// Contents from virtual robots.txt.
+			// Contents from virtual robots.txt.
 		} elseif ( is_string( Util::get_contents( $url . 'robots.txt' ) ) && 0 !== strlen( Util::get_contents( $url . 'robots.txt' ) ) ) {
 			$file_contents = Util::get_contents( $url . 'robots.txt' );
 
-		// Contents from Robots class fallback.
+			// Contents from Robots class fallback.
 		} else {
 			$Robots        = new Robots();
 			$file_contents = $Robots->default_contents;
 		}
 
-		$setting = self::OPTION . '[robots_contents]';
+		$setting   = self::OPTION . '[robots_contents]';
 		printf(
 			'<div class="robotsTxtViewer">' .
 				'<header>' .
@@ -191,7 +196,7 @@ class Settings_Tab_3 {
 
 			// Write the file here.
 			// apply_options() TODO: Apply options at this stage, maybe not in plugin init.
-			Robots::write_robots_txt( $sanitised['robots_contents'] );
+			Robots::write_file( $sanitised['robots_contents'] );
 		}
 
 		return $sanitised;
