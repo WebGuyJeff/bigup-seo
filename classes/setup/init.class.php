@@ -53,6 +53,14 @@ class Init {
 		}
 	}
 
+	/**
+	 * Load classes required to continue setup. Must be fired after WP is loaded (init hook) but not
+	 * before any hooks included within these dependencies e.g. admin_menu.
+	 */
+	public function load_dependencies() {
+
+	}
+
 
 	/**
 	 * Setup the plugin.
@@ -60,7 +68,8 @@ class Init {
 	public function setup() {
 
 		// DEBUG.
-		$this->meta->get_all_crawlable_pages();
+		// Hook into init late, so CPTs are registered.
+		add_action( 'init', array( &$this->meta, 'get_all_crawlable_pages' ), 10, 99 );
 
 
 		add_filter( 'site_icon_image_sizes', array( $this, 'add_custom_site_icon_sizes' ), 10, 0 );

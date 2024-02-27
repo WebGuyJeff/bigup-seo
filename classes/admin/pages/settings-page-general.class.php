@@ -118,7 +118,7 @@ class Settings_Page_General {
 
 
 	/**
-	 * Sanitise all settings in an array.
+	 * Sanitise all settings in the array.
 	 */
 	public function sanitise( $input ) {
 
