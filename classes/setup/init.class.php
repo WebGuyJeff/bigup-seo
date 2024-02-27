@@ -16,22 +16,41 @@ namespace BigupWeb\Bigup_Seo;
 class Init {
 
 	/**
-	 * Parent settings class.
+	 * Settings for this plugin.
 	 */
-	public $Settings_Parent;
+	public $admin_settings;
+
 
 	/**
-	 * Settings class.
+	 * Bigup sitemap.
 	 */
-	public $Settings;
+	public $sitemap;
+
+
+	/**
+	 * Bigup robots.txt file.
+	 */
+	public $robots;
+
+
+	/**
+	 * Bigup page meta.
+	 */
+	public $meta;
 
 
 	/**
 	 * Populate the class properties.
 	 */
 	public function __construct() {
-		$this->Settings_Parent = new Admin_Settings_Parent();
-		$this->Settings        = new Admin_Settings();
+
+		$this->sitemap = new Sitemap();
+		$this->meta    = new Meta();
+
+		if ( is_admin() ) {
+			// Robots is implimented by a static file, so skip loading class for front-end requests.
+			$this->robots = new Robots();
+		}
 	}
 
 
@@ -39,7 +58,11 @@ class Init {
 	 * Setup the plugin.
 	 */
 	public function setup() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_and_styles' ), 10, 0 );
+
+		// DEBUG.
+		$this->meta->get_all_crawlable_pages();
+
+
 		add_filter( 'site_icon_image_sizes', array( $this, 'add_custom_site_icon_sizes' ), 10, 0 );
 		add_action( 'after_setup_theme', array( $this, 'ensure_title_tag_theme_support' ), 1, 0 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_api_routes' ), 10, 0 );
@@ -54,13 +77,14 @@ class Init {
 		*/
 
 		// Customise the generated sitemap on all pages.
-		$Sitemap = new Sitemap();
-		$Sitemap->apply_options();
+		$this->sitemap->apply_options();
 
-		// Only check for and modify robots.txt when in amdin area to save on front end load.
 		if ( is_admin() ) {
-			$Robots = new Robots();
-			$Robots->apply_options();
+
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_and_styles' ), 10, 0 );
+
+			// Robots is implimented by a static file, so skip loading class for front-end requests.
+			$this->robots->apply_options();
 		}
 	}
 
@@ -68,17 +92,13 @@ class Init {
 	/**
 	 * Setup logged-in admin users.
 	 *
-	 * Must not be called before 'init' hook otherwise current_user_can() will not be loaded.
+	 * Do not call before 'init' hook otherwise current_user_can() will not be available.
 	 */
 	public function setup_for_logged_in_admin() {
 		if ( current_user_can( 'manage_options' ) ) {
-			add_action( 'admin_menu', array( &$this->Settings_Parent, 'register_admin_menu' ), 1, 0 );
-			add_action( 'bigup_settings_dashboard_entry', array( &$this->Settings, 'echo_plugin_settings_link' ), 10, 0 );
-			add_action( 'admin_menu', array( &$this->Settings, 'register_admin_menu' ), 99 );
-			add_action( 'admin_init', array( new Settings_Tab_1(), 'init' ), 10, 0 );
-			add_action( 'admin_init', array( new Settings_Tab_2(), 'init' ), 10, 0 );
-			add_action( 'admin_init', array( new Settings_Tab_3(), 'init' ), 10, 0 );
-			add_action( 'admin_init', array( new Settings_Tab_4(), 'init' ), 10, 0 );
+
+			$this->admin_settings = new Admin_Settings();
+			$this->admin_settings->register();
 
 			$dev_settings = get_option( 'bigupseo_settings_developer' );
 			if ( $dev_settings && $dev_settings['output_meta'] ) {

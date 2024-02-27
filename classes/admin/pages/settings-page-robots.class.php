@@ -6,35 +6,28 @@ namespace BigupWeb\Bigup_Seo;
  *
  * @package bigup-seo
  */
-class Settings_Tab_3 {
+class Settings_Page_Robots {
 
-	public const PAGE   = 'bigupseo_page_tab_3';
-	public const GROUP  = 'bigupseo_group_tab_3';
+	public const PAGE   = 'bigupseo_page_robots';
+	public const GROUP  = 'bigupseo_group_robots';
 	public const OPTION = 'bigupseo_settings_robots';
 
 	public $settings;
 
-	/**
-	 * Output the content for this tab.
-	 */
-	public static function output_tab() {
-		self::output_tab_intro();
-		$exists = self::output_robots_txt_file_controls();
 
-		if ( $exists ) {
-			settings_fields( self::GROUP );
-			do_settings_sections( self::PAGE );
-			submit_button( 'Save' );
-		}
+	/**
+	 * Hook into WP.
+	 */
+	public function __construct() {
+		add_action( 'admin_init', array( &$this, 'register' ), 10, 0 );
 	}
 
 
 	/**
 	 * Register the settings.
 	 */
-	public function init() {
+	public function register() {
 
-		$this->settings = get_option( self::OPTION );
 		$this->settings = get_option( self::OPTION );
 
 		// A single serialised array holds all settings.
@@ -45,6 +38,21 @@ class Settings_Tab_3 {
 		);
 
 		$this->register_section_setup();
+	}
+
+
+	/**
+	 * Output the content for this tab.
+	 */
+	public function output() {
+		self::output_tab_intro();
+		$exists = self::output_robots_txt_file_controls();
+
+		if ( $exists ) {
+			settings_fields( self::GROUP );
+			do_settings_sections( self::PAGE );
+			submit_button( 'Save' );
+		}
 	}
 
 

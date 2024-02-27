@@ -28,11 +28,54 @@ class Admin_Settings {
 
 
 	/**
-	 * Settings group name called by settings_fields().
-	 *
-	 * Option group ID which is set when registering settings for this page.
+	 * Bigup Web parent menu item and dashboard.
 	 */
-	public $group_name = 'group_bigup-seo_settings';
+	private $admin_settings_parent;
+
+
+	/**
+	 * Settings page: General.
+	 */
+	private $settings_page_general;
+
+	/**
+	 * Settings page: Sitemap.
+	 */
+	private $settings_page_sitemap;
+
+
+	/**
+	 * Settings page: Robots.
+	 */
+	private $settings_page_robots;
+
+
+	/**
+	 * Settings page: Developer.
+	 */
+	private $settings_page_developer;
+
+
+	/**
+	 * Setup the class.
+	 */
+	public function __construct() {
+		$this->admin_settings_parent   = new Admin_Settings_Parent();
+		$this->settings_page_general   = new Settings_Page_General();
+		$this->settings_page_sitemap   = new Settings_Page_Sitemap();
+		$this->settings_page_robots    = new Settings_Page_Robots();
+		$this->settings_page_developer = new Settings_Page_Developer();
+	}
+
+
+	/**
+	 * Register the admin menu and settings pages.
+	 */
+	public function register() {
+		add_action( 'admin_menu', array( &$this->admin_settings_parent, 'register_admin_menu' ), 1, 0 );
+		add_action( 'bigup_settings_dashboard_entry', array( &$this, 'echo_plugin_settings_link' ), 10, 0 );
+		add_action( 'admin_menu', array( &$this, 'register_admin_menu' ), 99 );
+	}
 
 
 	/**
@@ -40,13 +83,13 @@ class Admin_Settings {
 	 */
 	public function register_admin_menu() {
 		add_submenu_page(
-			Admin_Settings_Parent::$page_slug,       // parent_slug.
-			self::ADMINLABEL,                        // page_title.
-			self::ADMINLABEL,                        // menu_title.
-			'manage_options',                        // capability.
-			self::SETTINGSLUG,                       // menu_slug.
-			array( &$this, 'create_settings_page' ), // function.
-			null,                                    // position.
+			$this->admin_settings_parent::$page_slug, // parent_slug.
+			self::ADMINLABEL,                         // page_title.
+			self::ADMINLABEL,                         // menu_title.
+			'manage_options',                         // capability.
+			self::SETTINGSLUG,                        // menu_slug.
+			array( &$this, 'create_settings_page' ),  // function.
+			null,                                     // position.
 		);
 	}
 
@@ -111,16 +154,16 @@ class Admin_Settings {
 					<?php
 					switch ( $tab ) :
 						default:
-							Settings_Tab_1::output_tab();
+							$this->settings_page_general->output();
 							break;
 						case 'tab-2':
-							Settings_Tab_2::output_tab();
+							$this->settings_page_sitemap->output();
 							break;
 						case 'tab-3':
-							Settings_Tab_3::output_tab();
+							$this->settings_page_robots->output();
 							break;
 						case 'tab-4':
-							Settings_Tab_4::output_tab();
+							$this->settings_page_developer->output();
 							break;
 					endswitch;
 					?>

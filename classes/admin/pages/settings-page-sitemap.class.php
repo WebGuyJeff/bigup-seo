@@ -6,31 +6,27 @@ namespace BigupWeb\Bigup_Seo;
  *
  * @package bigup-seo
  */
-class Settings_Tab_2 {
+class Settings_Page_Sitemap {
 
-	public const PAGE   = 'bigupseo_page_tab_2';
-	public const GROUP  = 'bigupseo_group_tab_2';
+	public const PAGE   = 'bigupseo_page_sitemap';
+	public const GROUP  = 'bigupseo_group_sitemap';
 	public const OPTION = 'bigupseo_settings_sitemap';
 
 	public $settings;
 
 
 	/**
-	 * Output the content for this tab.
+	 * Hook into WP.
 	 */
-	public static function output_tab() {
-		self::output_tab_intro();
-		settings_fields( self::GROUP );
-		do_settings_sections( self::PAGE );
-		submit_button( 'Save' );
-		Sitemap::output_live_sitemap_viewer();
+	public function __construct() {
+		add_action( 'admin_init', array( &$this, 'register' ), 10, 0 );
 	}
 
 
 	/**
 	 * Register the settings.
 	 */
-	public function init() {
+	public function register() {
 
 		$this->settings = get_option( self::OPTION );
 
@@ -42,6 +38,18 @@ class Settings_Tab_2 {
 		);
 
 		$this->register_section_toggles();
+	}
+
+
+	/**
+	 * Output the content for this tab.
+	 */
+	public function output() {
+		self::output_tab_intro();
+		settings_fields( self::GROUP );
+		do_settings_sections( self::PAGE );
+		submit_button( 'Save' );
+		Sitemap::output_live_sitemap_viewer();
 	}
 
 

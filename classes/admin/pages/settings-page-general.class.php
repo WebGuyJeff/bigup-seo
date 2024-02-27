@@ -6,30 +6,27 @@ namespace BigupWeb\Bigup_Seo;
  *
  * @package bigup-seo
  */
-class Settings_Tab_1 {
+class Settings_Page_General {
 
-	public const PAGE   = 'bigupseo_page_tab_1';
-	public const GROUP  = 'bigupseo_group_tab_1';
+	public const PAGE   = 'bigupseo_page_general';
+	public const GROUP  = 'bigupseo_group_general';
 	public const OPTION = 'bigupseo_settings_general';
 
 	public $settings;
 
 
 	/**
-	 * Output the content for this tab.
+	 * Hook into WP.
 	 */
-	public static function output_tab() {
-		self::output_theme_template_title_tag_status();
-		settings_fields( self::GROUP );
-		do_settings_sections( self::PAGE );
-		submit_button( 'Save' );
+	public function __construct() {
+		add_action( 'admin_init', array( &$this, 'register' ), 10, 0 );
 	}
 
 
 	/**
 	 * Register the settings.
 	 */
-	public function init() {
+	public function register() {
 
 		$this->settings = get_option( self::OPTION );
 
@@ -41,6 +38,17 @@ class Settings_Tab_1 {
 		);
 
 		$this->register_section_general();
+	}
+
+
+	/**
+	 * Output the content for this tab.
+	 */
+	public function output() {
+		self::output_theme_template_title_tag_status();
+		settings_fields( self::GROUP );
+		do_settings_sections( self::PAGE );
+		submit_button( 'Save' );
 	}
 
 
@@ -69,7 +77,7 @@ class Settings_Tab_1 {
 	}
 
 
-	// ================================================================== general settings section ====/
+	// ============================================================== general settings section ====/
 
 
 	/**
