@@ -18,15 +18,20 @@ class Meta {
 	private $settings;
 
 	/**
-	 * All crawlable web pages.
+	 * The content types for which WP will generate pages.
 	 */
-	private $crawlables;
+	private $providers = array();
 
 
 	/**
 	 * Populate the class properties.
 	 */
-	public function __construct() {}
+	public function __construct() {
+
+		// Hook into init late, so CPTs are registered.
+		add_action( 'init', array( $this, 'set_providers' ), 10, 99 );
+
+	}
 
 
 	/**
@@ -48,7 +53,7 @@ class Meta {
 	 * Get non-empty taxonomy terms.
 	 */
 	public function get_terms( $taxonomy ) {
-		$args = array(
+		$args     = array(
 			'taxonomy'               => $taxonomy,
 			'orderby'                => 'term_order',
 			'hide_empty'             => true,
@@ -96,9 +101,9 @@ class Meta {
 		unset( $public_post_types['attachment'] );
 		unset( $public_post_types['page'] );
 
-		$args = array( 'has_published_posts' => array_keys( $public_post_types ) );
+		$args     = array( 'has_published_posts' => array_keys( $public_post_types ) );
 		$wp_users = get_users( $args );
-		$users = array();
+		$users    = array();
 		foreach ( $wp_users as $user ) {
 			$users[ $user->display_name ] = array(
 				'id' => $user->ID,
@@ -140,11 +145,11 @@ class Meta {
 
 
 	/**
-	 * Get all crawlable web pages.
+	 * Get providers.
 	 */
-	public function get_all_crawlable_pages() {
+	public function set_providers() {
 
-		$providers = array(
+		$this->providers = array(
 			'taxonomies' => $this->get_taxonomies_with_terms(),
 			'users'      => $this->get_users(),
 			'post_types' => $this->get_post_types(),
@@ -156,6 +161,5 @@ class Meta {
 		var_dump( $providers );
 		echo '</pre>';
 		*/
-
 	}
 }

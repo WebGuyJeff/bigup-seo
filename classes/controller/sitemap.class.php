@@ -33,24 +33,6 @@ class Sitemap {
 	 */
 	public function __construct() {
 		$this->settings = get_option( self::OPTION );
-		add_filter( 'init', array( $this, 'set_http_headers' ) );
-	}
-
-
-	/**
-	 * Set http headers.
-	 *
-	 * Using wp_headers hook didn't seem to work in admin.
-	 */
-	public function set_http_headers( $headers ) {
-		// Check if we're in this plugin's admin pages.
-		$request_uri      = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
-		$plugin_admin_uri = '/wp-admin/admin.php?page=bigup-seo-settings';
-		if ( str_contains( $request_uri, $plugin_admin_uri ) ) {
-			// With the CSP header we restrict iframe sources to this site only.
-			$url = get_site_url();
-			header( 'Content-Security-Policy: frame-src ' . $url );
-		}
 	}
 
 
@@ -90,9 +72,14 @@ class Sitemap {
 	 * Remove users (aka authors) from sitemap.
 	 */
 	public function remove_users() {
-		add_filter( 'wp_sitemaps_add_provider', function ( $provider, $name ) {
+		add_filter(
+			'wp_sitemaps_add_provider',
+			function ( $provider, $name ) {
 				return ( $name == 'users' ) ? false : $provider;
-		}, 10, 2 );
+			},
+			10,
+			2
+		);
 	}
 
 
@@ -100,10 +87,15 @@ class Sitemap {
 	 * Remove tags taxonomy from sitemap.
 	 */
 	public function remove_tags() {
-		add_filter( 'wp_sitemaps_taxonomies', function ( $taxonomies ) {
-			unset( $taxonomies['post_tag'] );
-			return $taxonomies;
-		} );
+		add_filter(
+			'wp_sitemaps_taxonomies',
+			function ( $taxonomies ) {
+				unset( $taxonomies['post_tag'] );
+				return $taxonomies;
+			},
+			10,
+			1
+		);
 	}
 
 
@@ -111,29 +103,14 @@ class Sitemap {
 	 * Remove categories taxonomy from sitemap.
 	 */
 	public function remove_categories() {
-		add_filter( 'wp_sitemaps_taxonomies', function ( $taxonomies ) {
-			unset( $taxonomies['category'] );
-			return $taxonomies;
-		} );
-	}
-
-
-	/**
-	 * Display an iframe of the live sitemap to see changes.
-	 */
-	public static function output_live_sitemap_viewer() {
-		?>
-			<div class="sitemapViewer">
-				<header>
-					<div class="sitemapViewer_title">
-						<h2><?php echo esc_html( __( 'Live Sitemap Viewer', 'bigup-seo' ) ); ?></h2>
-					</div>
-					<div class="sitemapViewer_controls">
-						<input type="button" class="button" value="Back" onclick="sitemapIframe.history.back()">
-					</div>
-				</header>
-				<iframe name="sitemapIframe" src="/wp-sitemap.xml" title="WP Sitemap"></iframe>
-			</div>
-		<?php
+		add_filter(
+			'wp_sitemaps_taxonomies',
+			function ( $taxonomies ) {
+				unset( $taxonomies['category'] );
+				return $taxonomies;
+			},
+			10,
+			1
+		);
 	}
 }

@@ -44,6 +44,12 @@ class Init {
 	 */
 	public function __construct() {
 
+
+		add_action( 'init', array( $this, 'test' ), 10, 0 );
+
+
+
+
 		$this->sitemap = new Sitemap();
 		$this->meta    = new Meta();
 
@@ -53,12 +59,9 @@ class Init {
 		}
 	}
 
-	/**
-	 * Load classes required to continue setup. Must be fired after WP is loaded (init hook) but not
-	 * before any hooks included within these dependencies e.g. admin_menu.
-	 */
-	public function load_dependencies() {
 
+	public function test() {
+		Admin_Settings::is_plugin_settings_page();
 	}
 
 
@@ -66,11 +69,6 @@ class Init {
 	 * Setup the plugin.
 	 */
 	public function setup() {
-
-		// DEBUG.
-		// Hook into init late, so CPTs are registered.
-		add_action( 'init', array( &$this->meta, 'get_all_crawlable_pages' ), 10, 99 );
-
 
 		add_filter( 'site_icon_image_sizes', array( $this, 'add_custom_site_icon_sizes' ), 10, 0 );
 		add_action( 'after_setup_theme', array( $this, 'ensure_title_tag_theme_support' ), 1, 0 );

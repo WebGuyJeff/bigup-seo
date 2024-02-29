@@ -32,6 +32,3 @@ require_once $root . 'autoload.php';
 // Setup the plugin.
 $Init = new Init();
 $Init->setup();
-
-
-//Meta::get_all_crawlable_pages();

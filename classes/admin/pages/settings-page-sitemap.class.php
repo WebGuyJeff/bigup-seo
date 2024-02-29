@@ -19,6 +19,8 @@ class Settings_Page_Sitemap {
 	 * Hook into WP.
 	 */
 	public function __construct() {
+		// Check hook.
+		//add_action( 'admin_init', array( &$this, 'set_http_header_to_restrict_frame_source' ), 10, 0 );
 		add_action( 'admin_init', array( &$this, 'register' ), 10, 0 );
 	}
 
@@ -45,18 +47,18 @@ class Settings_Page_Sitemap {
 	 * Output the content for this tab.
 	 */
 	public function output() {
-		self::output_tab_intro();
+		$this->output_tab_intro();
 		settings_fields( self::GROUP );
 		do_settings_sections( self::PAGE );
 		submit_button( 'Save' );
-		Sitemap::output_live_sitemap_viewer();
+		$this->output_live_sitemap_viewer();
 	}
 
 
 	/**
 	 * Output the intro for the tab.
 	 */
-	public static function output_tab_intro() {
+	public function output_tab_intro() {
 		?>
 			<div class="copyWidth">
 				<h2>Configure a Sitemap</h2>
@@ -175,5 +177,38 @@ class Settings_Page_Sitemap {
 		}
 
 		return $sanitised;
+	}
+
+
+	/**
+	 * Display an iframe of the live sitemap to see changes.
+	 */
+	public function output_live_sitemap_viewer() {
+		?>
+			<div class="sitemapViewer">
+				<header>
+					<div class="sitemapViewer_title">
+						<h2><?php echo esc_html( __( 'Live Sitemap Viewer', 'bigup-seo' ) ); ?></h2>
+					</div>
+					<div class="sitemapViewer_controls">
+						<input type="button" class="button" value="Back" onclick="sitemapIframe.history.back()">
+					</div>
+				</header>
+				<iframe name="sitemapIframe" src="/wp-sitemap.xml" title="WP Sitemap"></iframe>
+			</div>
+		<?php
+	}
+
+
+	/**
+	 * Restrict iframe sources to this site only.
+	 *
+	 * Must call is_plugin_settings_page() before headers are sent.
+	 */
+	public function set_http_header_to_restrict_frame_source() {
+		if ( Admin_Settings::is_plugin_settings_page() ) {
+			$url = get_site_url();
+			header( 'Content-Security-Policy: frame-src ' . $url );
+		}
 	}
 }
