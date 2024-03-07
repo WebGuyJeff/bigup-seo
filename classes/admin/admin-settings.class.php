@@ -180,6 +180,7 @@ class Admin_Settings {
 	 */
 	public static function is_plugin_settings_page() {
 
+		/*
 		$request_uri = '';
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 			$request_uri = $_SERVER['REQUEST_URI'];
@@ -193,6 +194,7 @@ class Admin_Settings {
 			error_log( $request_uri );
 
 		}
+		*/
 
 		/*
 		error_log( 'START ############################' );
