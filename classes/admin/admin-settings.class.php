@@ -184,19 +184,17 @@ class Admin_Settings {
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 			$request_uri = $_SERVER['REQUEST_URI'];
 
-
 			error_log( $request_uri );
 
 		} else {
 			global $wp;
 			$request_uri = add_query_arg( $wp->query_vars, home_url( $wp->request ) );
 
-
 			error_log( $request_uri );
 
 		}
 
-
+		/*
 		error_log( 'START ############################' );
 
 		global $wp;
@@ -204,9 +202,7 @@ class Admin_Settings {
 		error_log( add_query_arg( $wp->query_vars ) );
 		error_log( $wp->request );
 		error_log( 'END ############################' );
-
-
-
+		*/
 
 		$plugin_admin_uri = '/wp-admin/admin.php?page=' . self::SETTINGSLUG;
 		$is_settings_page = str_contains( $request_uri, $plugin_admin_uri );
