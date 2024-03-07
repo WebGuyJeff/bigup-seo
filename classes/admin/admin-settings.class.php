@@ -180,21 +180,19 @@ class Admin_Settings {
 	 */
 	public static function is_plugin_settings_page() {
 
-		/*
 		$request_uri = '';
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 			$request_uri = $_SERVER['REQUEST_URI'];
 
-			error_log( $request_uri );
+			// error_log( $request_uri );
 
 		} else {
 			global $wp;
 			$request_uri = add_query_arg( $wp->query_vars, home_url( $wp->request ) );
 
-			error_log( $request_uri );
+			// error_log( $request_uri );
 
 		}
-		*/
 
 		/*
 		error_log( 'START ############################' );
