@@ -57,17 +57,14 @@ class Meta {
 			# Goal 3: Hook the metadata into the head of each page on load.
 		*/
 
-
-
 		$this->providers = $this->get_providers();
 
-
-
 		// DEBUG.
-		echo '<pre style="z-index:9999;background:#fff;position:fixed;right:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
-		var_dump( $this->providers );
-		echo '</pre>';
-
+		if ( is_admin() ) {
+			echo '<pre style="z-index:9999;background:#fff;position:fixed;right:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			var_dump( $this->providers );
+			echo '</pre>';
+		}
 	}
 
 
