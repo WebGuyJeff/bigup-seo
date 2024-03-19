@@ -19,8 +19,7 @@ class Settings_Page_Sitemap {
 	 * Hook into WP.
 	 */
 	public function __construct() {
-		// Check hook.
-		//add_action( 'admin_init', array( &$this, 'set_http_header_to_restrict_frame_source' ), 10, 0 );
+		add_action( 'admin_init', array( &$this, 'set_http_header_to_restrict_frame_source' ), 10, 0 );
 		add_action( 'admin_init', array( &$this, 'register' ), 10, 0 );
 	}
 
@@ -202,13 +201,19 @@ class Settings_Page_Sitemap {
 
 	/**
 	 * Restrict iframe sources to this site only.
-	 *
-	 * Must call is_plugin_settings_page() before headers are sent.
+	 * 
+	 * Must be called before headers are sent.
 	 */
 	public function set_http_header_to_restrict_frame_source() {
-		if ( Admin_Settings::is_plugin_settings_page() ) {
-			$url = get_site_url();
-			header( 'Content-Security-Policy: frame-src ' . $url );
-		}
+		add_action( 'current_screen',
+			function( $current_screen ) {
+				if( str_contains( $current_screen->base, Admin_Settings::SETTINGSLUG ) ) {
+					$url = get_site_url();
+					header( 'Content-Security-Policy: frame-src ' . $url );
+				};
+			},
+			10,
+			1
+		);
 	}
 }

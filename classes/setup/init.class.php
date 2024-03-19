@@ -43,13 +43,6 @@ class Init {
 	 * Populate the class properties.
 	 */
 	public function __construct() {
-
-
-		add_action( 'init', array( $this, 'test' ), 10, 0 );
-
-
-
-
 		$this->sitemap = new Sitemap();
 		$this->meta    = new Meta();
 
@@ -57,11 +50,6 @@ class Init {
 			// Robots is implimented by a static file, so skip loading class for front-end requests.
 			$this->robots = new Robots();
 		}
-	}
-
-
-	public function test() {
-		Admin_Settings::is_plugin_settings_page();
 	}
 
 
@@ -75,7 +63,7 @@ class Init {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api_routes' ), 10, 0 );
 
 		add_action( 'template_redirect', array( $this, 'do_head_meta_before_wp_head' ), 1, 0 );
-		add_action( 'init', array( $this, 'setup_for_logged_in_admin' ), 10, 0 );
+		add_action( 'widgets_init', array( $this, 'setup_for_logged_in_admin' ), 999, 0 );
 
 		/*
 		Future enhancement: Add options to the general settings tab to enable/disable the
@@ -100,6 +88,7 @@ class Init {
 	 * Setup logged-in admin users.
 	 *
 	 * Do not call before 'init' hook otherwise current_user_can() will not be available.
+	 * Do not call after 'widgets_init' otherwise admin pages will not be loaded.
 	 */
 	public function setup_for_logged_in_admin() {
 		if ( current_user_can( 'manage_options' ) ) {
