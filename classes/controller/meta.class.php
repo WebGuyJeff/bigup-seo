@@ -18,46 +18,53 @@ class Meta {
 	private $settings;
 
 	/**
-	 * The content types for which WP will generate pages.
+	 * Content providers for which WP will generate pages.
 	 */
 	private $providers = array();
+
+	/**
+	 * The page types we want to expose.
+	 */
+	private const PAGE_TYPES = array( 'home', 'blog', 'posts', 'archives' );
+
+	/**
+	 * The pages.
+	 */
+	private $pages = array();
 
 
 	/**
 	 * Hook the setup method.
 	 */
 	public function __construct() {
-
 		add_action( 'init', array( $this, 'setup' ), 10, 0 );
+		add_action( 'template_redirect', array( $this, 'do_head_meta' ), 1, 0 );
 	}
 
 
 	/**
 	 * Setup SEO metadata functionality.
+	 *
+	 * # Step 1: Get a list of all website pages that a user may want to set SEO meta on.
+	 *
+	 * Pages types:
+	 *
+	 * - Front Page
+	 * - Blog Index
+	 * - Posts ( page/post/CPT)
+	 * - Archives ( post, category, taxonomy, tag, user )
+	 *
+	 * # Step 2: Generate settings for every page for user to set metadata.
+	 *
+	 * # Step 3: Hook the metadata into the head of each page on load.
 	 */
 	public function setup() {
 
-		/*
-			# Goal 1: Get a list of all website pages that a user may want to set SEO meta on.
-
-			Pages types:
-
-			- Archive Pages
-				- Post
-				- Category
-				- Taxonomy
-				- Tag
-			- Post pages ( page/post/CPT)
-			- User Pages
-			- Front Page
-			- Blog Index
-
-			# Goal 2: Generate settings for every page where user can set metadata.
-
-			# Goal 3: Hook the metadata into the head of each page on load.
-		*/
-
-		$this->providers = $this->get_providers();
+		$this->providers = array(
+			'taxonomies' => $this->get_taxonomies_with_terms(),
+			'post_types' => $this->get_post_types(),
+			'users'      => $this->get_users(),
+		);
 
 		// DEBUG.
 		if ( is_admin() ) {
@@ -65,6 +72,63 @@ class Meta {
 			var_dump( $this->providers );
 			echo '</pre>';
 		}
+
+		foreach ( self::PAGE_TYPES as $type ) {
+
+			$pages = array();
+			switch ( $type ) {
+
+				case 'home':
+					break;
+
+				case 'blog':
+					break;
+
+				case 'posts':
+					break;
+
+				case 'archives':
+					break;
+
+				default:
+					error_log( "Bigup SEO: Page type {$type} not found." );
+					break;
+			}
+
+			$this->pages[ $type ] = $pages;
+		}
+
+		// DEBUG.
+		if ( is_admin() ) {
+			echo '<pre style="z-index:9999;background:#fff;position:fixed;left:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			// var_dump( $this->providers );
+			echo '</pre>';
+		}
+
+	}
+
+
+	/**
+	 * Hook into wp_head to add meta and modify title tags.
+	 *
+	 * Head must be instantiated after the wp query and before the 'wp_head' hook.
+	 *
+	 * Removing theme support 'title-tag' and 'wp_head' title action in order to implement our own
+	 * was unreliable, so we're filtering the WP core document_title instead.
+	 */
+	public function do_head_meta() {
+		$Head = new Head();
+		add_filter( 'document_title', array( &$Head, 'get_title_tag_text' ), 1 );
+		add_action( 'wp_head', array( &$Head, 'print_markup' ), 2, 0 );
+
+
+		// 1. Get the current page.
+		$this->get_current_page_type();
+
+		// 2. Check for a saved title in setting.
+
+		// 3. Apply the title filter.
+
 	}
 
 
@@ -181,13 +245,29 @@ class Meta {
 
 
 	/**
-	 * Get providers.
+	 * Get the current page type.
 	 */
-	public function get_providers() {
-		return array(
-			'taxonomies' => $this->get_taxonomies_with_terms(),
-			'users'      => $this->get_users(),
-			'post_types' => $this->get_post_types(),
-		);
+	private function get_current_page_type() {
+		if ( is_post_type_archive() ) {
+			return 'post_archive';
+		} elseif ( is_tax() ) {
+			if ( is_category() ) {
+				return 'category';
+			} elseif ( is_tag() ) {
+				return 'tag';
+			} else {
+				return 'custom-taxonomy';
+			}
+		} elseif ( is_author() ) {
+			return 'author';
+		} elseif ( is_single() ) {
+			return 'post';
+		} elseif ( is_page() ) {
+			return 'page';
+		} elseif ( is_front_page() ) {
+			return 'front-page';
+		} elseif ( is_home() ) {
+			return 'blog-index';
+		}
 	}
 }

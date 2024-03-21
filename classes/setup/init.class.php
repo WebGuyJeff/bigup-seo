@@ -61,8 +61,6 @@ class Init {
 		add_filter( 'site_icon_image_sizes', array( $this, 'add_custom_site_icon_sizes' ), 10, 0 );
 		add_action( 'after_setup_theme', array( $this, 'ensure_title_tag_theme_support' ), 1, 0 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_api_routes' ), 10, 0 );
-
-		add_action( 'template_redirect', array( $this, 'do_head_meta_before_wp_head' ), 1, 0 );
 		add_action( 'widgets_init', array( $this, 'setup_for_logged_in_admin' ), 999, 0 );
 
 		/*
@@ -109,21 +107,6 @@ class Init {
 	 */
 	public function ensure_title_tag_theme_support() {
 		add_theme_support( 'title-tag' );
-	}
-
-
-	/**
-	 * Hook into wp_head to add meta and modify title tags.
-	 *
-	 * Head must be instantiated between the wp query and 'wp_head' hook.
-	 *
-	 * Removing theme sopport 'title-tag' and wp_head title action was unreliable, so now we're
-	 * filtering the core document_title instead.
-	 */
-	public function do_head_meta_before_wp_head() {
-		$Head = new Head();
-		add_filter( 'document_title', array( &$Head, 'get_title_tag_text' ), 1 );
-		add_action( 'wp_head', array( &$Head, 'print_markup' ), 2, 0 );
 	}
 
 
