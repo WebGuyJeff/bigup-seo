@@ -25,7 +25,17 @@ class Meta {
 	/**
 	 * The page types we want to expose.
 	 */
-	private const PAGE_TYPES = array( 'home', 'blog', 'posts', 'archives' );
+	private const PAGE_TYPES = array(
+		'front_page',
+		'blog_index',
+		'page',
+		'post',
+		'post_archive',
+		'category',
+		'tag',
+		'custom_taxonomy',
+		'author',
+	);
 
 	/**
 	 * The pages.
@@ -66,6 +76,8 @@ class Meta {
 			'users'      => $this->get_users(),
 		);
 
+		$this->pages = $this->get_all_page_ids( $this->providers );
+
 		// DEBUG.
 		if ( is_admin() ) {
 			echo '<pre style="z-index:9999;background:#fff;position:fixed;right:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
@@ -73,38 +85,12 @@ class Meta {
 			echo '</pre>';
 		}
 
-		foreach ( self::PAGE_TYPES as $type ) {
-
-			$pages = array();
-			switch ( $type ) {
-
-				case 'home':
-					break;
-
-				case 'blog':
-					break;
-
-				case 'posts':
-					break;
-
-				case 'archives':
-					break;
-
-				default:
-					error_log( "Bigup SEO: Page type {$type} not found." );
-					break;
-			}
-
-			$this->pages[ $type ] = $pages;
-		}
-
 		// DEBUG.
 		if ( is_admin() ) {
 			echo '<pre style="z-index:9999;background:#fff;position:fixed;left:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
-			// var_dump( $this->providers );
+			var_dump( $this->pages );
 			echo '</pre>';
 		}
-
 	}
 
 
@@ -117,10 +103,14 @@ class Meta {
 	 * was unreliable, so we're filtering the WP core document_title instead.
 	 */
 	public function do_head_meta() {
+
+		// ORIGINAL FUNCTIONALITY.
+
 		$Head = new Head();
 		add_filter( 'document_title', array( &$Head, 'get_title_tag_text' ), 1 );
 		add_action( 'wp_head', array( &$Head, 'print_markup' ), 2, 0 );
 
+		// NEW TITLE FUNCTIONALITY.
 
 		// 1. Get the current page.
 		$this->get_current_page_type();
@@ -128,7 +118,6 @@ class Meta {
 		// 2. Check for a saved title in setting.
 
 		// 3. Apply the title filter.
-
 	}
 
 
@@ -151,7 +140,7 @@ class Meta {
 	 * Get non-empty taxonomy terms.
 	 */
 	public function get_terms( $taxonomy ) {
-		$args     = array(
+		$args  = array(
 			'taxonomy'               => $taxonomy,
 			'orderby'                => 'term_order',
 			'hide_empty'             => true,
@@ -159,8 +148,8 @@ class Meta {
 			'update_term_meta_cache' => false,
 			'fields'                 => 'all',
 		);
-		$wp_terms = new get_terms( $args );
-		return $wp_terms;
+		$terms = new get_terms( $args );
+		return $terms;
 	}
 
 
@@ -168,20 +157,19 @@ class Meta {
 	 * Get taxonomies with terms.
 	 */
 	public function get_taxonomies_with_terms() {
-		$taxonomies = $this->get_taxonomies();
-		foreach ( $taxonomies as $taxonomy ) {
-			$taxonomies[ $taxonomy ] = array( 'terms' => array() );
+		foreach ( $this->get_taxonomies() as $taxonomy ) {
+			$taxonomies[ $taxonomy ] = array();
 
-			$wp_terms = get_terms( $taxonomy );
-			foreach ( $wp_terms as $term ) {
+			$terms = get_terms( $taxonomy );
+			foreach ( $terms as $term ) {
 
-				$taxonomies[ $taxonomy ]['terms'][ $term->name ] = array(
+				$taxonomies[ $taxonomy ][ $term->name ] = array(
 					'id' => $term->term_taxonomy_id,
 				);
 			}
 
 			// Exclude taxonomy if it has no terms.
-			if ( empty( $taxonomies[ $taxonomy ]['terms'] ) ) {
+			if ( empty( $taxonomies[ $taxonomy ] ) ) {
 				unset( $taxonomies[ $taxonomy ] );
 			}
 		}
@@ -244,11 +232,103 @@ class Meta {
 	}
 
 
+
+	/**
+	 * Get IDs or slugs for all pages.
+	 */
+	private function get_all_page_ids( $providers ) {
+
+		$site_pages = array();
+		foreach ( self::PAGE_TYPES as $type ) {
+
+			$pages = array();
+			switch ( $type ) {
+
+				case 'front_page':
+					$pages['id'] = get_option( 'page_on_front' );
+					break;
+
+				case 'blog_index':
+					$pages['id'] = get_option( 'page_for_posts' );
+					break;
+
+				case 'page':
+					$all_pages    = get_pages();
+					$pages['ids'] = wp_list_pluck( $all_pages, 'ID' );
+					break;
+
+				case 'post':
+					$post_types = array_keys( $providers['post_types'] );
+					foreach ( $post_types as $post_type ) {
+						if ( 'page' === $post_type ) {
+							continue;
+						}
+						$args                       = array(
+							'post_type' => $post_type,
+							'fields'    => 'ids',
+						);
+						$pages[ $post_type ]        = array();
+						$pages[ $post_type ]['ids'] = get_posts( $args );
+					}
+					break;
+
+				case 'post_archive':
+					foreach ( $providers['post_types'] as $post_type ) {
+						if ( false !== $post_type['has_archive'] ) {
+							$pages[] = $post_type['has_archive'];
+						}
+					}
+					break;
+
+				case 'category':
+					if ( isset( $providers['taxonomies']['category'] ) ) {
+						$pages = $providers['taxonomies']['category'];
+					}
+					break;
+
+				case 'tag':
+					if ( isset( $providers['taxonomies']['tag'] ) ) {
+						$pages = $providers['taxonomies']['tag'];
+					}
+					break;
+
+				case 'custom_taxonomy':
+					$remove            = array( 'category', 'tag' );
+					$custom_taxonomies = array_diff_key( $providers['taxonomies'], array_flip( $remove ) );
+					if ( ! empty( $custom_taxonomies ) ) {
+						$pages = $custom_taxonomies;
+					}
+					break;
+
+				case 'author':
+					$pages = $providers['users'];
+					break;
+
+				default:
+					error_log( "Bigup SEO: Page type {$type} not found." );
+					break;
+			}
+
+			$site_pages[ $type ] = $pages;
+		}
+
+		return $site_pages;
+	}
+
+
 	/**
 	 * Get the current page type.
 	 */
 	private function get_current_page_type() {
-		if ( is_post_type_archive() ) {
+		if ( is_front_page() ) {
+			return 'front_page';
+		} elseif ( is_home() ) {
+			return 'blog_index';
+		} elseif ( is_page() ) {
+			return 'page';
+		} elseif ( is_single() ) {
+			return 'post';
+		} elseif ( is_post_type_archive() ) {
 			return 'post_archive';
 		} elseif ( is_tax() ) {
 			if ( is_category() ) {
@@ -256,18 +336,12 @@ class Meta {
 			} elseif ( is_tag() ) {
 				return 'tag';
 			} else {
-				return 'custom-taxonomy';
+				return 'custom_taxonomy';
 			}
 		} elseif ( is_author() ) {
 			return 'author';
-		} elseif ( is_single() ) {
-			return 'post';
-		} elseif ( is_page() ) {
-			return 'page';
-		} elseif ( is_front_page() ) {
-			return 'front-page';
-		} elseif ( is_home() ) {
-			return 'blog-index';
+		} else {
+			return false;
 		}
 	}
 }
