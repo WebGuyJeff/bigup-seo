@@ -79,6 +79,8 @@ class Meta {
 		$this->pages = $this->get_all_page_ids( $this->providers );
 
 		// DEBUG.
+
+		/*
 		if ( is_admin() ) {
 			echo '<pre style="z-index:9999;background:#fff;position:fixed;right:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
 			var_dump( $this->providers );
@@ -91,6 +93,8 @@ class Meta {
 			var_dump( $this->pages );
 			echo '</pre>';
 		}
+		*/
+
 	}
 
 
@@ -236,7 +240,12 @@ class Meta {
 	/**
 	 * Get IDs or slugs for all pages.
 	 */
-	private function get_all_page_ids( $providers ) {
+	private function get_all_page_ids() {
+
+		$providers = $this->providers;
+		if ( empty( $providers ) ) {
+			return;
+		}
 
 		$site_pages = array();
 		foreach ( self::PAGE_TYPES as $type ) {

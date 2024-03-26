@@ -110,6 +110,10 @@ class Admin_Settings {
 	 * Create Plugin Settings Page
 	 */
 	public function create_settings_page() {
+
+		// DEBUG.
+		var_dump( $Init->meta->pages );
+
 		?>
 
 		<div class="wrap">
