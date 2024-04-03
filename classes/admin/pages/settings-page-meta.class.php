@@ -6,11 +6,11 @@ namespace BigupWeb\Bigup_Seo;
  *
  * @package bigup-seo
  */
-class Settings_Page_General {
+class Settings_Page_Meta {
 
-	public const PAGE   = 'bigupseo_page_general';
-	public const GROUP  = 'bigupseo_group_general';
-	public const OPTION = 'bigupseo_settings_general';
+	public const PAGE   = 'bigupseo_page_meta';
+	public const GROUP  = 'bigupseo_group_meta';
+	public const OPTION = 'bigupseo_settings_meta';
 
 	public $settings;
 
@@ -37,7 +37,7 @@ class Settings_Page_General {
 			array( $this, 'sanitise' ) // sanitise_callback.
 		);
 
-		$this->register_section_general();
+		$this->register_section_meta();
 	}
 
 
@@ -77,27 +77,27 @@ class Settings_Page_General {
 	}
 
 
-	// ============================================================== general settings section ====/
+	// ================================================================= meta settings section ====/
 
 
 	/**
-	 * Register general settings section.
+	 * Register meta settings section.
 	 *
 	 * This calls functions to register a section and all fields within it.
 	 */
-	private function register_section_general() {
-		$section = 'general_settings';
-		add_settings_section( $section, 'General', array( $this, 'echo_section_intro_general' ), self::PAGE );
+	private function register_section_meta() {
+		$section = 'meta_settings';
+		add_settings_section( $section, 'Meta', array( $this, 'echo_section_intro_meta' ), self::PAGE );
 
 		add_settings_field( 'generate_title_tags', 'Generate title tags', array( &$this, 'echo_field_generate_title_tags' ), self::PAGE, $section );
 	}
 
 
 	/**
-	 * Output general section intro.
+	 * Output meta section intro.
 	 */
-	public function echo_section_intro_general() {
-		echo '<p>General plugin settings.</p>';
+	public function echo_section_intro_meta() {
+		echo '<p>Meta settings.</p>';
 	}
 
 
@@ -115,6 +115,119 @@ class Settings_Page_General {
 			'Enable generation of page meta title tags.'
 		);
 	}
+
+
+
+	/**
+	 * Generate and output metadata fields.
+	 * 
+	 * All fields are saved in a single sub-array of this page option.
+	 */
+	private function echo_fields_page_page_meta() {
+		$providers = Meta::$providers;
+		if ( empty( $providers ) ) {
+			return;
+		}
+
+		foreach ( Meta::PAGE_TYPES as $type ) {
+
+
+
+			// FINISH THIS FUNCTION.
+
+
+
+
+			$pages = array();
+			switch ( $type ) {
+
+				case 'front_page':
+					$pages['id'] = get_option( 'page_on_front' );
+					break;
+
+				case 'blog_index':
+					$pages['id'] = get_option( 'page_for_posts' );
+					break;
+
+				case 'page':
+					$all_pages    = get_pages();
+					$pages['ids'] = wp_list_pluck( $all_pages, 'ID' );
+					break;
+
+				case 'post':
+					$post_types = array_keys( $providers['post_types'] );
+					foreach ( $post_types as $post_type ) {
+						if ( 'page' === $post_type ) {
+							continue;
+						}
+						$args                       = array(
+							'post_type' => $post_type,
+							'fields'    => 'ids',
+						);
+						$pages[ $post_type ]        = array();
+						$pages[ $post_type ]['ids'] = get_posts( $args );
+					}
+					break;
+
+				case 'post_archive':
+					foreach ( $providers['post_types'] as $post_type ) {
+						if ( false !== $post_type['has_archive'] ) {
+							$pages[] = $post_type['has_archive'];
+						}
+					}
+					break;
+
+				case 'category':
+					if ( isset( $providers['taxonomies']['category'] ) ) {
+						$pages = $providers['taxonomies']['category'];
+					}
+					break;
+
+				case 'tag':
+					if ( isset( $providers['taxonomies']['tag'] ) ) {
+						$pages = $providers['taxonomies']['tag'];
+					}
+					break;
+
+				case 'custom_taxonomy':
+					$remove            = array( 'category', 'tag' );
+					$custom_taxonomies = array_diff_key( $providers['taxonomies'], array_flip( $remove ) );
+					if ( ! empty( $custom_taxonomies ) ) {
+						$pages = $custom_taxonomies;
+					}
+					break;
+
+				case 'author':
+					$pages = $providers['users'];
+					break;
+
+				default:
+					error_log( "Bigup SEO: Page type {$type} not found." );
+					break;
+			}
+
+			$site_pages[ $type ] = $pages;
+		}
+
+		return $site_pages;
+	}
+
+
+
+
+	/**
+	 * Output page title tag field.
+	 */
+	public function echo_field_page_title_tag( $key ) {
+		$setting = self::OPTION . '[pages][ $key ]';
+		printf(
+			'<input type="text" value="%s" id="%s" name="%s" maxlength="70" />',
+			$this->settings['generate_title_tags'][pages][ $key ],
+			$setting,
+			$setting,
+		);
+	}
+
 
 
 	/**

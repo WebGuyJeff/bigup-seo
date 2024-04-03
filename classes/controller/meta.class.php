@@ -20,7 +20,7 @@ class Meta {
 	/**
 	 * Content providers for which WP will generate pages.
 	 */
-	private $providers = array();
+	public static $providers = array();
 
 	/**
 	 * The page types we want to expose.
@@ -40,14 +40,16 @@ class Meta {
 	/**
 	 * The pages.
 	 */
-	private $pages = array();
+	public static $pages = array();
 
 
 	/**
 	 * Hook the setup method.
 	 */
-	public function __construct() {
-		add_action( 'init', array( $this, 'setup' ), 10, 0 );
+	public function __construct( $test_val = '' ) {
+		if ( empty( self::$providers ) ) {
+			add_action( 'init', array( $this, 'setup' ), 10, 0 );
+		}
 		add_action( 'template_redirect', array( $this, 'do_head_meta' ), 1, 0 );
 	}
 
@@ -70,30 +72,33 @@ class Meta {
 	 */
 	public function setup() {
 
-		$this->providers = array(
+		self::$providers = array(
 			'taxonomies' => $this->get_taxonomies_with_terms(),
 			'post_types' => $this->get_post_types(),
 			'users'      => $this->get_users(),
 		);
 
-		$this->pages = $this->get_all_page_ids( $this->providers );
+		self::$pages[] = $this->get_pages( self::$providers );
 
+
+/*
 		// DEBUG.
-
-		/*
 		if ( is_admin() ) {
 			echo '<pre style="z-index:9999;background:#fff;position:fixed;right:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
-			var_dump( $this->providers );
+			var_dump( self::$providers );
 			echo '</pre>';
 		}
+*/
 
+/*
 		// DEBUG.
 		if ( is_admin() ) {
 			echo '<pre style="z-index:9999;background:#fff;position:fixed;left:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
-			var_dump( $this->pages );
+			var_dump( self::$pages );
 			echo '</pre>';
 		}
-		*/
+*/
+
 
 	}
 
@@ -240,9 +245,8 @@ class Meta {
 	/**
 	 * Get IDs or slugs for all pages.
 	 */
-	private function get_all_page_ids() {
-
-		$providers = $this->providers;
+	private function get_pages() {
+		$providers = self::$providers;
 		if ( empty( $providers ) ) {
 			return;
 		}

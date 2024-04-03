@@ -34,9 +34,9 @@ class Admin_Settings {
 
 
 	/**
-	 * Settings page: General.
+	 * Settings page: Meta.
 	 */
-	private $settings_page_general;
+	private $settings_page_meta;
 
 	/**
 	 * Settings page: Sitemap.
@@ -61,7 +61,7 @@ class Admin_Settings {
 	 */
 	public function __construct() {
 		$this->admin_settings_parent   = new Admin_Settings_Parent();
-		$this->settings_page_general   = new Settings_Page_General();
+		$this->settings_page_meta      = new Settings_Page_Meta();
 		$this->settings_page_sitemap   = new Settings_Page_Sitemap();
 		$this->settings_page_robots    = new Settings_Page_Robots();
 		$this->settings_page_developer = new Settings_Page_Developer();
@@ -112,7 +112,8 @@ class Admin_Settings {
 	public function create_settings_page() {
 
 		// DEBUG.
-		var_dump( $Init->meta->pages );
+		$meta = new meta();
+		var_dump( $meta::$pages );
 
 		?>
 
@@ -138,7 +139,7 @@ class Admin_Settings {
 				<a
 					href="?page=<?php echo esc_attr( self::SETTINGSLUG ); ?>"
 					class="nav-tab<?php echo ( null === $tab ) ? esc_attr( ' nav-tab-active' ) : ''; ?>"
-				><?php echo esc_html( __( 'General', 'bigup-seo' ) ); ?></a>
+				><?php echo esc_html( __( 'Meta', 'bigup-seo' ) ); ?></a>
 				<a
 					href="?page=<?php echo esc_attr( self::SETTINGSLUG ); ?>&tab=tab-2"
 					class="nav-tab<?php echo ( 'tab-2' === $tab ) ? esc_attr( ' nav-tab-active' ) : ''; ?>"
@@ -158,7 +159,7 @@ class Admin_Settings {
 					<?php
 					switch ( $tab ) :
 						default:
-							$this->settings_page_general->output();
+							$this->settings_page_meta->output();
 							break;
 						case 'tab-2':
 							$this->settings_page_sitemap->output();

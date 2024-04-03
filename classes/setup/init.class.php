@@ -20,18 +20,15 @@ class Init {
 	 */
 	public $admin_settings;
 
-
 	/**
 	 * Bigup sitemap.
 	 */
 	public $sitemap;
 
-
 	/**
 	 * Bigup robots.txt file.
 	 */
 	public $robots;
-
 
 	/**
 	 * Bigup page meta.
@@ -64,7 +61,7 @@ class Init {
 		add_action( 'widgets_init', array( $this, 'setup_for_logged_in_admin' ), 999, 0 );
 
 		/*
-		Future enhancement: Add options to the general settings tab to enable/disable the
+		Future enhancement: Add options to the meta settings tab to enable/disable the
 		following features. This way we can perform an early check to see if any further
 		processing needs to take place.
 		*/
