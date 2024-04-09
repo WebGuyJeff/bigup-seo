@@ -80,18 +80,16 @@ class Meta {
 
 		self::$pages = $this->get_pages( self::$providers );
 
-		/*
 		// DEBUG.
 		if ( is_admin() ) {
-			echo '<pre style="z-index:9999;background:#fff;position:fixed;right:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
-			var_dump( self::$providers );
+			echo '<pre style="z-index:9999;background:#fff;position:fixed;right:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			print_r( self::$providers );
 			echo '</pre>';
 		}
-		*/
 
 		// DEBUG.
 		if ( is_admin() ) {
-			echo '<pre style="z-index:9999;background:#fff;position:fixed;left:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			echo '<pre style="z-index:9999;background:#fff;position:fixed;left:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
 			print_r( self::$pages );
 			echo '</pre>';
 		}
@@ -151,7 +149,7 @@ class Meta {
 			'hide_empty'             => true,
 			'hierarchical'           => false,
 			'update_term_meta_cache' => false,
-			'fields'                 => 'all',
+			'fields'                 => 'id=>name',
 		);
 		$terms = new get_terms( $args );
 		return $terms;
@@ -252,24 +250,19 @@ class Meta {
 			switch ( $type ) {
 
 				case 'front_page':
-					// To fix: home may not have a page ID.
 					$pages['label'] = __( 'Home', 'bigup-seo' );
-					$pages['id']    = get_option( 'page_on_front' );
 					break;
 
 				case 'blog_index':
 					$pages['label'] = __( 'Blog Index', 'bigup-seo' );
-					$pages['id']    = get_option( 'page_for_posts' );
 					break;
 
 				case 'page':
 					$pages['label'] = get_post_type_object( $type )->labels->name;
-					$all_pages      = get_pages();
-					$pages['ids']   = wp_list_pluck( $all_pages, 'ID' );
+					$pages['ids']   = wp_list_pluck( get_pages(), 'ID' );
 					break;
 
 				case 'post':
-					//$post_types = array_keys( $providers['post_types'] );
 					foreach ( $providers['post_types'] as $post_type ) {
 						if ( 'page' === $post_type->name ) {
 							continue;
