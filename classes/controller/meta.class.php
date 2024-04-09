@@ -78,27 +78,23 @@ class Meta {
 			'users'      => $this->get_users(),
 		);
 
-		self::$pages[] = $this->get_pages( self::$providers );
+		self::$pages = $this->get_pages( self::$providers );
 
-
-/*
+		/*
 		// DEBUG.
 		if ( is_admin() ) {
 			echo '<pre style="z-index:9999;background:#fff;position:fixed;right:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
 			var_dump( self::$providers );
 			echo '</pre>';
 		}
-*/
+		*/
 
-/*
 		// DEBUG.
 		if ( is_admin() ) {
 			echo '<pre style="z-index:9999;background:#fff;position:fixed;left:0;max-height:80vh;overflow-y:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
-			var_dump( self::$pages );
+			print_r( self::$pages );
 			echo '</pre>';
 		}
-*/
-
 
 	}
 
@@ -232,9 +228,7 @@ class Meta {
 
 			// Filter 'viewable' post types.
 			if ( $post_type->publicly_queryable || ( $post_type->_builtin && $post_type->public ) ) {
-				$post_types[ $post_type->name ] = array(
-					'has_archive' => $post_type->has_archive,
-				);
+				$post_types[] = $post_type;
 			}
 		}
 		return $post_types;
@@ -258,38 +252,52 @@ class Meta {
 			switch ( $type ) {
 
 				case 'front_page':
-					$pages['id'] = get_option( 'page_on_front' );
+					// To fix: home may not have a page ID.
+					$pages['label'] = __( 'Home', 'bigup-seo' );
+					$pages['id']    = get_option( 'page_on_front' );
 					break;
 
 				case 'blog_index':
-					$pages['id'] = get_option( 'page_for_posts' );
+					$pages['label'] = __( 'Blog Index', 'bigup-seo' );
+					$pages['id']    = get_option( 'page_for_posts' );
 					break;
 
 				case 'page':
-					$all_pages    = get_pages();
-					$pages['ids'] = wp_list_pluck( $all_pages, 'ID' );
+					$pages['label'] = get_post_type_object( $type )->labels->name;
+					$all_pages      = get_pages();
+					$pages['ids']   = wp_list_pluck( $all_pages, 'ID' );
 					break;
 
 				case 'post':
-					$post_types = array_keys( $providers['post_types'] );
-					foreach ( $post_types as $post_type ) {
-						if ( 'page' === $post_type ) {
+					//$post_types = array_keys( $providers['post_types'] );
+					foreach ( $providers['post_types'] as $post_type ) {
+						if ( 'page' === $post_type->name ) {
 							continue;
 						}
-						$args                       = array(
-							'post_type' => $post_type,
-							'fields'    => 'ids',
+						$pages[ $post_type->name ] = array(
+							'label' => $post_type->label,
+							'ids'   => get_posts(
+								array(
+									'post_type' => $post_type->name,
+									'fields'    => 'ids',
+								)
+							),
 						);
-						$pages[ $post_type ]        = array();
-						$pages[ $post_type ]['ids'] = get_posts( $args );
 					}
 					break;
 
 				case 'post_archive':
+					$slugs = array();
 					foreach ( $providers['post_types'] as $post_type ) {
-						if ( false !== $post_type['has_archive'] ) {
-							$pages[] = $post_type['has_archive'];
+						if ( false !== $post_type->has_archive ) {
+							$slugs[] = $post_type->rewrite['slug'];
 						}
+					}
+					if ( ! empty( $slugs ) ) {
+						$pages = array(
+							'label' => __( 'Post Archives' ),
+							'slugs' => $slugs,
+						);
 					}
 					break;
 

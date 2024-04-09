@@ -77,9 +77,6 @@ class Settings_Page_Meta {
 	}
 
 
-	// ================================================================= meta settings section ====/
-
-
 	/**
 	 * Register meta settings section.
 	 *
@@ -89,7 +86,7 @@ class Settings_Page_Meta {
 		$section = 'meta_settings';
 		add_settings_section( $section, 'Meta', array( $this, 'echo_section_intro_meta' ), self::PAGE );
 
-		add_settings_field( 'generate_title_tags', 'Generate title tags', array( &$this, 'echo_field_generate_title_tags' ), self::PAGE, $section );
+		add_settings_field( 'generate_title_tags', 'Generate title tags', array( &$this, 'echo_field_enable_title_tags' ), self::PAGE, $section );
 	}
 
 
@@ -104,7 +101,7 @@ class Settings_Page_Meta {
 	/**
 	 * Output generate title tags field.
 	 */
-	public function echo_field_generate_title_tags() {
+	public function echo_field_enable_title_tags() {
 		$setting = self::OPTION . '[generate_title_tags]';
 		printf(
 			'<input type="checkbox" value="1" id="%s" name="%s" %s><label for="%s">%s</label>',
@@ -120,10 +117,10 @@ class Settings_Page_Meta {
 
 	/**
 	 * Generate and output metadata fields.
-	 * 
+	 *
 	 * All fields are saved in a single sub-array of this page option.
 	 */
-	private function echo_fields_page_page_meta() {
+	private function echo_fields_page_meta() {
 		$providers = Meta::$providers;
 		if ( empty( $providers ) ) {
 			return;
@@ -131,12 +128,11 @@ class Settings_Page_Meta {
 
 		foreach ( Meta::PAGE_TYPES as $type ) {
 
-
-
 			// FINISH THIS FUNCTION.
 
-
-
+			// Restructure the array data to allow simpler creation of fields.
+			// Recreating the switch for every process is going to be messy.
+			// Each field should be able to be created using the same function.
 
 			$pages = array();
 			switch ( $type ) {
@@ -222,7 +218,7 @@ class Settings_Page_Meta {
 		$setting = self::OPTION . '[pages][ $key ]';
 		printf(
 			'<input type="text" value="%s" id="%s" name="%s" maxlength="70" />',
-			$this->settings['generate_title_tags'][pages][ $key ],
+			$this->settings['generate_title_tags'][ pages ][ $key ],
 			$setting,
 			$setting,
 		);
