@@ -226,16 +226,23 @@ class Meta {
 
 			// Filter 'viewable' post types.
 			if ( $post_type->publicly_queryable || ( $post_type->_builtin && $post_type->public ) ) {
-				$post_types[] = $post_type;
+				$post_types[] = array(
+					'name'        => $post_type->name,
+					'label'       => $post_type->label,
+					'has_archive' => $post_type->has_archive,
+					'slug'        => $post_type->rewrite['slug'],
+				);
 			}
 		}
 		return $post_types;
 	}
 
 
-
 	/**
-	 * Get IDs or slugs for all pages.
+	 * Build array of all pages we want to edit meta for.
+	 *
+	 * The structure is the blueprint for the options input fields markup and a store for existing
+	 * values once read from the DB table ready to output in the options markup.
 	 */
 	private function get_pages() {
 		$providers = self::$providers;
@@ -264,14 +271,14 @@ class Meta {
 
 				case 'post':
 					foreach ( $providers['post_types'] as $post_type ) {
-						if ( 'page' === $post_type->name ) {
+						if ( 'page' === $post_type['name'] ) {
 							continue;
 						}
-						$pages[ $post_type->name ] = array(
-							'label' => $post_type->label,
+						$pages[ $post_type['name'] ] = array(
+							'label' => $post_type['label'],
 							'ids'   => get_posts(
 								array(
-									'post_type' => $post_type->name,
+									'post_type' => $post_type['name'],
 									'fields'    => 'ids',
 								)
 							),
@@ -282,8 +289,8 @@ class Meta {
 				case 'post_archive':
 					$slugs = array();
 					foreach ( $providers['post_types'] as $post_type ) {
-						if ( false !== $post_type->has_archive ) {
-							$slugs[] = $post_type->rewrite['slug'];
+						if ( false !== $post_type['has_archive'] ) {
+							$slugs[] = $post_type['slug'];
 						}
 					}
 					if ( ! empty( $slugs ) ) {
