@@ -2,7 +2,7 @@
 namespace BigupWeb\Bigup_Seo;
 
 /**
- * Head Meta
+ * Generate Head Meta Tags
  *
  * @package bigup-seo
  * @author Jefferson Real <me@jeffersonreal.uk>

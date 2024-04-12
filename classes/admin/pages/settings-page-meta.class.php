@@ -12,14 +12,22 @@ class Settings_Page_Meta {
 	public const GROUP  = 'bigupseo_group_meta';
 	public const OPTION = 'bigupseo_settings_meta';
 
-	public $settings;
+	private $settings;
 
+	/**
+	 * The pages.
+	 */
+	private $pages = array();
 
 	/**
 	 * Hook into WP.
 	 */
 	public function __construct() {
-		add_action( 'admin_init', array( &$this, 'register' ), 10, 0 );
+
+		if ( empty( $this->pages ) ) {
+			$this->pages = new Pages();
+		}
+		add_action( 'admin_init', array( &$this, 'register' ), 11, 0 ); // Priority lower than Pages().
 	}
 
 
@@ -48,9 +56,32 @@ class Settings_Page_Meta {
 		self::output_theme_template_title_tag_status();
 		settings_fields( self::GROUP );
 		do_settings_sections( self::PAGE );
+
+		// Temp solution to test output. Will need to hook into DB table.
+		$this->echo_fields_page_meta();
+
 		submit_button( 'Save' );
+
+
+		// DEBUG.
+		$this->debug();
 	}
 
+/////////////////////////////////////////////////////////////////// DEBUG
+	public function debug() {
+		if ( is_admin() ) {
+			$debug  = '';
+			//$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;left:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			//$debug .= print_r( $this->pages->providers, true );
+			//$debug .= '</pre>';
+			$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;right:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			$debug .= print_r( $this->pages->map, true );
+			$debug .= '</pre>';
+
+			echo $debug;
+		}
+	}
+/////////////////////////////////////////////////////////////////// DEBUG
 
 	/**
 	 * Theme template title tag check.
@@ -78,15 +109,13 @@ class Settings_Page_Meta {
 
 
 	/**
-	 * Register meta settings section.
-	 *
-	 * This calls functions to register a section and all fields within it.
+	 * Register meta settings section and fields.
 	 */
 	private function register_section_meta() {
 		$section = 'meta_settings';
 		add_settings_section( $section, 'Meta', array( $this, 'echo_section_intro_meta' ), self::PAGE );
 
-		add_settings_field( 'generate_title_tags', 'Generate title tags', array( &$this, 'echo_field_enable_title_tags' ), self::PAGE, $section );
+		add_settings_field( 'generate_title_tags', 'Generate title tags', array( &$this, 'echo_field_enable_plugin_title_tags' ), self::PAGE, $section );
 	}
 
 
@@ -99,9 +128,9 @@ class Settings_Page_Meta {
 
 
 	/**
-	 * Output generate title tags field.
+	 * Output option to enable plugin title tags.
 	 */
-	public function echo_field_enable_title_tags() {
+	public function echo_field_enable_plugin_title_tags() {
 		$setting = self::OPTION . '[generate_title_tags]';
 		printf(
 			'<input type="checkbox" value="1" id="%s" name="%s" %s><label for="%s">%s</label>',
@@ -114,19 +143,14 @@ class Settings_Page_Meta {
 	}
 
 
-
 	/**
-	 * Generate and output metadata fields.
-	 *
-	 * All fields are saved in a single sub-array of this page option.
+	 * Generate settings fields for every page we want to set metadata for.
 	 */
 	private function echo_fields_page_meta() {
-		$providers = Meta::$providers;
-		if ( empty( $providers ) ) {
-			return;
-		}
 
-		foreach ( Meta::PAGE_TYPES as $type ) {
+		error_log( 'TEST' );
+
+		foreach ( $this->pages->map as $type => $data ) {
 
 			// FINISH THIS FUNCTION.
 
@@ -134,24 +158,60 @@ class Settings_Page_Meta {
 			// Recreating the switch for every process is going to be messy.
 			// Each field should be able to be created using the same function.
 
-		}
+			switch ( $type ) {
 
-		return $site_pages;
+				case 'front_page':
+				case 'blog_index':
+					$this->echo_inline_title( $data['label'] );
+					$this->echo_field_page_title_tag(
+						array(
+							'key'   => $type,
+							'label' => $data['label'],
+						)
+					);
+					break;
+
+				case 'page':
+					$this->echo_inline_title( $data['label'] );
+					foreach ( $data['ids'] as $id ) {
+						$this->echo_field_page_title_tag(
+							array(
+								'key'   => $id,
+								'label' => get_the_title( $id ),
+							)
+						);
+					}
+					break;
+
+				default:
+					error_log( "Bigup SEO: Page type {$type} not found." );
+					break;
+			}
+		}
 	}
 
 
+	/**
+	 * Output inline title.
+	 */
+	public function echo_inline_title( $title ) {
+		printf(
+			'<h4>%s</h4>',
+			$title
+		);
+	}
 
 
 	/**
 	 * Output page title tag field.
 	 */
-	public function echo_field_page_title_tag( $key ) {
-		$setting = self::OPTION . '[pages][ $key ]';
+	public function echo_field_page_title_tag( $page ) {
 		printf(
-			'<input type="text" value="%s" id="%s" name="%s" maxlength="70" />',
-			$this->settings['generate_title_tags'][ pages ][ $key ],
-			$setting,
-			$setting,
+			'<label>%s<br><input type="text" value="%s" id="%s" name="%s" maxlength="140" /></label><br>',
+			$page['label'],
+			$page['label'],
+			$page['key'],
+			$page['key'],
 		);
 	}
 
