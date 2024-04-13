@@ -73,7 +73,7 @@ class Meta {
 			if ( is_category() ) {
 				return 'category';
 			} elseif ( is_tag() ) {
-				return 'tag';
+				return 'post_tag';
 			} else {
 				return 'custom_taxonomy';
 			}

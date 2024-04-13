@@ -58,7 +58,7 @@ class Settings_Page_Meta {
 		do_settings_sections( self::PAGE );
 
 		// Temp solution to test output. Will need to hook into DB table.
-		$this->echo_fields_page_meta();
+		//$this->echo_fields_page_meta();
 
 		submit_button( 'Save' );
 
@@ -69,7 +69,7 @@ class Settings_Page_Meta {
 	// DEBUG
 	public function debug() {
 		if ( is_admin() ) {
-			$debug = '';
+			$debug  = '';
 			$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;left:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
 			$debug .= print_r( $this->pages->providers, true );
 			$debug .= '</pre>';
@@ -155,9 +155,17 @@ class Settings_Page_Meta {
 			// Recreating the switch for every process is going to be messy.
 			// Each field should be able to be created using the same function.
 
-			/**
-			 * Here we unify the pages array formats.
-			 */
+
+			// Decode prefixes for post and tax types.
+			$sub_type = '';
+			if ( preg_match( '/post__.*/', $type ) ) {
+				$sub_type  = str_replace( 'post__', '', $type );
+				$type      = 'post';
+			} elseif ( preg_match( '/tax__.*/', $type ) ) {
+				$sub_type  = str_replace( 'tax__', '', $type );
+				$type      = 'tax';
+			}
+
 			$pages = array();
 			switch ( $type ) {
 
