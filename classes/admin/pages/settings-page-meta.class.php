@@ -62,18 +62,17 @@ class Settings_Page_Meta {
 
 		submit_button( 'Save' );
 
-
 		// DEBUG.
 		$this->debug();
 	}
 
-/////////////////////////////////////////////////////////////////// DEBUG
+	// DEBUG
 	public function debug() {
 		if ( is_admin() ) {
-			$debug  = '';
-			//$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;left:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
-			//$debug .= print_r( $this->pages->providers, true );
-			//$debug .= '</pre>';
+			$debug = '';
+			$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;left:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			$debug .= print_r( $this->pages->providers, true );
+			$debug .= '</pre>';
 			$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;right:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
 			$debug .= print_r( $this->pages->map, true );
 			$debug .= '</pre>';
@@ -81,7 +80,7 @@ class Settings_Page_Meta {
 			echo $debug;
 		}
 	}
-/////////////////////////////////////////////////////////////////// DEBUG
+	// DEBUG
 
 	/**
 	 * Theme template title tag check.
@@ -148,8 +147,6 @@ class Settings_Page_Meta {
 	 */
 	private function echo_fields_page_meta() {
 
-		error_log( 'TEST' );
-
 		foreach ( $this->pages->map as $type => $data ) {
 
 			// FINISH THIS FUNCTION.
@@ -158,34 +155,53 @@ class Settings_Page_Meta {
 			// Recreating the switch for every process is going to be messy.
 			// Each field should be able to be created using the same function.
 
+			/**
+			 * Here we unify the pages array formats.
+			 */
+			$pages = array();
 			switch ( $type ) {
 
 				case 'front_page':
 				case 'blog_index':
 					$this->echo_inline_title( $data['label'] );
-					$this->echo_field_page_title_tag(
-						array(
-							'key'   => $type,
-							'label' => $data['label'],
-						)
+					$pages[] = array(
+						'key'   => $type,
+						'label' => $data['label'],
 					);
 					break;
 
 				case 'page':
 					$this->echo_inline_title( $data['label'] );
 					foreach ( $data['ids'] as $id ) {
-						$this->echo_field_page_title_tag(
-							array(
+						$pages[] = array(
+							'key'   => $id,
+							'label' => get_the_title( $id ),
+						);
+					}
+					break;
+
+				case 'post':
+					$this->echo_inline_title( $data['label'] );
+					foreach ( $data as $post_type ) {
+						foreach ( $post_type as $id ) {
+							$pages[] = array(
 								'key'   => $id,
 								'label' => get_the_title( $id ),
-							)
-						);
+							);
+						}
 					}
 					break;
 
 				default:
 					error_log( "Bigup SEO: Page type {$type} not found." );
 					break;
+			}
+
+			/**
+			 * Then pass the page arrays to the same function call.
+			 */
+			foreach ( $pages as $page ) {
+				$this->echo_field_page_title_tag( $page );
 			}
 		}
 	}

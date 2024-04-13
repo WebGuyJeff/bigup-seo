@@ -49,8 +49,24 @@ class Pages {
 	 * Hook and setup the page data.
 	 */
 	public function __construct() {
+
+		// DEBUG.
+		add_action( 'init', array( $this, 'create_test_tax_debug' ), 9, 0 );
+
 		add_action( 'init', array( $this, 'setup' ), 10, 0 );
 	}
+
+
+	// DEBUG.
+	public function create_test_tax_debug() {
+		register_taxonomy(
+			'testtax',
+			'service',
+			array()
+		);
+	}
+
+
 
 
 	/**
@@ -59,7 +75,7 @@ class Pages {
 	public function setup() {
 
 		/**
-		 * 1. Get all providers of wordpress generated pages.
+		 * 1. Get all providers of WordPress generated pages.
 		 *
 		 * $providers are the sources of all WP generated post and archive pages.
 		 */
@@ -88,7 +104,7 @@ class Pages {
 				'public'             => true,
 				'publicly_queryable' => true,
 			),
-			'names'
+			'objects'
 		);
 		return $taxonomies;
 	}
@@ -106,7 +122,7 @@ class Pages {
 			'update_term_meta_cache' => false,
 			'fields'                 => 'id=>name',
 		);
-		$terms = new get_terms( $args );
+		$terms = get_terms( $args );
 		return $terms;
 	}
 
@@ -115,21 +131,31 @@ class Pages {
 	 * Get taxonomies with terms.
 	 */
 	public function get_taxonomies_with_terms() {
-		foreach ( $this->get_taxonomies() as $taxonomy ) {
-			$taxonomies[ $taxonomy ] = array();
+		foreach ( $this->get_taxonomies() as $taxonomy_name => $taxonomy ) {
+			$taxonomies[] = array(
+				'name' => $taxonomy_name,
+				'label' => $taxonomy->label,
+			);
 
-			$terms = get_terms( $taxonomy );
-			foreach ( $terms as $term ) {
 
-				$taxonomies[ $taxonomy ][] = array(
-					'name' => $term->name,
-					'id' => $term->term_taxonomy_id,
+
+			$terms = $this->get_terms( $taxonomy_name );
+
+			error_log( json_encode( $terms ) );
+
+
+
+			foreach ( $terms as $id => $label ) {
+
+				$taxonomies[ $taxonomy_name ][] = array(
+					'name' => $label,
+					'id'   => $id,
 				);
 			}
 
 			// Exclude taxonomy if it has no terms.
-			if ( empty( $taxonomies[ $taxonomy ] ) ) {
-				unset( $taxonomies[ $taxonomy ] );
+			if ( empty( $taxonomies[ $taxonomy_name ] ) ) {
+				unset( $taxonomies[ $taxonomy_name ] );
 			}
 		}
 		return $taxonomies;
@@ -207,19 +233,30 @@ class Pages {
 		$map = array();
 		foreach ( self::TYPES as $type ) {
 
+			// Decode prefixed post types.
+			$post_type = '';
+			if ( preg_match( '/post__.*/', $type ) ) {
+				$post_type = str_replace( 'post__', '', $type );
+				$type = 'post';
+			}
+
 			$pages = array();
 			switch ( $type ) {
 
 				case 'front_page':
-					$pages['label'] = __( 'Home', 'bigup-seo' );
+					$map[ $type ] = array(
+						'label' => __( 'Home', 'bigup-seo' ),
+					);
 					break;
 
 				case 'blog_index':
-					$pages['label'] = __( 'Blog Index', 'bigup-seo' );
+					$map[ $type ] = array(
+						'label' => __( 'Blog Index', 'bigup-seo' ),
+					);
 					break;
 
 				case 'page':
-					$pages = array(
+					$map[ $type ] = array(
 						'label' => get_post_type_object( $type )->labels->name,
 						'ids'   => wp_list_pluck( get_pages(), 'ID' ),
 					);
@@ -230,7 +267,7 @@ class Pages {
 						if ( 'page' === $post_type['name'] ) {
 							continue;
 						}
-						$pages[ $post_type['name'] ] = array(
+						$map[ 'post__' . $post_type['name'] ] = array(
 							'label' => $post_type['label'],
 							'ids'   => get_posts(
 								array(
@@ -250,7 +287,7 @@ class Pages {
 						}
 					}
 					if ( ! empty( $slugs ) ) {
-						$pages = array(
+						$map[ 'post_archive' ] = array(
 							'label' => __( 'Post Archives' ),
 							'slugs' => $slugs,
 						);
@@ -259,13 +296,13 @@ class Pages {
 
 				case 'category':
 					if ( isset( $providers['taxonomies']['category'] ) ) {
-						$pages = $providers['taxonomies']['category'];
+						$map[ $type ] = $providers['taxonomies']['category'];
 					}
 					break;
 
 				case 'tag':
 					if ( isset( $providers['taxonomies']['post_tag'] ) ) {
-						$pages = $providers['taxonomies']['post_tag'];
+						$map[ $type ] = $providers['taxonomies']['post_tag'];
 					}
 					break;
 
@@ -273,20 +310,23 @@ class Pages {
 					$remove            = array( 'category', 'post_tag' );
 					$custom_taxonomies = array_diff_key( $providers['taxonomies'], array_flip( $remove ) );
 					if ( ! empty( $custom_taxonomies ) ) {
-						$pages = $custom_taxonomies;
+						foreach ( $custom_taxonomies as $tax ) {
+
+							error_log( json_encode( $tax ) );
+
+							$map[ 'tax__' . $tax['name'] ] = $tax;
+						}
 					}
 					break;
 
 				case 'author':
-					$pages = $providers['users'];
+					$map[ $type ] = $providers['users'];
 					break;
 
 				default:
 					error_log( "Bigup SEO: Page type {$type} not found." );
 					break;
 			}
-
-			$map[ $type ] = $pages;
 		}
 
 		return $map;

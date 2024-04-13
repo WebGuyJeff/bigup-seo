@@ -66,7 +66,7 @@ class Meta {
 		} elseif ( is_page() ) {
 			return 'page';
 		} elseif ( is_single() ) {
-			return 'post';
+			return 'post__' . get_post_type();
 		} elseif ( is_post_type_archive() ) {
 			return 'post_archive';
 		} elseif ( is_tax() ) {
