@@ -40,6 +40,9 @@ class Init {
 	 * Populate the class properties.
 	 */
 	public function __construct() {
+
+		new Install();
+
 		$this->sitemap = new Sitemap();
 		$this->meta    = new Meta();
 

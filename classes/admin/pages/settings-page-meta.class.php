@@ -147,8 +147,6 @@ class Settings_Page_Meta {
 	 */
 	private function echo_fields_page_meta() {
 
-		var_dump( get_the_title( get_option( 'page_for_posts' ) ) );
-
 		foreach ( $this->pages->map as $type => $data ) {
 
 			// Decode prefixes for post and tax types.
