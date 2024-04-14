@@ -58,7 +58,7 @@ class Settings_Page_Meta {
 		do_settings_sections( self::PAGE );
 
 		// Temp solution to test output. Will need to hook into DB table.
-		//$this->echo_fields_page_meta();
+		$this->echo_fields_page_meta();
 
 		submit_button( 'Save' );
 
@@ -69,10 +69,10 @@ class Settings_Page_Meta {
 	// DEBUG
 	public function debug() {
 		if ( is_admin() ) {
-			$debug  = '';
-			$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;left:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
-			$debug .= print_r( $this->pages->providers, true );
-			$debug .= '</pre>';
+			$debug = '';
+			// $debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;left:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			// $debug .= print_r( $this->pages->providers, true );
+			// $debug .= '</pre>';
 			$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;right:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
 			$debug .= print_r( $this->pages->map, true );
 			$debug .= '</pre>';
@@ -147,69 +147,51 @@ class Settings_Page_Meta {
 	 */
 	private function echo_fields_page_meta() {
 
+		var_dump( get_the_title( get_option( 'page_for_posts' ) ) );
+
 		foreach ( $this->pages->map as $type => $data ) {
-
-			// FINISH THIS FUNCTION.
-
-			// Restructure the array data to allow simpler creation of fields.
-			// Recreating the switch for every process is going to be messy.
-			// Each field should be able to be created using the same function.
-
 
 			// Decode prefixes for post and tax types.
 			$sub_type = '';
 			if ( preg_match( '/post__.*/', $type ) ) {
-				$sub_type  = str_replace( 'post__', '', $type );
-				$type      = 'post';
+				$sub_type = str_replace( 'post__', '', $type );
+				$type     = 'post';
 			} elseif ( preg_match( '/tax__.*/', $type ) ) {
-				$sub_type  = str_replace( 'tax__', '', $type );
-				$type      = 'tax';
+				$sub_type = str_replace( 'tax__', '', $type );
+				$type     = 'tax';
 			}
 
-			$pages = array();
+			$this->echo_inline_title( $data['label'] );
+
 			switch ( $type ) {
 
 				case 'front_page':
 				case 'blog_index':
-					$this->echo_inline_title( $data['label'] );
-					$pages[] = array(
-						'key'   => $type,
-						'label' => $data['label'],
+					$this->echo_field_page_title_tag(
+						array(
+							'field_id' => $type,
+							'label'    => $data['label'],
+						)
 					);
 					break;
 
 				case 'page':
-					$this->echo_inline_title( $data['label'] );
-					foreach ( $data['ids'] as $id ) {
-						$pages[] = array(
-							'key'   => $id,
-							'label' => get_the_title( $id ),
-						);
-					}
-					break;
-
 				case 'post':
-					$this->echo_inline_title( $data['label'] );
-					foreach ( $data as $post_type ) {
-						foreach ( $post_type as $id ) {
-							$pages[] = array(
-								'key'   => $id,
-								'label' => get_the_title( $id ),
-							);
-						}
+				case 'post_archive':
+				case 'author':
+					foreach ( $data['pages'] as $key => $page ) {
+						$this->echo_field_page_title_tag(
+							array(
+								'field_id' => $key,
+								'label'    => $page['name'],
+							)
+						);
 					}
 					break;
 
 				default:
 					error_log( "Bigup SEO: Page type {$type} not found." );
 					break;
-			}
-
-			/**
-			 * Then pass the page arrays to the same function call.
-			 */
-			foreach ( $pages as $page ) {
-				$this->echo_field_page_title_tag( $page );
 			}
 		}
 	}
@@ -231,11 +213,11 @@ class Settings_Page_Meta {
 	 */
 	public function echo_field_page_title_tag( $page ) {
 		printf(
-			'<label>%s<br><input type="text" value="%s" id="%s" name="%s" maxlength="140" /></label><br>',
+			'<label>%s<br><input class="regular-text" type="text" value="%s" id="%s" name="%s" maxlength="70" /></label><br>',
 			$page['label'],
 			$page['label'],
-			$page['key'],
-			$page['key'],
+			$page['field_id'],
+			$page['field_id'],
 		);
 	}
 

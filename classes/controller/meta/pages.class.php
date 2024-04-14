@@ -178,7 +178,8 @@ class Pages {
 	/**
 	 * Build array of all pages we want to edit meta for.
 	 *
-	 * The output array hierarchy is horizontally neutral for easier processing.
+	 * Post and taxonomy types are prefixed `post__` and `tax__` respectively as an alternative to
+	 * nesting arrays to make processing simpler.
 	 */
 	private function get_page_map() {
 
@@ -189,6 +190,7 @@ class Pages {
 			'users'      => $this->get_users(),
 		);
 
+		// Build a map of all generated site pages.
 		$map = array();
 		foreach ( self::TYPES as $type ) {
 			switch ( $type ) {
@@ -212,14 +214,14 @@ class Pages {
 						get_option( 'page_on_front' ),
 						get_option( 'page_for_posts' ),
 					);
-					$args = array(
+					$args       = array(
 						'hierarchical' => false,
 						'sort_order'   => 'DESC',
 						'sort_column'  => 'post_date',
 						'exclude'      => $exclusions,
 					);
-					$wp_pages = get_pages( $args );
-					$pages    = array();
+					$wp_pages   = get_pages( $args );
+					$pages      = array();
 					foreach ( $wp_pages as $page ) {
 						$pages[ $page->ID ] = array(
 							'name' => $page->post_title,
@@ -227,8 +229,8 @@ class Pages {
 						);
 					}
 					$map['page'] = array(
-						'key_type' => 'id',
 						'label'    => get_post_type_object( $type )->labels->name,
+						'key_type' => 'id',
 						'pages'    => $pages,
 					);
 					break;
@@ -239,7 +241,7 @@ class Pages {
 							// Don't process page post type again.
 							continue;
 						}
-						$args = array(
+						$args     = array(
 							'post_type' => $post_type['name'],
 							'order'     => 'DESC',
 							'orderby'   => 'date',
@@ -252,8 +254,8 @@ class Pages {
 							);
 						}
 						$map[ 'post__' . $post_type['name'] ] = array(
-							'key_type' => 'id',
 							'label'    => $post_type['label'],
+							'key_type' => 'id',
 							'pages'    => $posts,
 						);
 					}
@@ -263,15 +265,18 @@ class Pages {
 					$slugs = array();
 					foreach ( $this->providers['post_types'] as $post_type ) {
 						if ( false !== $post_type['has_archive'] ) {
-							$slugs[ $post_type['slug'] ] = array(
-								'name' => $post_type['slug'],
+							$slug           = ( 'string' === gettype( $post_type['has_archive'] ) )
+								? $post_type['has_archive']
+								: $post_type['slug'];
+							$slugs[ $slug ] = array(
+								'name' => $slug,
 							);
 						}
 					}
 					if ( ! empty( $slugs ) ) {
 						$map['post_archive'] = array(
-							'key_type' => 'slug',
 							'label'    => __( 'Post Archives' ),
+							'key_type' => 'slug',
 							'pages'    => $slugs,
 						);
 					}
@@ -280,8 +285,8 @@ class Pages {
 				case 'taxonomy':
 					foreach ( $this->providers['taxonomies'] as $tax ) {
 						$map[ 'tax__' . $tax['name'] ] = array(
-							'key_type' => 'id',
 							'label'    => $tax['label'],
+							'key_type' => 'id',
 							'pages'    => $tax['ids'],
 						);
 					}
@@ -289,8 +294,8 @@ class Pages {
 
 				case 'author':
 					$map['author'] = array(
-						'key_type' => 'id',
 						'label'    => __( 'Authors' ),
+						'key_type' => 'id',
 						'pages'    => $this->providers['users'],
 					);
 					break;
