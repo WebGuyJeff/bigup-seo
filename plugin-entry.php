@@ -17,7 +17,7 @@ namespace BigupWeb\Bigup_Seo;
  * @link https://jeffersonreal.uk
  */
 
-$enable_debug = false;
+$enable_debug = true;
 
 // Set global constants.
 define( 'BIGUPSEO_DEBUG', $enable_debug );

@@ -27,7 +27,7 @@ class Settings_Page_Meta {
 		if ( empty( $this->pages ) ) {
 			$this->pages = new Pages();
 		}
-		add_action( 'admin_init', array( &$this, 'register' ), 11, 0 ); // Priority lower than Pages().
+		add_action( 'admin_init', array( &$this, 'register' ), 11, 0 ); // Must fire after Pages().
 	}
 
 
@@ -53,34 +53,38 @@ class Settings_Page_Meta {
 	 * Output the content for this tab.
 	 */
 	public function output() {
+
+		// Basic settings (handled with wp_options).
 		self::output_theme_template_title_tag_status();
 		settings_fields( self::GROUP );
 		do_settings_sections( self::PAGE );
-
-		// Temp solution to test output. Will need to hook into DB table.
-		$this->echo_fields_page_meta();
-
 		submit_button( 'Save' );
 
-		// DEBUG.
-		$this->debug();
+		// SEO meta settings (handled with custom table 'bigup_seo_meta').
+		$this->echo_seo_meta_options();
+
+		if ( BIGUPSEO_DEBUG ) {
+			$this->debug();
+		}
 	}
 
-	// DEBUG
+
+	/**
+	 * Page data output for debugging.
+	 *
+	 * This should only be displayed when debugging is enabled.
+	 */
 	public function debug() {
 		if ( is_admin() ) {
-			$debug = '';
-			// $debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;left:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
+			$debug  = '';
+			$debug .= '<pre style="background:#fff;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
 			// $debug .= print_r( $this->pages->providers, true );
-			// $debug .= '</pre>';
-			$debug .= '<pre style="z-index:9999;background:#fff;position:fixed;top:20px;right:0;max-height:80vh;max-width:50%;overflow:scroll;padding:0.5rem;border:solid;font-size:0.7rem;">';
 			$debug .= print_r( $this->pages->map, true );
 			$debug .= '</pre>';
-
 			echo $debug;
 		}
 	}
-	// DEBUG
+
 
 	/**
 	 * Theme template title tag check.
@@ -113,7 +117,6 @@ class Settings_Page_Meta {
 	private function register_section_meta() {
 		$section = 'meta_settings';
 		add_settings_section( $section, 'Meta', array( $this, 'echo_section_intro_meta' ), self::PAGE );
-
 		add_settings_field( 'generate_title_tags', 'Generate title tags', array( &$this, 'echo_field_enable_plugin_title_tags' ), self::PAGE, $section );
 	}
 
@@ -143,9 +146,13 @@ class Settings_Page_Meta {
 
 
 	/**
-	 * Generate settings fields for every page we want to set metadata for.
+	 * Output seo meta options.
+	 *
+	 * This markup contains all options which interact with the bigup_seo_meta DB table.
 	 */
-	private function echo_fields_page_meta() {
+	private function echo_seo_meta_options() {
+
+		$seo_meta_options = '';
 
 		foreach ( $this->pages->map as $type => $data ) {
 
@@ -159,13 +166,13 @@ class Settings_Page_Meta {
 				$type     = 'tax';
 			}
 
-			$this->echo_inline_title( $data['label'] );
+			$fields_markup = '';
 
 			switch ( $type ) {
 
 				case 'front_page':
 				case 'blog_index':
-					$this->echo_field_page_title_tag(
+					$fields_markup .= $this->get_field_page_title_tag(
 						array(
 							'field_id' => $type,
 							'label'    => $data['label'],
@@ -178,7 +185,7 @@ class Settings_Page_Meta {
 				case 'post_archive':
 				case 'author':
 					foreach ( $data['pages'] as $key => $page ) {
-						$this->echo_field_page_title_tag(
+						$fields_markup .= $this->get_field_page_title_tag(
 							array(
 								'field_id' => $key,
 								'label'    => $page['name'],
@@ -191,32 +198,92 @@ class Settings_Page_Meta {
 					error_log( "Bigup SEO: Page type {$type} not found." );
 					break;
 			}
+
+			$seo_meta_options .= <<<HTML
+				<h2>{$data['label']}</h2>
+				<table class="form-table" role="presentation">
+					<tbody>
+						{$fields_markup}
+					</tbody>
+				</table>
+			HTML;
 		}
+
+		echo $seo_meta_options;
 	}
 
 
 	/**
-	 * Output inline title.
+	 * Get page title tag field.
 	 */
-	public function echo_inline_title( $title ) {
-		printf(
-			'<h4>%s</h4>',
-			$title
-		);
-	}
+	public function get_field_page_title_tag( $page ) {
+
+		$name        = esc_attr( $page['field_id'] );
+		$id          = esc_attr( $page['field_id'] );
+		$value       = esc_attr( $page['label'] );
+		$placeholder = __( 'Enter a title', 'bigup-seo' );
+
+		$field = <<<HTML
+			<tr>
+				<th scope="row">{$page['label']}</th>
+				<td>
+					<input
+						type="text"
+						class="regular-text"
+						name="{$name}"
+						id="{$id}"
+						value="{$value}"
+						placeholder="{$placeholder}"
+					>
+				</td>
+			</tr>
 
 
-	/**
-	 * Output page title tag field.
-	 */
-	public function echo_field_page_title_tag( $page ) {
-		printf(
-			'<label>%s<br><input class="regular-text" type="text" value="%s" id="%s" name="%s" maxlength="70" /></label><br>',
-			$page['label'],
-			$page['label'],
-			$page['field_id'],
-			$page['field_id'],
-		);
+
+
+			<tr id="editRow-my-post" class="editActive inline-edit-row inline-edit-row-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor">
+				<td colspan="4">
+					<form method="post" action="options.php" class="inline-edit-wrapper" data-type-form="edit">
+						<fieldset class="inline-edit-fieldset">
+							<legend class="inline-edit-legend">
+								Edit Custom Post Type
+							</legend>
+							<template id="deleteFlag">
+								<input type="hidden" name="" id="delete" value="1" checked="">	
+							</template>
+							<h3>Main Settings</h3>
+							<input type="hidden" name="" id="post_type" value="my-post" required="">
+							<label class="field"><span class="field_title">Singular Name</span>
+								<input type="text" name="" id="name_singular" value="" placeholder="My Post" pattern="[- \p{L}\p{N}]*" maxlength="30" required="">
+							</label>
+							<label class="field"><span class="field_title">Plural Name</span>
+								<input type="text" name="" id="name_plural" value="" placeholder="My Posts" pattern="[- \p{L}\p{N}]*" maxlength="30" required="">
+							</label>
+							<h3>Advanced Settings</h3>
+							<label class="field"><span class="field_title">Public</span>
+								<input type="checkbox" name="" id="public" value="1" checked="">
+							</label>
+							<label class="field"><span class="field_title">Show in Menu</span>
+								<input type="checkbox" name="" id="show_in_menu" value="1" checked="">
+							</label>
+							<label class="field"><span class="field_title">Menu Position</span>
+								<input type="number" name="" id="menu_position" min="0" max="100" step="1" value="5" required="">
+							</label>
+						</fieldset>
+						<div class="submit inline-edit-save">
+							<button type="button" title="Submit and save form" id="submitButton" class="button button-primary save">Save</button>
+							<button type="button" id="cancelButton" class="button">
+							Cancel
+							</button>
+						</div>
+					</form>
+				</td>
+			</tr>
+			
+
+
+		HTML;
+		return $field;
 	}
 
 
