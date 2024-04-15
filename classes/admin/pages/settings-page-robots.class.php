@@ -45,14 +45,19 @@ class Settings_Page_Robots {
 	 * Output the content for this tab.
 	 */
 	public function output() {
-		self::output_tab_intro();
-		$exists = self::output_robots_txt_file_controls();
-
-		if ( $exists ) {
-			settings_fields( self::GROUP );
-			do_settings_sections( self::PAGE );
-			submit_button( 'Save' );
-		}
+		?>
+			<form method="post" action="options.php">
+				<?php
+					self::output_tab_intro();
+					$exists = self::output_robots_txt_file_controls();
+					if ( $exists ) {
+						settings_fields( self::GROUP );
+						do_settings_sections( self::PAGE );
+						submit_button( 'Save' );
+					}
+				?>
+			</form>
+		<?php
 	}
 
 

@@ -150,24 +150,22 @@ class Admin_Settings {
 			</nav>
 
 			<div class="tab-content">
-				<form method="post" action="options.php">
-					<?php
-					switch ( $tab ) :
-						default:
-							$this->meta_tab->output();
-							break;
-						case 'tab-2':
-							$this->sitemap_tab->output();
-							break;
-						case 'tab-3':
-							$this->robots_tab->output();
-							break;
-						case 'tab-4':
-							$this->developer_tab->output();
-							break;
-					endswitch;
-					?>
-				</form>
+				<?php
+				switch ( $tab ) :
+					default:
+						$this->meta_tab->output();
+						break;
+					case 'tab-2':
+						$this->sitemap_tab->output();
+						break;
+					case 'tab-3':
+						$this->robots_tab->output();
+						break;
+					case 'tab-4':
+						$this->developer_tab->output();
+						break;
+				endswitch;
+				?>
 			</div>
 
 		</div>

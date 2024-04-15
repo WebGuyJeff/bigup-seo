@@ -45,9 +45,15 @@ class Settings_Page_Developer {
 	 * Output the content for this tab.
 	 */
 	public function output() {
-		settings_fields( self::GROUP );
-		do_settings_sections( self::PAGE );
-		submit_button( 'Save' );
+		?>
+			<form method="post" action="options.php">
+				<?php
+					settings_fields( self::GROUP );
+					do_settings_sections( self::PAGE );
+					submit_button( 'Save' );
+				?>
+			</form>
+		<?php
 	}
 
 

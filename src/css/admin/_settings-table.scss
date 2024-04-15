@@ -1,0 +1,75 @@
+.wrap .wp-heading-inline {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.wrap .wp-heading-inline + .page-title-action {
+    margin-left: 0;
+}
+
+.wrap .add-new-h2,
+.wrap .add-new-h2:active,
+.wrap .page-title-action,
+.wrap .page-title-action:active {
+    position: relative;
+    top: -3px;
+    margin-left: 4px;
+    border: 1px solid #2271b1;
+    border-radius: 2px;
+    background: #f6f7f7;
+    cursor: pointer;
+    padding: 4px 8px;
+    text-decoration: none;
+    text-shadow: none;
+    line-height: normal;
+    color: #2271b1;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.inline-edit-fieldset {
+	columns: 500px 2;
+}
+	.inline-edit-row fieldset label.field {
+		display: grid;
+		grid-template-columns: 1fr;
+		align-items: center;
+		margin-bottom: 5px;
+	}
+		.inline-edit-row fieldset span.field_title {
+			font-size: 16px;
+		}
+
+@media screen and (min-width: 783px) {
+	.inline-edit-row fieldset label.field {
+		display: grid;
+		grid-template-columns: 10em 1fr;
+		margin: .2em 0;
+	}
+		.inline-edit-row fieldset span.field_title {
+			font-size: 13px;
+		}
+}
+
+.inputMessage {
+	grid-column-start: 1;
+	grid-column-end: -1;
+	background: yellow;
+	padding: 0.2em 1em;
+	color: #000;
+}
+
+.row-actions .inlineDeleteButton,
+.row-actions .inlineDeleteButton:hover {
+	color: #b32d2e;
+}
+
+.submit button.delete {
+	background: #b32d2e;
+	border-color: #b32d2e;
+}
+
+.submit button.delete:hover {
+	background: #841e1f;
+	border-color: #841e1f;
+}

@@ -54,11 +54,17 @@ class Settings_Page_Meta {
 	 */
 	public function output() {
 
-		// Basic settings (handled with wp_options).
-		self::output_theme_template_title_tag_status();
-		settings_fields( self::GROUP );
-		do_settings_sections( self::PAGE );
-		submit_button( 'Save' );
+		?>
+			<form method="post" action="options.php">
+				<?php
+					// Basic settings (handled with wp_options).
+					self::output_theme_template_title_tag_status();
+					settings_fields( self::GROUP );
+					do_settings_sections( self::PAGE );
+					submit_button( 'Save' );
+				?>
+			</form>
+		<?php
 
 		// SEO meta settings (handled with custom table 'bigup_seo_meta').
 		$this->echo_seo_meta_options();
@@ -166,16 +172,17 @@ class Settings_Page_Meta {
 				$type     = 'tax';
 			}
 
-			$fields_markup = '';
+			$table_rows = '';
 
 			switch ( $type ) {
 
 				case 'front_page':
 				case 'blog_index':
-					$fields_markup .= $this->get_field_page_title_tag(
+					$table_rows .= $this->get_field_page_title_tag(
 						array(
-							'field_id' => $type,
-							'label'    => $data['label'],
+							'label' => $data['label'],
+							'type'  => $type,
+							'key'   => $type,
 						)
 					);
 					break;
@@ -185,10 +192,11 @@ class Settings_Page_Meta {
 				case 'post_archive':
 				case 'author':
 					foreach ( $data['pages'] as $key => $page ) {
-						$fields_markup .= $this->get_field_page_title_tag(
+						$table_rows .= $this->get_field_page_title_tag(
 							array(
-								'field_id' => $key,
-								'label'    => $page['name'],
+								'label' => $page['name'],
+								'type'  => $type,
+								'key'   => $key,
 							)
 						);
 					}
@@ -202,8 +210,26 @@ class Settings_Page_Meta {
 			$seo_meta_options .= <<<HTML
 				<h2>{$data['label']}</h2>
 				<table class="form-table" role="presentation">
+
+				<table id="metaOptionsTable" class="wp-list-table widefat fixed striped table-view-list">
+					<thead>
+						<tr>
+							<th scope="col" id="title" class="manage-column column-primary">
+								<span>Meta Title</span>
+							</th>
+							<th scope="col" id="type" class="manage-column column-primary">
+								<span>Page Type</span>
+							</th>
+							<th scope="col" id="key" class="manage-column column-primary">
+								<span>Key</span>
+							</th>
+							<th scope="col" id="crawlable" class="manage-column column-primary">
+								<span>Crawling Allowed</span>
+							</th>
+						</tr>
+					</thead>
 					<tbody>
-						{$fields_markup}
+						{$table_rows}
 					</tbody>
 				</table>
 			HTML;
@@ -218,74 +244,80 @@ class Settings_Page_Meta {
 	 */
 	public function get_field_page_title_tag( $page ) {
 
-		$name        = esc_attr( $page['field_id'] );
-		$id          = esc_attr( $page['field_id'] );
-		$value       = esc_attr( $page['label'] );
+		$title       = esc_attr( $page['label'] );
+		$type        = esc_attr( $page['type'] );
+		$key         = esc_attr( $page['key'] );
 		$placeholder = __( 'Enter a title', 'bigup-seo' );
 
 		$field = <<<HTML
-			<tr>
-				<th scope="row">{$page['label']}</th>
-				<td>
-					<input
-						type="text"
-						class="regular-text"
-						name="{$name}"
-						id="{$id}"
-						value="{$value}"
-						placeholder="{$placeholder}"
-					>
+			<tr id="my-post" class="customPostTypeRow iedit">
+				<td class="title column-title has-row-actions column-primary page-title" data-colname="Title">
+					<strong>{$title}</strong>
+					<div class="row-actions">
+						<span class="inline hide-if-no-js">
+							<button data-post-type="my-post" type="button" class="inlineEditButton button-link editinline" aria-label="edit custom post type" aria-expanded="false">Edit</button>
+						</span>
+					</div>
+				</td>
+				<td class="has-row-actions column-primary" data-colname="Type">
+					<span>{$type}</span>
+				</td>
+				<td class="has-row-actions column-primary" data-colname="Key">
+					<span>{$key}</span>
+				</td>
+				<td class="has-row-actions column-primary" data-colname="Crawlable">
+					<span>✔</span>
 				</td>
 			</tr>
-
-
-
-
 			<tr id="editRow-my-post" class="editActive inline-edit-row inline-edit-row-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor">
 				<td colspan="4">
-					<form method="post" action="options.php" class="inline-edit-wrapper" data-type-form="edit">
+					<form method="post" class="inline-edit-wrapper" data-type-form="edit">
 						<fieldset class="inline-edit-fieldset">
 							<legend class="inline-edit-legend">
-								Edit Custom Post Type
+								Page Meta
 							</legend>
-							<template id="deleteFlag">
-								<input type="hidden" name="" id="delete" value="1" checked="">	
-							</template>
-							<h3>Main Settings</h3>
-							<input type="hidden" name="" id="post_type" value="my-post" required="">
-							<label class="field"><span class="field_title">Singular Name</span>
-								<input type="text" name="" id="name_singular" value="" placeholder="My Post" pattern="[- \p{L}\p{N}]*" maxlength="30" required="">
+							<h3>Title and Description</h3>
+							<label class="field"><span class="field_title">Meta Title</span>
+								<input
+									type="text"
+									class="regular-text"
+									name="{$key}"
+									id="{$key}"
+									value="{$title}"
+									placeholder="{$placeholder}"
+								>
 							</label>
-							<label class="field"><span class="field_title">Plural Name</span>
-								<input type="text" name="" id="name_plural" value="" placeholder="My Posts" pattern="[- \p{L}\p{N}]*" maxlength="30" required="">
+							<label class="field"><span class="field_title">Meta Description</span>
+								<textarea
+									rows="3"
+									name=""
+									id=""
+									value=""
+									placeholder="Enter a description"
+								></textarea>
 							</label>
-							<h3>Advanced Settings</h3>
-							<label class="field"><span class="field_title">Public</span>
-								<input type="checkbox" name="" id="public" value="1" checked="">
-							</label>
-							<label class="field"><span class="field_title">Show in Menu</span>
-								<input type="checkbox" name="" id="show_in_menu" value="1" checked="">
-							</label>
-							<label class="field"><span class="field_title">Menu Position</span>
-								<input type="number" name="" id="menu_position" min="0" max="100" step="1" value="5" required="">
+							<h3>Indexing</h3>
+							<label class="field"><span class="field_title">Canonical URL</span>
+								<input
+									type="url"
+									class="regular-text"
+									name=""
+									id=""
+									value=""
+									placeholder="Enter a URL"
+								>
 							</label>
 						</fieldset>
 						<div class="submit inline-edit-save">
-							<button type="button" title="Submit and save form" id="submitButton" class="button button-primary save">Save</button>
-							<button type="button" id="cancelButton" class="button">
-							Cancel
-							</button>
+							<button type="button" title="Submit and save" id="submitButton" class="button button-primary save">Save</button>
+							<button type="button" title="Cancel action" id="cancelButton" class="button">Cancel</button>
 						</div>
 					</form>
 				</td>
 			</tr>
-			
-
-
 		HTML;
 		return $field;
 	}
-
 
 
 	/**

@@ -46,11 +46,17 @@ class Settings_Page_Sitemap {
 	 * Output the content for this tab.
 	 */
 	public function output() {
-		$this->output_tab_intro();
-		settings_fields( self::GROUP );
-		do_settings_sections( self::PAGE );
-		submit_button( 'Save' );
-		$this->output_live_sitemap_viewer();
+		?>
+			<form method="post" action="options.php">
+				<?php
+					$this->output_tab_intro();
+					settings_fields( self::GROUP );
+					do_settings_sections( self::PAGE );
+					submit_button( 'Save' );
+					$this->output_live_sitemap_viewer();
+				?>
+			</form>
+		<?php
 	}
 
 
