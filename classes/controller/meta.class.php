@@ -59,10 +59,8 @@ class Meta {
 	 * Get the current page type.
 	 */
 	private function get_current_page_type() {
-		if ( is_front_page() ) {
-			return 'front_page';
-		} elseif ( is_home() ) {
-			return 'blog_index';
+		if ( is_front_page() || is_home() ) {
+			return 'site_index';
 		} elseif ( is_page() ) {
 			return 'page';
 		} elseif ( is_single() ) {

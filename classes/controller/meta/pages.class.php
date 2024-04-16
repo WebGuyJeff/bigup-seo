@@ -26,8 +26,7 @@ class Pages {
 	 * The page types we want to expose.
 	 */
 	private const TYPES = array(
-		'front_page',
-		'blog_index',
+		'site_index',
 		'page',
 		'post',
 		'post_archive',
@@ -62,55 +61,16 @@ class Pages {
 	/**
 	 * Get viewable taxonomies.
 	 */
-	public function get_taxonomies() {
-		$taxonomies = get_taxonomies(
-			array(
-				'public'             => true,
-				'publicly_queryable' => true,
-			),
-			'objects'
+	public function get_viewable_taxonomies() {
+		$args       = array(
+			'public'             => true,
+			'publicly_queryable' => true,
 		);
-		return $taxonomies;
-	}
-
-
-	/**
-	 * Get non-empty taxonomy terms.
-	 */
-	public function get_taxonomy_terms( $taxonomy ) {
-		$args  = array(
-			'taxonomy'               => $taxonomy,
-			'orderby'                => 'term_order',
-			'hide_empty'             => true,
-			'hierarchical'           => false,
-			'update_term_meta_cache' => false,
-			'fields'                 => 'id=>name',
-		);
-		$terms = array();
-		foreach ( get_terms( $args ) as $id => $name ) {
-			$terms[ $id ] = array(
-				'name' => $name,
-			);
-		}
-		return $terms;
-	}
-
-
-	/**
-	 * Get taxonomies with terms.
-	 */
-	public function get_taxonomies_with_terms() {
-		foreach ( $this->get_taxonomies() as $taxonomy_name => $taxonomy ) {
-
-			$terms = $this->get_taxonomy_terms( $taxonomy_name );
-			if ( empty( $terms ) ) {
-				continue;
-			}
-
+		$taxonomies = array();
+		foreach ( get_taxonomies( $args, 'objects' ) as $taxonomy_name => $taxonomy ) {
 			$taxonomies[] = array(
 				'name'  => $taxonomy_name,
 				'label' => $taxonomy->label,
-				'ids'   => $terms,
 			);
 		}
 		return $taxonomies;
@@ -120,21 +80,15 @@ class Pages {
 	/**
 	 * Get users with published posts.
 	 */
-	public function get_users() {
+	public function get_users_with_published_posts() {
 		$public_post_types = get_post_types( array( 'public' => true ) );
 
 		// We only want authors of post type 'post' and CPTs.
 		unset( $public_post_types['attachment'] );
 		unset( $public_post_types['page'] );
 
-		$args     = array( 'has_published_posts' => array_keys( $public_post_types ) );
-		$wp_users = get_users( $args );
-		$users    = array();
-		foreach ( $wp_users as $user ) {
-			$users[ $user->ID ] = array(
-				'name' => $user->display_name,
-			);
-		}
+		$args  = array( 'has_published_posts' => array_keys( $public_post_types ) );
+		$users = get_users( $args );
 		return $users;
 	}
 
@@ -142,7 +96,7 @@ class Pages {
 	/**
 	 * Get viewable post types.
 	 */
-	public function get_post_types() {
+	public function get_viewable_post_types() {
 		$wp_post_types = get_post_types( array( 'public' => true ), 'objects' );
 		unset( $wp_post_types['attachment'] );
 
@@ -166,8 +120,7 @@ class Pages {
 				$post_types[] = array(
 					'name'        => $post_type->name,
 					'label'       => $post_type->label,
-					'has_archive' => $post_type->has_archive, // Can be boolean or string of archive slug, so if truthy, we must also get `slug` in case it differs.
-					'slug'        => $post_type->has_archive ? $post_type->rewrite['slug'] : false,
+					'has_archive' => $post_type->has_archive, // Can be boolean or string of archive slug.
 				);
 			}
 		}
@@ -185,9 +138,9 @@ class Pages {
 
 		// Get all providers of WordPress generated pages.
 		$this->providers = array(
-			'taxonomies' => $this->get_taxonomies_with_terms(),
-			'post_types' => $this->get_post_types(),
-			'users'      => $this->get_users(),
+			'taxonomies' => $this->get_viewable_taxonomies(),
+			'post_types' => $this->get_viewable_post_types(),
+			'users'      => $this->get_users_with_published_posts(),
 		);
 
 		// Build a map of all generated site pages.
@@ -195,23 +148,31 @@ class Pages {
 		foreach ( self::TYPES as $type ) {
 			switch ( $type ) {
 
-				case 'front_page':
-					$map['front_page'] = array(
+				case 'site_index':
+					// Blog page will only be included if one has been set.
+					$blog = array();
+					if ( get_option( 'page_for_posts' ) ) {
+						$blog['blog_index'] = array(
+							'name' => get_the_title( get_option( 'page_for_posts' ) ),
+							'url'  => get_permalink( get_option( 'page_for_posts' ) ),
+						);
+					}
+					$map['site_index'] = array(
+						'label'    => __( 'Home and Posts Page' ),
 						'key_type' => 'anon',
-						'label'    => __( 'Home', 'bigup-seo' ),
-					);
-					break;
-
-				case 'blog_index':
-					$map['blog_index'] = array(
-						'key_type' => 'anon',
-						'label'    => __( 'Blog Index', 'bigup-seo' ),
+						'pages'    => array(
+							'home' => array(
+								'name' => get_bloginfo( 'name' ),
+								'url'  => get_home_url(),
+							),
+							...$blog,
+						),
 					);
 					break;
 
 				case 'page':
 					$exclusions = array(
-						get_option( 'page_on_front' ),
+						get_option( 'page_on_front' ), // In case homepage is set to a page post.
 						get_option( 'page_for_posts' ),
 					);
 					$args       = array(
@@ -225,7 +186,7 @@ class Pages {
 					foreach ( $wp_pages as $page ) {
 						$pages[ $page->ID ] = array(
 							'name' => $page->post_title,
-
+							'url'  => get_permalink( $page->ID ),
 						);
 					}
 					$map['page'] = array(
@@ -251,6 +212,7 @@ class Pages {
 						foreach ( $wp_posts as $post ) {
 							$posts[ $post->ID ] = array(
 								'name' => $post->post_title,
+								'url'  => get_permalink( $post->ID ),
 							);
 						}
 						$map[ 'post__' . $post_type['name'] ] = array(
@@ -262,41 +224,65 @@ class Pages {
 					break;
 
 				case 'post_archive':
-					$slugs = array();
+					$names = array();
 					foreach ( $this->providers['post_types'] as $post_type ) {
 						if ( false !== $post_type['has_archive'] ) {
-							$slug           = ( 'string' === gettype( $post_type['has_archive'] ) )
-								? $post_type['has_archive']
-								: $post_type['slug'];
-							$slugs[ $slug ] = array(
-								'name' => $slug,
+							$name           = $post_type['name'];
+							$names[ $name ] = array(
+								'name' => $name,
+								'url'  => get_post_type_archive_link( $name),
 							);
 						}
 					}
-					if ( ! empty( $slugs ) ) {
+					if ( ! empty( $names ) ) {
 						$map['post_archive'] = array(
 							'label'    => __( 'Post Archives' ),
-							'key_type' => 'slug',
-							'pages'    => $slugs,
+							'key_type' => 'name',
+							'pages'    => $names,
 						);
 					}
 					break;
 
 				case 'taxonomy':
-					foreach ( $this->providers['taxonomies'] as $tax ) {
-						$map[ 'tax__' . $tax['name'] ] = array(
-							'label'    => $tax['label'],
+					foreach ( $this->providers['taxonomies'] as $taxonomy ) {
+						$args = array(
+							'taxonomy'               => $taxonomy['name'],
+							'orderby'                => 'term_order',
+							'hide_empty'             => true,
+							'hierarchical'           => false,
+							'update_term_meta_cache' => false,
+							'fields'                 => 'id=>name',
+						);
+						$terms = array();
+						foreach ( get_terms( $args ) as $id => $name ) {
+							$terms[ $id ] = array(
+								'name' => $name,
+								'url'  => get_term_link( $id ),
+							);
+						}
+						if ( empty( $terms ) ) {
+							continue;
+						}
+						$map[ 'tax__' . $taxonomy['name'] ] = array(
+							'label'    => $taxonomy['label'],
 							'key_type' => 'id',
-							'pages'    => $tax['ids'],
+							'pages'    => $terms,
 						);
 					}
 					break;
 
 				case 'author':
+					$users = array();
+					foreach ( $this->providers['users'] as $user ) {
+						$users[ $user->ID ] = array(
+							'name' => $user->display_name,
+							'url'  => get_author_posts_url( $user->ID ),
+						);
+					}
 					$map['author'] = array(
 						'label'    => __( 'Authors' ),
 						'key_type' => 'id',
-						'pages'    => $this->providers['users'],
+						'pages'    => $users,
 					);
 					break;
 

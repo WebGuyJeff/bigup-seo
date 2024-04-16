@@ -2,6 +2,8 @@
  * Webpack entry point.
  */
 
-import { robotsFileRequests } from './admin/_robots-file-request'
+import { robotsFileRequest } from './admin/_robots-file-request'
+import { metaEditInline } from './admin/_meta-edit-inline'
 
-robotsFileRequests()
+robotsFileRequest()
+metaEditInline()

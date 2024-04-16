@@ -16,7 +16,7 @@ class Util {
 
 	/**
 	 * Retrieve file contents the 'WordPress way'.
-	 * 
+	 *
 	 * @param string $path File system path.
 	 */
 	public static function get_contents( $path ) {
@@ -26,16 +26,18 @@ class Util {
 			return false;
 		}
 		$wp_filesystem = new \WP_Filesystem_Direct( null );
-		$string        = $wp_filesystem->get_contents( $path );
+		$string		= $wp_filesystem->get_contents( $path );
 		return $string;
 	}
 
 
 	/**
 	 * Check all PHP current theme files for a containing string.
+	 *
+	 * @param string $needle The string to search for.
 	 */
 	public static function theme_files_contain( $needle ) {
-		$theme_dir     = get_template_directory() . '/';
+		$theme_dir	 = get_template_directory() . '/';
 		$theme_files   = array();
 		$matched_files = array();
 		foreach ( glob( $theme_dir . '*.php' ) as $file ) {
@@ -53,5 +55,27 @@ class Util {
 		} else {
 			return false;
 		}
+	}
+
+
+	/**
+	 * Include a template with passed variables.
+	 *
+	 * @param string $template_path The path of the file to be included.
+	 * @param string $variables The variables to pass.
+	 */
+	public static function include_with_vars( $template_path, $variables = array() ) {
+		$output = NULL;
+		if ( file_exists( $template_path ) ) {
+			// Extract variables to local namespace.
+			extract( $variables );
+			// Start output buffering.
+			ob_start();
+			// Include the template file.
+			include $template_path;
+			// End buffering and return its contents.
+			$output = ob_get_clean();
+		}
+		return $output;
 	}
 }

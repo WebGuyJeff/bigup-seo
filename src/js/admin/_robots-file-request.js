@@ -1,7 +1,7 @@
 /**
  * Perform robots.txt file create/delete requests.
  */
-const robotsFileRequests = () => {
+const robotsFileRequest = () => {
 
 	let wpInlinedVars,
 		createButton,
@@ -74,4 +74,4 @@ const robotsFileRequests = () => {
 	}, 100 )
 }
 
-export { robotsFileRequests }
+export { robotsFileRequest }
