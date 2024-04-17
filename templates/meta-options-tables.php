@@ -34,7 +34,7 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 	 */
 	?>
 		<h2><?php echo esc_attr( $strings['title'] ); ?></h2>
-		<table id="metaOptions_<?php echo esc_attr( $strings['type'] ); ?>" role="presentation" class="metaOptions wp-list-table widefat fixed striped table-view-list">
+		<table id="metaOptions_<?php echo esc_attr( $strings['type'] ); ?>" role="presentation" class="wp-list-table widefat fixed striped table-view-list">
 			<thead>
 				<tr>
 					<th scope="col" id="title" class="manage-column column-primary">
@@ -87,14 +87,15 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 						'description_placeholder' => __( 'Enter a description', 'bigup-seo' ),
 						'canonical_label'         => __( 'Canonical URL', 'bigup-seo' ),
 						'canonical_placeholder'   => __( 'Enter a URL', 'bigup-seo' ),
+						'google_serp_title'       => __( 'Google SERP Preview', 'bigup-seo' ),
 					);
 
 					?>
-						<tr data-edit-id="<?php echo esc_attr( $strings['edit-id'] ); ?>">
+						<tr class="infoRow" data-edit-id="<?php echo esc_attr( $strings['edit-id'] ); ?>">
 							<td class="title column-title has-row-actions column-primary page-title" data-colname="Title">
 								<strong><?php echo esc_attr( $strings['title'] ); ?></strong>
-								<div class="row-actions">
-									<span class="inline hide-if-no-js">
+								<div class="row-actions hide-if-no-js">
+									<span>
 										<button
 											data-page="<?php echo esc_attr( $strings['type'] . '-' . $strings['key'] ); ?>"
 											type="button"
@@ -104,8 +105,8 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 											aria-controls="<?php echo esc_attr( $strings['edit-id'] ); ?>"
 										><?php echo esc_attr( $strings['button_edit'] ); ?></button>
 									</span>
-									<span class="inline hide-if-no-js">|</span>
-									<span class="inline hide-if-no-js">
+									<span>|</span>
+									<span>
 										<a
 											href="<?php echo esc_url( $strings['button_view_url'] ); ?>"
 											target="_blank"
@@ -114,12 +115,14 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 											aria-label="<?php echo esc_attr( $strings['button_view'] ); ?>"
 										><?php echo esc_attr( $strings['button_view'] ); ?></a>
 									</span>
-									<span class="inline hide-if-no-js">|</span>
-									<span class="inline hide-if-no-js">
+									<span>|</span>
+									<span>
 										<button
 											type="button"
-											class="inlineResetButton button-link"
+											class="inlineResetButton reset button-link"
 											aria-label="<?php echo esc_attr( $strings['button_reset'] ); ?>"
+											aria-expanded="false"
+											aria-controls="<?php echo esc_attr( $strings['edit-id'] ); ?>"
 										><?php echo esc_attr( $strings['button_reset'] ); ?></button>
 									</span>
 								</div>
@@ -136,46 +139,65 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 						</tr>
 
 						<tr style="display:none" id="hiddenRow" class="editActive hidden"></tr>
-						<tr style="display:none" id="<?php echo esc_attr( $strings['edit-id'] ); ?>" class="editActive inline-edit-row inline-edit-row-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor">
+						<tr style="display:none" id="<?php echo esc_attr( $strings['edit-id'] ); ?>" class="editRow">
 							<td colspan="4">
-								<form method="post" class="inline-edit-wrapper" data-type-form="edit">
-									<h3><?php echo esc_attr( $strings['title'] ); ?></h3>
-									<fieldset class="inline-edit-fieldset">
-										<legend><?php echo esc_attr( $strings['legend'] ); ?></legend>
-										<label class="field"><span class="field_label"><?php echo esc_attr( $strings['title_label'] ); ?></span>
-											<input
-												type="text"
-												class="regular-text"
-												name=""
-												id=""
-												value=""
-												placeholder="<?php echo esc_attr( $strings['title_placeholder'] ); ?>"
-											>
-										</label>
-										<label class="field"><span class="field_label"><?php echo esc_attr( $strings['description_label'] ); ?></span>
-											<textarea
-												rows="3"
-												name=""
-												id=""
-												value=""
-												placeholder="<?php echo esc_attr( $strings['description_placeholder'] ); ?>"
-											></textarea>
-										</label>
-										<label class="field"><span class="field_label"><?php echo esc_attr( $strings['canonical_label'] ); ?></span>
-											<input
-												type="url"
-												class="regular-text"
-												name=""
-												id=""
-												value=""
-												placeholder="<?php echo esc_attr( $strings['canonical_placeholder'] ); ?>"
-											>
-										</label>
-									</fieldset>
-									<div class="submit inline-edit-save">
-										<button type="button" title="Submit and save" id="submitButton" class="button button-primary save"><?php echo esc_attr( $strings['button_save'] ); ?></button>
-										<button type="button" title="Cancel action" id="cancelButton" class="button"><?php echo esc_attr( $strings['button_cancel'] ); ?></button>
+								<form method="post">
+									<header class="editRow_header">
+										<span class="editRow_title"><?php echo esc_attr( $strings['title'] ); ?></span>
+										<span><?php echo esc_attr( $strings['legend'] ); ?></span>
+									</header>
+									<div class="editRow_main">
+										<fieldset class="editRow_column">
+											<label class="field">
+												<span class="field_label"><?php echo esc_attr( $strings['title_label'] ); ?></span>
+												<input
+													type="text"
+													class="regular-text serp_titleIn"
+													name=""
+													id=""
+													value=""
+													placeholder="<?php echo esc_attr( $strings['title_placeholder'] ); ?>"
+													data-validation-ref="title"
+												>
+											</label>
+											<label class="field">
+												<span class="field_label"><?php echo esc_attr( $strings['description_label'] ); ?></span>
+												<textarea
+													rows="3"
+													class="serp_descriptionIn"
+													name=""
+													id=""
+													value=""
+													placeholder="<?php echo esc_attr( $strings['description_placeholder'] ); ?>"
+													data-validation-ref="description"
+												></textarea>
+											</label>
+											<label class="field">
+												<span class="field_label"><?php echo esc_attr( $strings['canonical_label'] ); ?></span>
+												<input
+													type="url"
+													class="regular-text serp_urlIn"
+													name=""
+													id=""
+													value=""
+													placeholder="<?php echo esc_attr( $strings['canonical_placeholder'] ); ?>"
+													data-validation-ref="canonical"
+												>
+											</label>
+											<input type="hidden" name="bigup-seo-reset-record-flag" class="resetFlag" value="1"></input>
+										</fieldset>
+										<div class="editRow_column editRow_preview">
+											<div class="serp">
+												<h3><?php echo esc_attr( $strings['google_serp_title'] ); ?></h3>
+												<div class="serp_title">No title to preview</div>
+												<div class="serp_description">No description to preview</div>
+											</div>
+										</div>
 									</div>
+									<footer class="editRow_footer">
+										<button type="button" title="Submit and save" class="submitButton button button-primary save"><?php echo esc_attr( $strings['button_save'] ); ?></button>
+										<button type="button" title="Cancel action" class="cancelButton button"><?php echo esc_attr( $strings['button_cancel'] ); ?></button>
+									</footer>
 								</form>
 							</td>
 						</tr>

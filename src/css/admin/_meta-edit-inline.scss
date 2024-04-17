@@ -1,0 +1,132 @@
+.editRow {
+
+	td {
+		border: solid 0.2em;
+		padding: 0;
+	}
+
+	header,
+	&_column,
+	footer {
+		padding: 8px 10px;
+	}
+
+	header {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		background: #2271b1;
+		color: #fff;
+
+		span {
+			display: block;
+			margin-bottom: .2em;
+			font-size: 14px;
+		}
+
+		.editRow_title {
+			font-size: 18px;
+			font-weight: 500;
+		}
+	}
+
+	&_main {
+		display: flex;
+		flex-flow: row wrap;
+
+		.editRow_column {
+			flex: 1 1 50em;
+		}
+
+		fieldset {
+			display: flex;
+			flex-flow: column;
+			gap: 0.2em;
+		}
+
+		.field {
+			display: grid;
+			grid-template-columns: 1fr;
+			align-items: center;
+			margin-bottom: 5px;
+		}
+
+		.field_label{
+			font-size: 16px;
+		}
+
+		@media screen and (min-width: 783px) {
+
+			.field {
+				grid-template-columns: 10em 1fr;
+				margin: .2em 0;
+			}
+
+			.field_label {
+				font-size: 13px;
+			}
+		}
+	}
+
+	&_preview {
+		background: #fff;
+	}
+	
+	footer {
+		gap: 0.5em;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+}
+
+.editRow {
+
+	.messageActive input,
+	.messageActive textarea {
+		outline: 2px solid yellow !important;
+	}
+
+	.inputMessage {
+		grid-column-start: 2;
+		grid-column-end: 2;
+		border-radius: 4px;
+		background: yellow;
+		padding: 0.5em 1em;
+		line-height: 1.5;
+		color: #000;
+	}
+
+	.singleCol .inputMessage {
+		grid-column-start: 1;
+		grid-column-end: -1;
+	}
+
+}
+
+.wp-core-ui .row-actions {
+
+	.button-link {
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	.reset,
+	.reset:hover {
+		color: #b32d2e;
+	}
+}
+
+.submitButton.reset {
+	border-color: #b32d2e;
+	background: #b32d2e;
+
+	&:hover {
+		border-color: #841e1f;
+		background: #841e1f;
+	}
+}
