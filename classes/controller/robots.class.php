@@ -30,7 +30,7 @@ class Robots {
 	/**
 	 * Relative path of robots.txt.
 	 */
-	public const ROBOTSRELPATH = 'robots.txt';
+	public const ROBOTS_REL_PATH = 'robots.txt';
 
 
 	/**
@@ -51,12 +51,9 @@ class Robots {
 
 			if ( array_key_exists( 'enable_robots', $settings ) && true === $settings['enable_robots'] ) {
 
-
 				/* Convert this setting to enable sitemap in robots.txt */
 				$url     = trailingslashit( get_site_url() );
 				$sitemap = 'Sitemap: ' . $url . 'sitemap.xml';
-
-
 
 				if ( ! self::file_exists() ) {
 					self::write_file();
@@ -70,7 +67,7 @@ class Robots {
 	 * Get robots.txt path.
 	 */
 	public static function get_path() {
-		return ABSPATH . self::ROBOTSRELPATH;
+		return ABSPATH . self::ROBOTS_REL_PATH;
 	}
 
 
@@ -86,15 +83,15 @@ class Robots {
 		if ( $settings && isset( $settings['robots_contents'] ) && 0 !== strlen( $settings['robots_contents'] ) ) {
 			$contents = $settings['robots_contents'];
 
-		// From existing file.
+			// From existing file.
 		} elseif ( self::file_exists() ) {
 			$contents = Util::get_contents( self::get_path() );
 
-		// From virtual robots.txt.
+			// From virtual robots.txt.
 		} elseif ( is_string( Util::get_contents( $url . 'robots.txt' ) ) && 0 !== strlen( Util::get_contents( $url . 'robots.txt' ) ) ) {
 			$contents = Util::get_contents( $url . 'robots.txt' );
 
-		// From default fallback.
+			// From default fallback.
 		} else {
 			$contents = self::default_contents . Sitemap::get_url();
 		}

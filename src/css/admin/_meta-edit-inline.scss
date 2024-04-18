@@ -6,9 +6,12 @@
 	}
 
 	header,
-	&_column,
 	footer {
 		padding: 8px 10px;
+	}
+
+	&_column {
+		padding: 26px 10px;
 	}
 
 	header {
@@ -42,7 +45,11 @@
 		fieldset {
 			display: flex;
 			flex-flow: column;
-			gap: 0.2em;
+			gap: 0.8em;
+
+			@media ( min-width: 782.1px ) {
+				gap: 0.2em;
+			}
 		}
 
 		.field {
@@ -56,7 +63,7 @@
 			font-size: 16px;
 		}
 
-		@media screen and (min-width: 783px) {
+		@media ( min-width: 782.1px ) {
 
 			.field {
 				grid-template-columns: 10em 1fr;

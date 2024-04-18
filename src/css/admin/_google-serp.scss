@@ -2,9 +2,13 @@
 
 	display: flex;
 	flex-direction: column;
-	margin-left: 28px;
+	margin-left: 0;
 	max-width: 600px;
 	font-family: arial, sans-serif;
+
+	@media ( min-width: 782.1px ) {
+		margin-left: 28px;
+	}
 
 	.serp_title {
 		display: inline-block;
@@ -24,6 +28,7 @@
 	.serp_description {
 		display: block;
 		flex: 1 1 100%;
+		margin-bottom: 22px;
 		min-width: 0;
 		text-align: start;
 		line-height: 1.58;

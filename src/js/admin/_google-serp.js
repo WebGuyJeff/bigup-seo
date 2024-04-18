@@ -10,17 +10,17 @@ const registerSERP = ( serp, titleInput, descriptionInput ) => {
 }
 
 const previewTitle = ( input, output ) => {
-	const title = input.value
+	let title = input.value
 	if ( title.length > 60 ) {
-		title = input.value.substring( 0, 60 ) + '...'
+		title = input.value.substring( 0, 60 ) + ' ...'
 	}
 	output.innerHTML = title
 }
 
 const previewDescription = ( input, output ) => {
-	const description = input.value
-	if ( description.length > 150 ) {
-		description = input.value.substring( 0, 150 ) + '...'
+	let description = input.value
+	if ( description.length > 158 ) {
+		description = input.value.substring( 0, 158 ) + ' ...'
 	}
 	output.innerHTML = description
 }
