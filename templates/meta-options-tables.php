@@ -59,9 +59,6 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 				 */
 				foreach ( $page_type_data['pages'] as $key => $seo_page ) {
 
-					// To do: Add a source for this status.
-					$seo_page['crawlable'] = true;
-
 					$page_type = $sub_type ? $sub_type : $page_type;
 
 					$strings = array(
@@ -70,7 +67,7 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 						'title'                   => $seo_page['name'],
 						'type'                    => $page_type,
 						'key'                     => $key,
-						'crawlable'               => $seo_page['crawlable'] ? '✔' : '',
+						'crawlable'               => $seo_page['robots']['crawlable'] ? '✔' : '',
 						'button_edit'             => __( 'Edit', 'bigup-seo' ),
 						'button_view'             => __( 'View Page', 'bigup-seo' ),
 						'button_view_url'         => $seo_page['url'],

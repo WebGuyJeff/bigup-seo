@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n'
 import { registerSERP } from './_google-serp'
 
 
@@ -136,7 +137,7 @@ const metaEditInline = () => {
 	 * Regex patterns to test for true/false format matching.
 	 */
 	const regexPatterns = {
-		'seoTitle':       /^.{50,60}$/,
+		'seoTitle':       /^.{30,60}$/,
 		'seoDescription': /^.{50,155}$/,
 		'url':            /^(https):\/\/([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(\/[-a-z0-9%_.~+]*)*(\?[;&a-z0-9%_.~+=-]*)?(#[-a-z0-9_]*)?$/,
 	}
@@ -154,17 +155,17 @@ const metaEditInline = () => {
 		switch ( type ) {
 			case 'title':
 				regex = new RegExp( regexPatterns.seoTitle, 'u' )
-				message = 'Google starts to cut off the title tag after 50-60 characters, so between 50 and 60 characters is recommended.'
+				message = __( 'To ensure titles are long enough for Google to consider using them, between 30 and 60 characters is recommended. Google starts to cut off the title tag after 50-60 characters.', 'bigup-seo' )
 				break
 
 			case 'description':
 				regex = new RegExp( regexPatterns.seoDescription, 'u' )
-				message = 'Google generally truncates snippets to ~155-160 characters. To keep descriptions sufficiently descriptive, between 50 and 160 characters is recommended.'
+				message = __( 'Google generally truncates snippets to ~155-160 characters. To keep descriptions sufficiently descriptive, between 50 and 160 characters is recommended.', 'bigup-seo' )
 				break
 
 			case 'canonical':
 				regex = new RegExp( regexPatterns.url, 'u' )
-				message = 'The canonical URL must be a valid URL with the protocol (https) specified. SSL (https) is strongly recommended over plain "http".'
+				message = __( 'The canonical URL must be a valid URL with the protocol (https) specified. SSL (https) is strongly recommended over plain "http".', 'bigup-seo' )
 				break
 				
 			default:

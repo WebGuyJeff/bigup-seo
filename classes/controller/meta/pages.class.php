@@ -144,7 +144,8 @@ class Pages {
 		);
 
 		// Build a map of all generated site pages.
-		$map = array();
+		$user_agent = 'Googlebot';
+		$map        = array();
 		foreach ( self::TYPES as $type ) {
 			switch ( $type ) {
 
@@ -152,18 +153,22 @@ class Pages {
 					// Blog page will only be included if one has been set.
 					$blog = array();
 					if ( get_option( 'page_for_posts' ) ) {
+						$url                = get_permalink( get_option( 'page_for_posts' ) );
 						$blog['blog_index'] = array(
-							'name' => get_the_title( get_option( 'page_for_posts' ) ),
-							'url'  => get_permalink( get_option( 'page_for_posts' ) ),
+							'name'   => get_the_title( get_option( 'page_for_posts' ) ),
+							'url'    => $url,
+							'robots' => Parse_Robots::test_url( $url, $user_agent ),
 						);
 					}
+					$url               = get_home_url();
 					$map['site_index'] = array(
 						'label'    => __( 'Home and Posts Page' ),
 						'key_type' => 'anon',
 						'pages'    => array(
 							'home' => array(
-								'name' => get_bloginfo( 'name' ),
-								'url'  => get_home_url(),
+								'name'   => get_bloginfo( 'name' ),
+								'url'    => $url,
+								'robots' => Parse_Robots::test_url( $url, $user_agent ),
 							),
 							...$blog,
 						),
@@ -184,9 +189,11 @@ class Pages {
 					$wp_pages   = get_pages( $args );
 					$pages      = array();
 					foreach ( $wp_pages as $page ) {
+						$url                = get_permalink( $page->ID );
 						$pages[ $page->ID ] = array(
-							'name' => $page->post_title,
-							'url'  => get_permalink( $page->ID ),
+							'name'   => $page->post_title,
+							'url'    => $url,
+							'robots' => Parse_Robots::test_url( $url, $user_agent ),
 						);
 					}
 					$map['page'] = array(
@@ -210,9 +217,11 @@ class Pages {
 						$wp_posts = get_posts( $args );
 						$posts    = array();
 						foreach ( $wp_posts as $post ) {
+							$url                = get_permalink( $post->ID );
 							$posts[ $post->ID ] = array(
-								'name' => $post->post_title,
-								'url'  => get_permalink( $post->ID ),
+								'name'   => $post->post_title,
+								'url'    => $url,
+								'robots' => Parse_Robots::test_url( $url, $user_agent ),
 							);
 						}
 						$map[ 'post__' . $post_type['name'] ] = array(
@@ -228,9 +237,11 @@ class Pages {
 					foreach ( $this->providers['post_types'] as $post_type ) {
 						if ( false !== $post_type['has_archive'] ) {
 							$name           = $post_type['name'];
+							$url            = get_post_type_archive_link( $name );
 							$names[ $name ] = array(
-								'name' => $name,
-								'url'  => get_post_type_archive_link( $name),
+								'name'   => $name,
+								'url'    => $url,
+								'robots' => Parse_Robots::test_url( $url, $user_agent ),
 							);
 						}
 					}
@@ -245,7 +256,7 @@ class Pages {
 
 				case 'taxonomy':
 					foreach ( $this->providers['taxonomies'] as $taxonomy ) {
-						$args = array(
+						$args  = array(
 							'taxonomy'               => $taxonomy['name'],
 							'orderby'                => 'term_order',
 							'hide_empty'             => true,
@@ -255,9 +266,11 @@ class Pages {
 						);
 						$terms = array();
 						foreach ( get_terms( $args ) as $id => $name ) {
+							$url          = get_term_link( $id );
 							$terms[ $id ] = array(
-								'name' => $name,
-								'url'  => get_term_link( $id ),
+								'name'   => $name,
+								'url'    => $url,
+								'robots' => Parse_Robots::test_url( $url, $user_agent ),
 							);
 						}
 						if ( empty( $terms ) ) {
@@ -274,9 +287,11 @@ class Pages {
 				case 'author':
 					$users = array();
 					foreach ( $this->providers['users'] as $user ) {
+						$url                = get_author_posts_url( $user->ID );
 						$users[ $user->ID ] = array(
-							'name' => $user->display_name,
-							'url'  => get_author_posts_url( $user->ID ),
+							'name'   => $user->display_name,
+							'url'    => $url,
+							'robots' => Parse_Robots::test_url( $url, $user_agent ),
 						);
 					}
 					$map['author'] = array(
