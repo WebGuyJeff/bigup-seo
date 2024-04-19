@@ -21,12 +21,13 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 	}
 
 	$strings = array(
-		'title'         => $page_type_data['label'],
-		'type'          => $page_type,
-		'th_page_title' => __( 'Page Title', 'bigup-seo' ),
-		'th_page_type'  => __( 'Page Type', 'bigup-seo' ),
-		'th_key'        => __( 'Key', 'bigup-seo' ),
-		'th_crawlable'  => __( 'Crawling Allowed', 'bigup-seo' ),
+		'title'           => $page_type_data['label'],
+		'type'            => $page_type,
+		'th_page_title'   => __( 'Page Title', 'bigup-seo' ),
+		'th_page_type'    => __( 'Page Type', 'bigup-seo' ),
+		'th_key'          => __( 'Key', 'bigup-seo' ),
+		'th_crawlable'    => __( 'Googlebot Allowed', 'bigup-seo' ),
+		'th_robots_rules' => __( 'Bot Rules', 'bigup-seo' ),
 	);
 
 	/**
@@ -49,6 +50,9 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 					<th scope="col" id="crawlable" class="manage-column column-primary">
 						<span><?php echo esc_attr( $strings['th_crawlable'] ); ?></span>
 					</th>
+					<th scope="col" id="crawlable" class="manage-column column-primary">
+						<span><?php echo esc_attr( $strings['th_robots_rules'] ); ?></span>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -67,7 +71,8 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 						'title'                   => $seo_page['name'],
 						'type'                    => $page_type,
 						'key'                     => $key,
-						'crawlable'               => $seo_page['robots']['crawlable'] ? '✔' : '',
+						'crawlable'               => $seo_page['robots']['google_allowed'] ? '✅' : '❌',
+						'robots_rules'            => $seo_page['robots']['status'],
 						'button_edit'             => __( 'Edit', 'bigup-seo' ),
 						'button_view'             => __( 'View Page', 'bigup-seo' ),
 						'button_view_url'         => $seo_page['url'],
@@ -133,11 +138,14 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 							<td class="has-row-actions column-primary" data-colname="Crawlable">
 								<span><?php echo esc_attr( $strings['crawlable'] ); ?></span>
 							</td>
+							<td class="has-row-actions column-primary" data-colname="Crawlable">
+								<span class="multiline"><?php echo esc_attr( $strings['robots_rules'] ); ?></span>
+							</td>
 						</tr>
 
 						<tr style="display:none" id="hiddenRow" class="editActive hidden"></tr>
 						<tr style="display:none" id="<?php echo esc_attr( $strings['edit-id'] ); ?>" class="editRow">
-							<td colspan="4">
+							<td colspan="5">
 								<form method="post">
 									<header class="editRow_header">
 										<span class="editRow_title"><?php echo esc_attr( $strings['title'] ); ?></span>

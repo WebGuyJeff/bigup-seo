@@ -72,9 +72,26 @@ class Robots {
 
 
 	/**
-	 * Get robots.txt contents.
+	 * Get the active robots.txt contents.
 	 */
-	public static function get_contents() {
+	public static function get_existing_contents() {
+		$url      = trailingslashit( get_site_url() );
+		$contents = '';
+		if ( self::file_exists() ) {
+			// File in web root.
+			$contents = Util::get_contents( self::get_path() );
+		} elseif ( is_string( Util::get_contents( $url . 'robots.txt' ) ) && 0 !== strlen( Util::get_contents( $url . 'robots.txt' ) ) ) {
+			// Virtual robots.txt.
+			$contents = Util::get_contents( $url . 'robots.txt' );
+		}
+		return $contents;
+	}
+
+
+	/**
+	 * Get contents for a new robots.txt.
+	 */
+	public static function get_new_contents() {
 		$settings = get_option( 'bigupseo_settings_robots' );
 		$url      = trailingslashit( get_site_url() );
 		$contents = '';
@@ -82,10 +99,6 @@ class Robots {
 		// From database.
 		if ( $settings && isset( $settings['robots_contents'] ) && 0 !== strlen( $settings['robots_contents'] ) ) {
 			$contents = $settings['robots_contents'];
-
-			// From existing file.
-		} elseif ( self::file_exists() ) {
-			$contents = Util::get_contents( self::get_path() );
 
 			// From virtual robots.txt.
 		} elseif ( is_string( Util::get_contents( $url . 'robots.txt' ) ) && 0 !== strlen( Util::get_contents( $url . 'robots.txt' ) ) ) {
@@ -110,11 +123,11 @@ class Robots {
 
 
 	/**
-	 * Write a robots.txt file using default parameters unless they have been passed.
+	 * Write a robots.txt file using default contents unless passed.
 	 */
 	public static function write_file( $contents = null ) {
 		if ( null === $contents ) {
-			$contents = self::get_contents();
+			$contents = self::get_new_contents();
 		}
 		$robots_txt = fopen( self::get_path(), 'w' );
 		if ( ! $robots_txt ) {

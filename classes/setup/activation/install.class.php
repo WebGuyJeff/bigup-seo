@@ -31,10 +31,6 @@ class Install {
 	 */
 	public static function create_db_tables() {
 
-		error_log( 'create_db_tables CALLED!');
-
-
-
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'bigup_seo_meta';

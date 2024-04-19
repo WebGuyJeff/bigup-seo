@@ -144,8 +144,9 @@ class Pages {
 		);
 
 		// Build a map of all generated site pages.
-		$user_agent = 'Googlebot';
-		$map        = array();
+		$parse_robots = new Parse_Robots();
+		$bot          = 'Googlebot';
+		$map          = array();
 		foreach ( self::TYPES as $type ) {
 			switch ( $type ) {
 
@@ -157,7 +158,10 @@ class Pages {
 						$blog['blog_index'] = array(
 							'name'   => get_the_title( get_option( 'page_for_posts' ) ),
 							'url'    => $url,
-							'robots' => Parse_Robots::test_url( $url, $user_agent ),
+							'robots' => array(
+								'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
+								'status'         => $parse_robots->get_rules_report_for_url( $url ),
+							),
 						);
 					}
 					$url               = get_home_url();
@@ -168,7 +172,10 @@ class Pages {
 							'home' => array(
 								'name'   => get_bloginfo( 'name' ),
 								'url'    => $url,
-								'robots' => Parse_Robots::test_url( $url, $user_agent ),
+								'robots' => array(
+									'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
+									'status'         => $parse_robots->get_rules_report_for_url( $url ),
+								),
 							),
 							...$blog,
 						),
@@ -193,7 +200,10 @@ class Pages {
 						$pages[ $page->ID ] = array(
 							'name'   => $page->post_title,
 							'url'    => $url,
-							'robots' => Parse_Robots::test_url( $url, $user_agent ),
+							'robots' => array(
+								'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
+								'status'         => $parse_robots->get_rules_report_for_url( $url ),
+							),
 						);
 					}
 					$map['page'] = array(
@@ -221,7 +231,10 @@ class Pages {
 							$posts[ $post->ID ] = array(
 								'name'   => $post->post_title,
 								'url'    => $url,
-								'robots' => Parse_Robots::test_url( $url, $user_agent ),
+								'robots' => array(
+									'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
+									'status'         => $parse_robots->get_rules_report_for_url( $url ),
+								),
 							);
 						}
 						$map[ 'post__' . $post_type['name'] ] = array(
@@ -241,7 +254,10 @@ class Pages {
 							$names[ $name ] = array(
 								'name'   => $name,
 								'url'    => $url,
-								'robots' => Parse_Robots::test_url( $url, $user_agent ),
+								'robots' => array(
+									'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
+									'status'         => $parse_robots->get_rules_report_for_url( $url ),
+								),
 							);
 						}
 					}
@@ -270,7 +286,10 @@ class Pages {
 							$terms[ $id ] = array(
 								'name'   => $name,
 								'url'    => $url,
-								'robots' => Parse_Robots::test_url( $url, $user_agent ),
+								'robots' => array(
+									'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
+									'status'         => $parse_robots->get_rules_report_for_url( $url ),
+								),
 							);
 						}
 						if ( empty( $terms ) ) {
@@ -291,7 +310,10 @@ class Pages {
 						$users[ $user->ID ] = array(
 							'name'   => $user->display_name,
 							'url'    => $url,
-							'robots' => Parse_Robots::test_url( $url, $user_agent ),
+							'robots' => array(
+								'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
+								'status'         => $parse_robots->get_rules_report_for_url( $url ),
+							),
 						);
 					}
 					$map['author'] = array(

@@ -150,8 +150,11 @@ class Settings_Page_Robots {
 	 * Output robots.txt editor field.
 	 */
 	public function echo_field_robots_contents() {
-		$setting   = self::OPTION . '[robots_contents]';
-		$contents  = Robots::get_contents();
+		$setting  = self::OPTION . '[robots_contents]';
+		$contents = Robots::get_existing_contents();
+		if ( empty( $contents ) ) {
+			$contents = Robots::get_new_contents();
+		}
 		printf(
 			'<div class="robotsTxtViewer">' .
 				'<header>' .
