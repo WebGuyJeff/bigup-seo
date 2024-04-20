@@ -12,17 +12,12 @@ namespace BigupWeb\Bigup_Seo;
  * @license GPL3+
  * @link https://jeffersonreal.uk
  */
-
-// WordPress Dependencies.
-use WP_REST_Request;
-use get_option;
-
 class Robots_File_Controller {
 
 	/**
 	 * Receive robots file API requests.
 	 */
-	public function bigup_seo_rest_api_robots_callback( WP_REST_Request $request ) {
+	public function receive_requests( WP_REST_Request $request ) {
 
 		// Check header is JSON.
 		if ( ! str_contains( $request->get_header( 'Content-Type' ), 'application/json' ) ) {

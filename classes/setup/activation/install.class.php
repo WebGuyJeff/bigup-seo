@@ -18,10 +18,9 @@ class Install {
 	public const PLUGIN_PATH = BIGUPSEO_PATH . 'plugin-entry.php';
 
 	/**
-	 *
+	 * Setup a new instance.
 	 */
 	public function __construct() {
-
 		register_activation_hook( self::PLUGIN_PATH, array( $this, 'create_db_tables' ) );
 	}
 

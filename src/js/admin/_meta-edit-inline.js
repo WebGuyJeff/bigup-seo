@@ -43,8 +43,7 @@ const metaEditInline = () => {
 	 * @param {HTMLElement} editButton The event target button element.
 	 */
 	const editButtonClick = ( editButton ) => {
-		const form = doInlineEditRow( editButton )
-		
+		doInlineEditRow( editButton )
 	}
 
 
@@ -57,16 +56,10 @@ const metaEditInline = () => {
 	const resetButtonClick = ( resetButton ) => {
 		const form = doInlineEditRow( resetButton )
 		if ( ! form ) return
-
 		const submitButton = form.querySelector( '.submitButton' )
-		const legend       = form.querySelector( 'legend' )
 		const resetFlag    = form.querySelector( '.resetFlag' )
-
 		resetFlag.checked = true
-
-		legend.innerHTML = 'Are you sure you want to reset all custom meta for this page?'
-
-		submitButton.innerHTML = 'Reset'
+		submitButton.innerHTML = __( 'Reset', 'bigup-seo' )
 		submitButton.classList.add( 'reset' )
 	}
 
@@ -89,7 +82,8 @@ const metaEditInline = () => {
 		editRow.style.display = 'table-row'
 		clickedButton.setAttribute( 'aria-expanded', 'true' )
 		readyEditRow( editRow )
-		return editRow.querySelector( 'form' )
+		const form = editRow.querySelector( 'form' )
+		return form
 	}
 
 

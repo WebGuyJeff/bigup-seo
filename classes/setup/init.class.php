@@ -159,13 +159,25 @@ class Init {
 	 * @link https://developer.wordpress.org/reference/functions/register_rest_route/
 	 */
 	public function register_rest_api_routes() {
-		// Manage robots.txt endpoint.
+
+		// Robots.txt endpoint.
 		register_rest_route(
 			'bigup/seo/v1',
 			'/robots',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( new Robots_File_Controller(), 'bigup_seo_rest_api_robots_callback' ),
+				'callback'            => array( new Robots_File_Controller(), 'receive_requests' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		// SEO meta endpoint.
+		register_rest_route(
+			'bigup/seo/v1',
+			'/seo-meta',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new Seo_Meta_Controller(), 'receive_requests' ),
 				'permission_callback' => '__return_true',
 			)
 		);
