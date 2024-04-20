@@ -126,8 +126,9 @@ class Init {
 			'bigup_seo_admin_js',
 			'bigupSeoWpInlinedScript' . ' = ' . wp_json_encode(
 				array(
-					'restRobotsURL' => get_rest_url( null, 'bigup/seo/v1/robots' ),
-					'restNonce'     => wp_create_nonce( 'wp_rest' ),
+					'restRobotsURL'  => get_rest_url( null, 'bigup/seo/v1/robots' ),
+					'restSeoMetaURL' => get_rest_url( null, 'bigup/seo/v1/seo-meta' ),
+					'restNonce'      => wp_create_nonce( 'wp_rest' ),
 				)
 			),
 			'before'

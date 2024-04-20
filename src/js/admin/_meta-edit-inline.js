@@ -7,32 +7,24 @@ import { registerSERP } from './_google-serp'
  */
 const metaEditInline = () => {
 
+	let wpInlinedVars
 
 	/**
 	 * Set the controls up.
 	 */
 	const initialise = () => {
 
+		wpInlinedVars = bigupSeoWpInlinedScript
+
 		// Edit buttons.
 		if ( document.querySelector( '.metaOptions' ) === 'undefined' ) return
 		[ ...document.querySelectorAll( '.inlineEditButton' ) ].forEach ( editButton => {
-			editButton.addEventListener(
-				'click',
-				function () {
-					resetTables()
-					editButtonClick( this )
-				}
-			)
+			editButton.addEventListener( 'click', editButtonClick )
 		} );
 
 		// Reset buttons.
 		[ ...document.querySelectorAll( '.inlineResetButton' ) ].forEach ( resetButton => {
-			resetButton.addEventListener(
-				'click',
-				function () {
-					resetButtonClick( this )
-				}
-			)
+			resetButton.addEventListener( 'click', resetButtonClick )
 		} )
 	}
 
@@ -42,7 +34,9 @@ const metaEditInline = () => {
 	 * 
 	 * @param {HTMLElement} editButton The event target button element.
 	 */
-	const editButtonClick = ( editButton ) => {
+	const editButtonClick = ( event ) => {
+		resetTables()
+		const editButton = event.currentTarget
 		doInlineEditRow( editButton )
 	}
 
@@ -53,12 +47,12 @@ const metaEditInline = () => {
 	 * @param {HTMLElement} resetButton The event target button element.
 	 * @returns 
 	 */
-	const resetButtonClick = ( resetButton ) => {
+	const resetButtonClick = ( event ) => {
+		resetTables()
+		const resetButton = event.currentTarget
 		const form = doInlineEditRow( resetButton )
 		if ( ! form ) return
 		const submitButton = form.querySelector( '.submitButton' )
-		const resetFlag    = form.querySelector( '.resetFlag' )
-		resetFlag.checked = true
 		submitButton.innerHTML = __( 'Reset', 'bigup-seo' )
 		submitButton.classList.add( 'reset' )
 	}
@@ -71,9 +65,9 @@ const metaEditInline = () => {
 	 * @returns {HTMLElement} 	The form element made visible by the button click.
 	 */
 	const doInlineEditRow = ( clickedButton ) => {
-		const infoRow   = clickedButton.closest( 'tr' )
-		const editRowId = infoRow.getAttribute( 'data-edit-id' )
-		const editRow   = document.querySelector( '#' + editRowId )
+		const infoRow     = clickedButton.closest( 'tr' )
+		const editRowId   = infoRow.getAttribute( 'data-edit-id' )
+		const editRow     = document.querySelector( '#' + editRowId )
 		if ( undefined === editRow ) {
 			console.error( 'Element with ID "' + editRowId + '" not found.' )
 			return false
@@ -95,8 +89,8 @@ const metaEditInline = () => {
 	const readyEditRow = ( tr ) => {
 		colspanUpdate( tr )
 		resizeObserver.observe( tr )
-		attachSubmitListener( tr.querySelector( '.submitButton' ) )
-		attachCancelListener( tr.querySelector( '.cancelButton' ) );
+		tr.querySelector( '.submitButton' ).addEventListener( 'click', metaRequest )
+		tr.querySelector( '.cancelButton' ).addEventListener( 'click', cancelButtonClick );
 		[
 			...tr.querySelectorAll( 'input' ),
 			...tr.querySelectorAll( 'textarea' )
@@ -117,13 +111,58 @@ const metaEditInline = () => {
 	 *
 	 * @param {HTMLElement} button Element to attach the listener to.
 	 */
-	const attachCancelListener = ( button ) => {
-		button.addEventListener(
-			'click',
-			function () {
-				resetTables()
+	const cancelButtonClick = () => {
+		resetTables()
+	}
+
+
+	/**
+	 * Perform a fetch request to manipulate meta settings.
+	 */
+	const metaRequest = async ( event ) => {
+		event.preventDefault()
+		const submitButton = event.currentTarget
+		const form         = submitButton.closest( 'form' )
+
+		if ( submitButton.classList.contains( 'reset' ) ) {
+			const resetFlag   = form.querySelector( '.resetFlag' )
+			resetFlag.checked = true
+			form.submit()
+			resetFlag.checked = false
+			return
+		}
+
+		const formdata = new FormData( form )
+
+		// Fetch params.
+		const { restSeoMetaURL, restNonce } = wpInlinedVars
+		const fetchOptions = {
+			method: "POST",
+			headers: {
+				"X-WP-Nonce"  : restNonce,
+				"Content-Type": "multipart/form-data",
+				"Accept"      : "application/json"
+			},
+			body: formdata,
+		}
+		const controller = new AbortController()
+		const abort = setTimeout( () => controller.abort(), 6000 )
+
+		try {
+
+			submitButton.disabled = true
+			const response = await fetch( restSeoMetaURL, { ...fetchOptions, signal: controller.signal } )
+			clearTimeout( abort )
+			const result = await response.json()
+			if ( ! response.ok ) {
+				alert( 'There was an error processing the request. Please try again.' )
+				throw result
 			}
-		)
+			submitButton.disabled = false
+
+		} catch ( error ) {
+			console.error( error )
+		}
 	}
 
 
@@ -181,86 +220,6 @@ const metaEditInline = () => {
 	}
 
 
-	const postValueExists = ( data, key, value ) => {
-		if ( [ data, key, value ].includes( undefined ) ) return false
-		let exists = false
-		Object.keys( data ).forEach( post => {
-			if ( value === data[ post ][ key ] ) {
-				exists = true
-			}
-		} )
-		return exists
-	}
-
-
-	const attachSubmitListener = ( button ) => {
-		button.addEventListener(
-			'click',
-			function () {
-
-				const form = button.closest( 'form' )
-
-				if ( button.classList.contains( 'delete' ) ) {
-					form.submit()
-					return
-				}
-
-				const formType       = form.getAttribute( 'data-type-form' )
-				const postName       = form.querySelector( '#name_singular' ).value
-				const postsName      = form.querySelector( '#name_plural' ).value
-				const hiddenInput    = form.querySelector( '#post_type' )
-				let postType       = hiddenInput.value
-				const inputsAreValid = form.reportValidity()
-				const data           = JSON.parse( sessionStorage.getItem( 'bigupCPTOption' ) )
-				let areDuplicates  = false
-
-				if ( !! data === true ) {
-
-					if ( inputsAreValid && formType === 'new' ) {
-						let i = 1
-						while ( postValueExists( data, 'post_type', postType ) ) {
-							const noAppendedNum = postType.replace( /-\d$/g, '' )
-							const croppedTo18   = noAppendedNum.substring( 0, 18 )
-							postType = croppedTo18 + '-' + i
-							if ( i === 10 ) {
-								insertInputMessage(
-									form.querySelector( '#name_singular' ),
-									'Post key duplication. Please choose a unique name.'
-								)
-								areDuplicates = true
-							}
-							i++
-						}
-					}
-
-					if ( postValueExists( data, 'name_singular', postName ) && formType !== 'edit' ) {
-						insertInputMessage(
-							form.querySelector( '#name_singular' ),
-							'Post singular name already exists. Please choose a unique name.'
-						)
-						areDuplicates = true
-					}
-
-					if ( postValueExists( data, 'name_plural', postsName ) && formType !== 'edit' ) {
-						insertInputMessage(
-							form.querySelector( '#name_plural' ),
-							'Post plural name already exists. Please choose a unique name.'
-						)
-						areDuplicates = true
-					}
-
-					if ( areDuplicates === true ) {
-						return
-					}
-				}
-
-				hiddenInput.value = postType
-				form.submit()
-			}
-		)
-	}
-
-
 	/**
 	 * Insert an input element mesage.
 	 *
@@ -296,6 +255,7 @@ const metaEditInline = () => {
 		}
 	}
 
+
 	/**
 	 * Reset tables to their initial state.
 	 */
@@ -312,6 +272,9 @@ const metaEditInline = () => {
 			...document.querySelectorAll( '.inlineResetButton' )
 		].forEach ( button => {
 			button.setAttribute( 'aria-expanded', 'false' )
+		} );
+		[ ...document.querySelectorAll( '.submitButton' ) ].forEach ( button => {
+			button.classList.remove( 'reset' )
 		} )
 	}
 

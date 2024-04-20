@@ -17,28 +17,26 @@ class Seo_Meta_Controller {
 	/**
 	 * Receive robots file API requests.
 	 */
-	public function receive_requests( WP_REST_Request $request ) {
+	public function receive_requests( \WP_REST_Request $request ) {
+
+		error_log( $request->get_header( 'Content-Type' ) );
 
 		// Check header is JSON.
-		if ( ! str_contains( $request->get_header( 'Content-Type' ), 'application/json' ) ) {
+		if ( ! str_contains( $request->get_header( 'Content-Type' ), 'multipart/form-data' ) ) {
 			$this->send_json_response( array( 405, 'Unexpected payload content-type' ) );
 			exit; // Request handlers should exit() when done.
 		}
 
-		$data   = $request->get_json_params();
-		$action = $data['action'];
-		$result = '';
-		if ( 'create' === $action ) {
-			$result = Robots::write_file();
+		$form_data = $request->get_body();
 
-		} elseif ( 'delete' === $action ) {
-			$result = Robots::delete_file();
 
-		}
+		// Do SEO meta DB table changes here.
 
-		$file_exists = Robots::file_exists();
 
-		$this->send_json_response( ( $result ) ? 200 : 500, $file_exists );
+		$result  = true;
+		$message = 'Response from the meta controller!';
+
+		$this->send_json_response( ( $result ) ? 200 : 500, $message );
 		exit; // Request handlers should exit() when done.
 	}
 

@@ -17,7 +17,7 @@ class Robots_File_Controller {
 	/**
 	 * Receive robots file API requests.
 	 */
-	public function receive_requests( WP_REST_Request $request ) {
+	public function receive_requests( \WP_REST_Request $request ) {
 
 		// Check header is JSON.
 		if ( ! str_contains( $request->get_header( 'Content-Type' ), 'application/json' ) ) {
