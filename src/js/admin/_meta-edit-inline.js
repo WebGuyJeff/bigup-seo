@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n'
 import { registerSERP } from './_google-serp'
 
-
 /**
  * Handle inline editing of page meta options.
  */
@@ -123,16 +122,11 @@ const metaEditInline = () => {
 		event.preventDefault()
 		const submitButton = event.currentTarget
 		const form         = submitButton.closest( 'form' )
+		const resetFlag    = form.querySelector( '.resetFlag' )
 
 		if ( submitButton.classList.contains( 'reset' ) ) {
-			const resetFlag   = form.querySelector( '.resetFlag' )
 			resetFlag.checked = true
-			form.submit()
-			resetFlag.checked = false
-			return
 		}
-
-		const formdata = new FormData( form )
 
 		// Fetch params.
 		const { restSeoMetaURL, restNonce } = wpInlinedVars
@@ -140,16 +134,14 @@ const metaEditInline = () => {
 			method: "POST",
 			headers: {
 				"X-WP-Nonce"  : restNonce,
-				"Content-Type": "multipart/form-data",
 				"Accept"      : "application/json"
 			},
-			body: formdata,
+			body: new FormData( form ),
 		}
 		const controller = new AbortController()
 		const abort = setTimeout( () => controller.abort(), 6000 )
 
 		try {
-
 			submitButton.disabled = true
 			const response = await fetch( restSeoMetaURL, { ...fetchOptions, signal: controller.signal } )
 			clearTimeout( abort )
@@ -159,9 +151,10 @@ const metaEditInline = () => {
 				throw result
 			}
 			submitButton.disabled = false
-
 		} catch ( error ) {
 			console.error( error )
+		} finally {
+			resetFlag.checked = false
 		}
 	}
 

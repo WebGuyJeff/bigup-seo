@@ -19,18 +19,37 @@ class Seo_Meta_Controller {
 	 */
 	public function receive_requests( \WP_REST_Request $request ) {
 
-		error_log( $request->get_header( 'Content-Type' ) );
-
-		// Check header is JSON.
+		// Check header is multipart/form-data.
 		if ( ! str_contains( $request->get_header( 'Content-Type' ), 'multipart/form-data' ) ) {
 			$this->send_json_response( array( 405, 'Unexpected payload content-type' ) );
 			exit; // Request handlers should exit() when done.
 		}
 
-		$form_data = $request->get_body();
+		$body = $request->get_body_params();
 
 
-		// Do SEO meta DB table changes here.
+		foreach ( $body as $key => $value ) {
+			error_log( $key . ': ' . $value );
+		}
+
+
+		/*
+		https://developer.wordpress.org/reference/classes/wpdb/update/
+
+		$wpdb->update(
+			'table',
+			array(
+				'seo_title' => 'foo',
+				'seo_description' => 'bar',
+				'seo_canonical' => 'bar',
+			),
+			array(
+				'page_type'     => 1,
+				'page_type_key' => 1,
+			)
+		);
+*/
+
 
 
 		$result  = true;

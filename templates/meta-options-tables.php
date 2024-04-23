@@ -158,9 +158,9 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 												<input
 													type="text"
 													class="regular-text serp_titleIn"
-													name=""
+													name="seo_title"
 													id=""
-													value=""
+													value="title"
 													placeholder="<?php echo esc_attr( $strings['title_placeholder'] ); ?>"
 													data-validation-ref="title"
 												>
@@ -170,21 +170,20 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 												<textarea
 													rows="3"
 													class="serp_descriptionIn"
-													name=""
+													name="seo_description"
 													id=""
-													value=""
 													placeholder="<?php echo esc_attr( $strings['description_placeholder'] ); ?>"
 													data-validation-ref="description"
-												></textarea>
+												>description</textarea>
 											</label>
 											<label class="field">
 												<span class="field_label"><?php echo esc_attr( $strings['canonical_label'] ); ?></span>
 												<input
 													type="url"
 													class="regular-text serp_urlIn"
-													name=""
+													name="seo_canonical"
 													id=""
-													value=""
+													value="canonical"
 													placeholder="<?php echo esc_attr( $strings['canonical_placeholder'] ); ?>"
 													data-validation-ref="canonical"
 												>
