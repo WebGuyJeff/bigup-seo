@@ -85,10 +85,13 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 						'button_cancel'           => __( 'Cancel', 'bigup-seo' ),
 						'title_label'             => __( 'Meta Title', 'bigup-seo' ),
 						'title_placeholder'       => __( 'Enter a title', 'bigup-seo' ),
+						'title_table_col'         => 'seo_title',
 						'description_label'       => __( 'Meta Description', 'bigup-seo' ),
 						'description_placeholder' => __( 'Enter a description', 'bigup-seo' ),
+						'description_table_col'   => 'seo_description',
 						'canonical_label'         => __( 'Canonical URL', 'bigup-seo' ),
 						'canonical_placeholder'   => __( 'Enter a URL', 'bigup-seo' ),
+						'canonical_table_col'     => 'seo_canonical',
 						'google_serp_title'       => __( 'Google SERP Preview', 'bigup-seo' ),
 					);
 
@@ -153,6 +156,9 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 									</header>
 									<div class="editRow_main">
 										<fieldset class="editRow_column">
+											<input type="hidden" name="seo_reset_flag" class="resetFlag" value=""></input>
+											<input type="hidden" name="page_type" class="resetFlag" value="<?php echo esc_attr( $strings['type'] ); ?>"></input>
+											<input type="hidden" name="page_type_key" class="resetFlag" value="<?php echo esc_attr( $strings['key'] ); ?>"></input>
 											<label class="field">
 												<span class="field_label"><?php echo esc_attr( $strings['title_label'] ); ?></span>
 												<input
@@ -188,7 +194,6 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 													data-validation-ref="canonical"
 												>
 											</label>
-											<input type="hidden" name="bigup-seo-reset-record-flag" class="resetFlag" value="1"></input>
 										</fieldset>
 										<div class="editRow_column editRow_preview">
 											<div class="serp">

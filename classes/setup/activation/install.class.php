@@ -60,9 +60,14 @@ class Install {
 			seo_description tinytext,
 			seo_canonical varchar(1855),
 			PRIMARY KEY  (id)
-		) $charset_collate;";
+		) $charset_collate;
+		ALTER TABLE $table_name
+			ADD CONSTRAINT SEO_Page UNIQUE (page_type,page_type_key);";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta( $sql );
+		$result = dbDelta( $sql );
+
+		// DEBUG.
+		error_log( 'DB table result: ' . json_encode( $result ) );
 	}
 }

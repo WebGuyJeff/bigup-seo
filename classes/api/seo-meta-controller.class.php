@@ -25,37 +25,66 @@ class Seo_Meta_Controller {
 			exit; // Request handlers should exit() when done.
 		}
 
-		$body = $request->get_body_params();
+		$body          = $request->get_body_params();
+		$data          = array();
+		$page_type     = array();
+		$page_type_key = '';
+		$reset         = false;
 
-
+		// Process form data.
 		foreach ( $body as $key => $value ) {
-			error_log( $key . ': ' . $value );
+			if ( 'seo_reset_flag' === $key ) {
+				$reset = $value;
+			} elseif ( 'page_type' === $key ) {
+				$page_type = $value;
+			} elseif ( 'page_type_key' === $key ) {
+				$page_type_key = $value;
+			} else {
+				$data[ $key ] = $value;
+			}
 		}
 
+		// DEBUG.
+		error_log( '$reset: ' . $reset );
+		error_log( '$data: ' . json_encode( $data ) );
+		error_log( '$where: ' . json_encode( $where ) );
 
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'bigup_seo_meta';
+
+		/**
+		 * Update the DB table.
+		 *
+		 * @see https://developer.wordpress.org/reference/classes/wpdb/update/
+		 */
 		/*
-		https://developer.wordpress.org/reference/classes/wpdb/update/
-
-		$wpdb->update(
-			'table',
-			array(
-				'seo_title' => 'foo',
-				'seo_description' => 'bar',
-				'seo_canonical' => 'bar',
-			),
-			array(
-				'page_type'     => 1,
-				'page_type_key' => 1,
-			)
+		$result = $wpdb->update(
+			$table_name,
+			$data,       // Column => value pairs of data to insert.
+			$where,      // Column => value pairs to identify the row to update.
+			// Use $format and $where_format (ommitted) if values are anything other than string.
 		);
-*/
+		*/
+
+		// FINISH THIS!!!
+		$sql = "SELECT *
+			FROM $table_name
+			WHERE (page_type = $page_type AND page_type_key = $page_type_key;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		$result = dbDelta( $sql );
+
+		// DEBUG.
+		error_log( 'DB table result: ' . json_encode( $result ) );
 
 
 
-		$result  = true;
-		$message = 'Response from the meta controller!';
 
-		$this->send_json_response( ( $result ) ? 200 : 500, $message );
+
+		$this->send_json_response(
+			( $result ) ? 200 : 500,
+			( $result ) ? 'Update succesful' : 'Update failed', // Non-public.
+		);
 		exit; // Request handlers should exit() when done.
 	}
 

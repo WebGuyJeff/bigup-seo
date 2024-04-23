@@ -125,7 +125,7 @@ const metaEditInline = () => {
 		const resetFlag    = form.querySelector( '.resetFlag' )
 
 		if ( submitButton.classList.contains( 'reset' ) ) {
-			resetFlag.checked = true
+			resetFlag.value = 1
 		}
 
 		// Fetch params.
@@ -154,7 +154,7 @@ const metaEditInline = () => {
 		} catch ( error ) {
 			console.error( error )
 		} finally {
-			resetFlag.checked = false
+			resetFlag.value = ''
 		}
 	}
 
