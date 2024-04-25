@@ -24,6 +24,8 @@ class Pages {
 
 	/**
 	 * The page types we want to expose.
+	 *
+	 * Database column allows 20 chars max length for type.
 	 */
 	private const TYPES = array(
 		'site_index',
@@ -133,6 +135,8 @@ class Pages {
 	 *
 	 * Post and taxonomy types are prefixed `post__` and `tax__` respectively as an alternative to
 	 * nesting arrays to make processing simpler.
+	 *
+	 * Database column allows 20 chars max length for pages[] array keys.
 	 */
 	private function get_page_map() {
 

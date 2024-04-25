@@ -25,13 +25,14 @@ class Seo_Meta_Controller {
 			exit; // Request handlers should exit() when done.
 		}
 
-		$body          = $request->get_body_params();
-		$data          = array();
-		$page_type     = array();
-		$page_type_key = '';
-		$reset         = false;
-
-		// Process form data.
+		// Process form data into SQL-ready strings.
+		$body                 = $request->get_body_params();
+		$reset                = false;
+		$page_type            = '';
+		$page_type_key        = '';
+		$sql_update_cols_vals = '';
+		$sql_insert_columns   = '';
+		$sql_insert_values    = '';
 		foreach ( $body as $key => $value ) {
 			if ( 'seo_reset_flag' === $key ) {
 				$reset = $value;
@@ -40,42 +41,40 @@ class Seo_Meta_Controller {
 			} elseif ( 'page_type_key' === $key ) {
 				$page_type_key = $value;
 			} else {
-				$data[ $key ] = $value;
+				$sql_update_cols_vals .= $key . ' = ' . $value . ', ';
+				$sql_insert_columns   .= $key . ', ';
+				$sql_insert_values    .= $value . ', ';
 			}
 		}
+		$sql_update_cols_vals = preg_replace( '/, $/', '', $sql_update_cols_vals );
+		$sql_insert_columns   = preg_replace( '/, $/', '', $sql_insert_columns );
+		$sql_insert_values    = preg_replace( '/, $/', '', $sql_insert_values );
 
 		// DEBUG.
-		error_log( '$reset: ' . $reset );
-		error_log( '$data: ' . json_encode( $data ) );
-		error_log( '$where: ' . json_encode( $where ) );
+		error_log( '$sql_update_cols_vals: ' . $sql_update_cols_vals );
+		error_log( '$sql_insert_columns: ' . $sql_insert_columns );
+		error_log( '$sql_insert_values: ' . $sql_insert_values );
 
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'bigup_seo_meta';
 
-		/**
-		 * Update the DB table.
-		 *
-		 * @see https://developer.wordpress.org/reference/classes/wpdb/update/
-		 */
-		/*
-		$result = $wpdb->update(
-			$table_name,
-			$data,       // Column => value pairs of data to insert.
-			$where,      // Column => value pairs to identify the row to update.
-			// Use $format and $where_format (ommitted) if values are anything other than string.
-		);
-		*/
 
-		// FINISH THIS!!!
-		$sql = "SELECT *
-			FROM $table_name
-			WHERE (page_type = $page_type AND page_type_key = $page_type_key;";
+		// Update the DB table.
+		$insert_or_update_table_row = "
+			IF NOT EXISTS (SELECT * FROM $table_name WHERE (page_type = $page_type AND page_type_key = $page_type_key))
+				INSERT INTO $table_name($sql_insert_columns)
+				VALUES($sql_insert_values)
+			ELSE
+				UPDATE $table_name
+				SET $sql_update_cols_vals
+				WHERE (page_type = $page_type AND page_type_key = $page_type_key);
+		";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		$result = dbDelta( $sql );
+		$result = dbDelta( $insert_or_update_table_row );
 
 		// DEBUG.
-		error_log( 'DB table result: ' . json_encode( $result ) );
+		error_log( 'DB insert or update: ' . json_encode( $result ) );
 
 
 
