@@ -112,28 +112,55 @@
 
 }
 
-.wp-core-ui .row-actions {
+// WP button style overrides.
+.wp-core-ui {
 
-	.button-link {
-		text-decoration: none;
+	.row-actions {
 
-		&:hover {
-			text-decoration: underline;
+		.button-link {
+			text-decoration: none;
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+
+		.reset,
+		.reset:hover {
+			color: #b32d2e;
 		}
 	}
 
-	.reset,
-	.reset:hover {
+	.submitButton.reset {
+		border-color: #b32d2e;
+		background: #b32d2e;
+	
+		&:hover {
+			border-color: #841e1f;
+			background: #841e1f;
+		}
+	}
+
+	.resetButton {
+		border-color: #b32d2e;
 		color: #b32d2e;
+
+		&:hover {
+			border-color: #841e1f;
+			color: #841e1f;
+		}
+
+		&:focus {
+			border-color: #b32d2e;
+			color: #b32d2e;
+			box-shadow: 0 0 0 1px #b32d2e;
+		}
 	}
 }
 
-.submitButton.reset {
-	border-color: #b32d2e;
-	background: #b32d2e;
 
-	&:hover {
-		border-color: #841e1f;
-		background: #841e1f;
-	}
+// WP table overrides.
+.widefat td .notice p {
+	margin: .5em 0;
+	padding: 2px;
 }

@@ -15,7 +15,7 @@ namespace BigupWeb\Bigup_Seo;
 class Seo_Meta_Controller {
 
 	/**
-	 * Receive robots file API requests.
+	 * Receive API requests.
 	 */
 	public function receive_requests( \WP_REST_Request $request ) {
 
@@ -25,53 +25,65 @@ class Seo_Meta_Controller {
 			exit; // Request handlers should exit() when done.
 		}
 
+		global $wpdb;
+
 		// Process form data into SQL-ready strings.
-		$body                 = $request->get_body_params();
-		$reset                = false;
-		$page_type            = '';
-		$page_type_key        = '';
-		$sql_update_cols_vals = '';
-		$sql_insert_columns   = '';
-		$sql_insert_values    = '';
-		foreach ( $body as $key => $value ) {
-			// Refactor as 'seo_reset_flag' will break if not always first in array.
-			if ( 'seo_reset_flag' === $key && $value ) {
+		$body               = $request->get_body_params();
+		$reset              = false;
+		$page_type          = '';
+		$page_type_key      = '';
+		$columns_and_values = '';
+		$columns            = '';
+		$values             = '';
+		if ( array_key_exists( 'seo_reset_flag', $body ) ) {
+			// Grab the reset flag if present and sepearate it from the table data.
+			if ( $body['seo_reset_flag'] ) {
 				$reset = true;
-			} elseif ( 'page_type' === $key || 'page_type_key' === $key ) {
-				$sql_insert_columns .= $key . ', ';
-				$sql_insert_values  .= "'" . $value . "', ";
+			}
+			unset( $body['seo_reset_flag'] );
+		}
+		foreach ( $body as $key => $value ) {
+			if ( 'page_type' === $key || 'page_type_key' === $key ) {
+				$columns .= $wpdb->prepare( '%i, ', $key );
+				$values  .= $wpdb->prepare( '%s, ', $value );
 			} else {
-				if ( $reset ) {
-					$value = '';
+				if ( $reset || '' === $value ) {
+					/*
+					 * $wpdb->prepare() currently doesn't support null values, so we use this
+					 * string placeholder which will then be replaced before passing to dbDelta().
+					 */
+					$value = 'NULL';
 				}
-				$sql_update_cols_vals .= $key . ' = ' . "'" . $value . "', ";
-				$sql_insert_columns   .= $key . ', ';
-				$sql_insert_values    .= "'" . $value . "', ";
+				$columns_and_values .= $wpdb->prepare( '%i = %s, ', $key, $value );
+				$columns            .= $wpdb->prepare( '%i, ', $key );
+				$values             .= $wpdb->prepare( '%s, ', $value );
 			}
 		}
-		$sql_update_cols_vals = preg_replace( '/, $/', '', $sql_update_cols_vals );
-		$sql_insert_columns   = preg_replace( '/, $/', '', $sql_insert_columns );
-		$sql_insert_values    = preg_replace( '/, $/', '', $sql_insert_values );
+		$sql_columns_and_values = preg_replace( '/, $/', '', $columns_and_values );
+		$sql_columns            = preg_replace( '/, $/', '', $columns );
+		$sql_values             = preg_replace( '/, $/', '', $values );
 
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'bigup_seo_meta';
-
-		// Update the DB table.
-		$insert_or_update_table_row = "
-			INSERT INTO wp_bigup_seo_meta ( $sql_insert_columns )
-			VALUES ( $sql_insert_values )
-			ON DUPLICATE KEY UPDATE $sql_update_cols_vals;
+		/*
+		 * Update the DB table.
+		 *
+		 * Note dbDelta() only returns message strings or empty array, so errors should be handled
+		 * with another method.
+		 */
+		$table_name   = $wpdb->prefix . 'bigup_seo_meta';
+		$upsert_query = "
+			INSERT INTO $table_name ( $sql_columns )
+			VALUES ( $sql_values )
+			ON DUPLICATE KEY UPDATE $sql_columns_and_values;
 		";
-
+		// Replace placeholders with nulls.
+		$upsert_query_nulled = preg_replace( "/'NULL'/", 'NULL', $upsert_query );
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		$messages = dbDelta( $insert_or_update_table_row );
-
-		// DEBUG.
-		error_log( 'DB insert or update: ' . json_encode( $result ) );
+		$messages = dbDelta( $upsert_query_nulled );
 
 		$this->send_json_response(
-			200, // Always 200 if server was reached, as dbDelta() doesn't return success/failure.
-			$messages, // The MySQL messages for each query passed.
+			// ToDo: Extend to reflect DB errors.
+			200,
+			$messages, // The MySQL messages for each query passed (normally empty).
 		);
 		exit; // Request handlers should exit() when done.
 	}

@@ -97,7 +97,7 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 
 					?>
 						<tr class="infoRow" data-edit-id="<?php echo esc_attr( $strings['edit-id'] ); ?>">
-							<td class="title column-title has-row-actions column-primary page-title" data-colname="Title">
+							<td>
 								<strong><?php echo esc_attr( $strings['title'] ); ?></strong>
 								<div class="row-actions hide-if-no-js">
 									<span>
@@ -132,16 +132,16 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 									</span>
 								</div>
 							</td>
-							<td class="has-row-actions column-primary" data-colname="Type">
+							<td>
 								<span><?php echo esc_attr( $strings['type'] ); ?></span>
 							</td>
-							<td class="has-row-actions column-primary" data-colname="Key">
+							<td>
 								<span><?php echo esc_attr( $strings['key'] ); ?></span>
 							</td>
-							<td class="has-row-actions column-primary" data-colname="Crawlable">
+							<td>
 								<span><?php echo esc_attr( $strings['crawlable'] ); ?></span>
 							</td>
-							<td class="has-row-actions column-primary" data-colname="Crawlable">
+							<td>
 								<span class="multiline"><?php echo esc_attr( $strings['robots_rules'] ); ?></span>
 							</td>
 						</tr>
@@ -156,9 +156,9 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 									</header>
 									<div class="editRow_main">
 										<fieldset class="editRow_column">
-											<input type="hidden" name="seo_reset_flag" class="resetFlag" value=""></input>
-											<input type="hidden" name="page_type" class="resetFlag" value="<?php echo esc_attr( $strings['type'] ); ?>"></input>
-											<input type="hidden" name="page_type_key" class="resetFlag" value="<?php echo esc_attr( $strings['key'] ); ?>"></input>
+											<input type="hidden" name="seo_reset_flag" class="resetFlag" value="">
+											<input type="hidden" name="page_type" value="<?php echo esc_attr( $strings['type'] ); ?>">
+											<input type="hidden" name="page_type_key" value="<?php echo esc_attr( $strings['key'] ); ?>">
 											<label class="field">
 												<span class="field_label"><?php echo esc_attr( $strings['title_label'] ); ?></span>
 												<input
@@ -204,9 +204,11 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 										</div>
 									</div>
 									<footer class="editRow_footer">
+										<div class="notices"></div>
 										<div class="editRow_controls">
-											<button type="button" title="Submit and save" class="submitButton button button-primary save"><?php echo esc_attr( $strings['button_save'] ); ?></button>
-											<button type="button" title="Cancel action" class="cancelButton button"><?php echo esc_attr( $strings['button_cancel'] ); ?></button>
+											<button type="button" title="Save" class="submitButton button button-primary save"><?php echo esc_attr( $strings['button_save'] ); ?></button>
+											<button type="button" title="Cancel" class="cancelButton button"><?php echo esc_attr( $strings['button_cancel'] ); ?></button>
+											<button type="button" title="Reset" class="resetButton button"><?php echo esc_attr( $strings['button_reset'] ); ?></button>
 										</div>
 									</footer>
 								</form>

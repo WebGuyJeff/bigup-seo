@@ -22,7 +22,10 @@ const metaEditInline = () => {
 		} );
 
 		// Reset buttons.
-		[ ...document.querySelectorAll( '.inlineResetButton' ) ].forEach ( resetButton => {
+		[
+			...document.querySelectorAll( '.inlineResetButton' ),
+			...document.querySelectorAll( '.resetButton' )
+		].forEach ( resetButton => {
 			resetButton.addEventListener( 'click', resetButtonClick )
 		} )
 	}
@@ -47,13 +50,18 @@ const metaEditInline = () => {
 	 * @returns 
 	 */
 	const resetButtonClick = ( event ) => {
-		resetTables()
 		const resetButton = event.currentTarget
-		const form = doInlineEditRow( resetButton )
+		if ( resetButton.classList.contains( 'inlineResetButton' ) ) {
+			resetTables()
+		} 
+		const form        = doInlineEditRow( resetButton )
 		if ( ! form ) return
-		const submitButton = form.querySelector( '.submitButton' )
+		const onFormResetButton = form.querySelector( '.resetButton' )
+		const submitButton      = form.querySelector( '.submitButton' )
+		onFormResetButton.style.display = 'none'
 		submitButton.innerHTML = __( 'Reset', 'bigup-seo' )
 		submitButton.classList.add( 'reset' )
+		doFormNotice( form, 'notice-error', __( 'Reset SEO meta to defaults for this page?', 'bigup-seo' ) )
 	}
 
 
@@ -64,17 +72,25 @@ const metaEditInline = () => {
 	 * @returns {HTMLElement} 	The form element made visible by the button click.
 	 */
 	const doInlineEditRow = ( clickedButton ) => {
-		const infoRow     = clickedButton.closest( 'tr' )
-		const editRowId   = infoRow.getAttribute( 'data-edit-id' )
-		const editRow     = document.querySelector( '#' + editRowId )
-		if ( undefined === editRow ) {
-			console.error( 'Element with ID "' + editRowId + '" not found.' )
-			return false
+		let editRow
+		if ( clickedButton.classList.contains( 'resetButton' ) ) {
+			// On-form reset button.
+			editRow = clickedButton.closest( 'tr' )
+
+		} else {
+			// All other buttons.
+			const infoRow   = clickedButton.closest( 'tr' )
+			const editRowId = infoRow.getAttribute( 'data-edit-id' )
+			editRow = document.querySelector( '#' + editRowId )
+			if ( undefined === editRow ) {
+				console.error( 'Element with ID "' + editRowId + '" not found.' )
+				return false
+			}
+			infoRow.style.display = 'none'
+			editRow.style.display = 'table-row'
+			clickedButton.setAttribute( 'aria-expanded', 'true' )
+			readyEditRow( editRow )
 		}
-		infoRow.style.display = 'none'
-		editRow.style.display = 'table-row'
-		clickedButton.setAttribute( 'aria-expanded', 'true' )
-		readyEditRow( editRow )
 		const form = editRow.querySelector( 'form' )
 		return form
 	}
@@ -148,16 +164,11 @@ const metaEditInline = () => {
 			const result = await response.json()
 
 			// Display feedback.
-			const div = document.createElement( 'div' )
-			div.classList.add( 'notice', 'updated' )
-			const p = document.createElement( 'p' )
 			if ( result.ok ) {
-				p.innerText = '✅'
+				doFormNotice( form, 'notice-success', __( 'Saved', 'bigup-seo' ) )
 			} else {
-				p.innerText = '❌'
+				doFormNotice( form, 'notice-error', __( 'Error', 'bigup-seo' ) )
 			}
-			div.insertAdjacentElement( 'beforeend', p )
-			form.querySelector( 'footer' ).insertAdjacentElement( 'afterbegin', div )
 		} catch ( error ) {
 			console.error( error )
 		} finally {
@@ -276,6 +287,41 @@ const metaEditInline = () => {
 		} );
 		[ ...document.querySelectorAll( '.submitButton' ) ].forEach ( button => {
 			button.classList.remove( 'reset' )
+		} );
+		[ ...document.querySelectorAll( '.resetButton' ) ].forEach ( button => {
+			button.style.display = 'block'
+		} )
+		
+		removeNotices()
+	}
+
+
+	/**
+	 * Display a notice to the user.
+	 *
+	 * @param {HTMLElement} form      The form element.
+	 * @param {string}      className Class name to use.
+	 * @param {string}      message   Message to insert.
+	 */
+	const doFormNotice = ( form, className, message ) => {
+		removeNotices()
+		const div    = document.createElement( 'div' )
+		const p      = document.createElement( 'p' )
+		const strong = document.createElement( 'strong' )
+		div.classList.add( 'notice', className )
+		strong.innerText = message
+		p.insertAdjacentElement( 'afterbegin', strong )
+		div.insertAdjacentElement( 'beforeend', p )
+		form.querySelector( '.notices' ).insertAdjacentElement( 'afterbegin', div )
+	}
+
+
+	/**
+	 * Remove any existing notices.
+	 */
+	const removeNotices = () => {
+		[ ...document.querySelectorAll( 'div.notice' ) ].forEach ( notice => {
+			notice.remove()
 		} )
 	}
 
