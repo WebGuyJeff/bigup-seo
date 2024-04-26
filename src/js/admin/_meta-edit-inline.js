@@ -146,15 +146,23 @@ const metaEditInline = () => {
 			const response = await fetch( restSeoMetaURL, { ...fetchOptions, signal: controller.signal } )
 			clearTimeout( abort )
 			const result = await response.json()
-			if ( ! response.ok ) {
-				alert( 'There was an error processing the request. Please try again.' )
-				throw result
+
+			// Display feedback.
+			const div = document.createElement( 'div' )
+			div.classList.add( 'notice', 'updated' )
+			const p = document.createElement( 'p' )
+			if ( result.ok ) {
+				p.innerText = '✅'
+			} else {
+				p.innerText = '❌'
 			}
-			submitButton.disabled = false
+			div.insertAdjacentElement( 'beforeend', p )
+			form.querySelector( 'footer' ).insertAdjacentElement( 'afterbegin', div )
 		} catch ( error ) {
 			console.error( error )
 		} finally {
 			resetFlag.value = ''
+			submitButton.disabled = false
 		}
 	}
 

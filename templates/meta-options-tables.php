@@ -204,8 +204,10 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 										</div>
 									</div>
 									<footer class="editRow_footer">
-										<button type="button" title="Submit and save" class="submitButton button button-primary save"><?php echo esc_attr( $strings['button_save'] ); ?></button>
-										<button type="button" title="Cancel action" class="cancelButton button"><?php echo esc_attr( $strings['button_cancel'] ); ?></button>
+										<div class="editRow_controls">
+											<button type="button" title="Submit and save" class="submitButton button button-primary save"><?php echo esc_attr( $strings['button_save'] ); ?></button>
+											<button type="button" title="Cancel action" class="cancelButton button"><?php echo esc_attr( $strings['button_cancel'] ); ?></button>
+										</div>
 									</footer>
 								</form>
 							</td>

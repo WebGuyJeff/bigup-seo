@@ -32,7 +32,7 @@ class Install {
 	 * activation tasks.
 	 */
 	public function all() {
-		$this->create_db_tables();
+		$this->create_meta_db_tables();
 	}
 
 
@@ -50,7 +50,7 @@ class Install {
 	 * SQL keywords, like CREATE TABLE and UPDATE, must be uppercase.
 	 * You must specify the length of all fields that accept a length parameter. int(11), for example.
 	 */
-	public function create_db_tables() {
+	public function create_meta_db_tables() {
 
 		global $wpdb;
 
@@ -67,28 +67,22 @@ class Install {
 		 * Column page_type_key will always be an ID number or a post type slug. The slug has a
 		 * limit of 20 chars set by WordPress, so our DB column is also limited to 20 characters.
 		 */
-		$create_meta_table = "CREATE TABLE $table_name (
-					id mediumint(9) NOT NULL AUTO_INCREMENT,
-					page_type varchar(20) NOT NULL,
-					page_type_key varchar(20) NOT NULL,
-					seo_title tinytext,
-					seo_description tinytext,
-					seo_canonical varchar(1855),
-					PRIMARY KEY  (id)
-				) $charset_collate;";
-
-		$add_meta_table_constraint = "ALTER TABLE $table_name
-				ADD CONSTRAINT SEO_Page UNIQUE( page_type, page_type_key );";
+		$create_meta_table = "
+			CREATE TABLE $table_name
+			(
+				id mediumint(9) NOT NULL AUTO_INCREMENT,
+				page_type varchar(20) NOT NULL,
+				page_type_key varchar(20) NOT NULL,
+				seo_title tinytext,
+				seo_description tinytext,
+				seo_canonical varchar(1855),
+				PRIMARY KEY  (id),
+				CONSTRAINT seo_page_index UNIQUE (page_type, page_type_key)
+			)
+			$charset_collate;
+		";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		$result = dbDelta(
-			array(
-				$create_meta_table,
-				$add_meta_table_constraint,
-			)
-		);
-
-		// DEBUG.
-		error_log( '$sql result: ' . json_encode( $result ) );
+		$create_meta_table_result = dbDelta( $create_meta_table );
 	}
 }

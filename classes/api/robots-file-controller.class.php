@@ -52,16 +52,16 @@ class Robots_File_Controller {
 	 *
 	 * @param array $info: [ int(http-code), str(human readable message) ].
 	 */
-	private function send_json_response( $status, $file_exists = null ) {
+	private function send_json_response( $code, $file_exists = null ) {
 
 		// Ensure response headers haven't already sent to browser.
 		if ( ! headers_sent() ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
-			status_header( $status );
+			status_header( $code );
 		}
 
 		$response = array(
-			'ok'     => ( $status < 300 ) ? true : false,
+			'ok'     => ( $code < 300 ) ? true : false,
 			'exists' => $file_exists,
 		);
 
