@@ -61,7 +61,7 @@ const metaEditInline = () => {
 		onFormResetButton.style.display = 'none'
 		submitButton.innerHTML = __( 'Reset', 'bigup-seo' )
 		submitButton.classList.add( 'reset' )
-		doFormNotice( form, 'notice-error', __( 'Reset SEO meta to defaults for this page?', 'bigup-seo' ) )
+		doFormNotice( form, 'notice-error', [ __( 'Reset SEO meta to defaults for this page?', 'bigup-seo' ) ] )
 	}
 
 
@@ -165,9 +165,17 @@ const metaEditInline = () => {
 
 			// Display feedback.
 			if ( result.ok ) {
-				doFormNotice( form, 'notice-success', __( 'Saved', 'bigup-seo' ) )
+				const messages = [
+					__( 'Saved', 'bigup-seo' ),
+					...result.messages
+				]
+				doFormNotice( form, 'notice-success', messages )
 			} else {
-				doFormNotice( form, 'notice-error', __( 'Error', 'bigup-seo' ) )
+				const messages = [
+					__( 'Error', 'bigup-seo' ),
+					...result.messages
+				]
+				doFormNotice( form, 'notice-error', messages )
 			}
 		} catch ( error ) {
 			console.error( error )
@@ -301,17 +309,19 @@ const metaEditInline = () => {
 	 *
 	 * @param {HTMLElement} form      The form element.
 	 * @param {string}      className Class name to use.
-	 * @param {string}      message   Message to insert.
+	 * @param {array}       message   Messages to insert.
 	 */
-	const doFormNotice = ( form, className, message ) => {
+	const doFormNotice = ( form, className, messages ) => {
 		removeNotices()
 		const div    = document.createElement( 'div' )
-		const p      = document.createElement( 'p' )
-		const strong = document.createElement( 'strong' )
+		messages.forEach ( message => {
+			const p      = document.createElement( 'p' )
+			const strong = document.createElement( 'strong' )
+			strong.innerText = message
+			p.insertAdjacentElement( 'afterbegin', strong )
+			div.insertAdjacentElement( 'beforeend', p )
+		} )
 		div.classList.add( 'notice', className )
-		strong.innerText = message
-		p.insertAdjacentElement( 'afterbegin', strong )
-		div.insertAdjacentElement( 'beforeend', p )
 		form.querySelector( '.notices' ).insertAdjacentElement( 'afterbegin', div )
 	}
 
