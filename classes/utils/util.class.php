@@ -61,11 +61,16 @@ class Util {
 	/**
 	 * Include a template with passed variables.
 	 *
+	 * In the template file you can explicity declare the passed vars by desructuring like this:
+	 * `[ 'my_var' => $my_var ] = $passed_variables;`
+	 *
 	 * @param string $template_path The path of the file to be included.
 	 * @param string $variables The variables to pass.
 	 */
-	public static function include_with_vars( $template_path, $variables = array() ) {
-		$output = NULL;
+	public static function include_with_vars( $template_path, $passed_variables = array() ) {
+		// Wrap '$passed_variables' so it can be explicitly desructured in the template.
+		$variables = array( $passed_variables );
+		$output    = NULL;
 		if ( file_exists( $template_path ) ) {
 			// Extract variables to local namespace.
 			extract( $variables );

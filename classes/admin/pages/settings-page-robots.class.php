@@ -12,13 +12,22 @@ class Settings_Page_Robots {
 	public const GROUP  = 'bigupseo_group_robots';
 	public const OPTION = 'bigupseo_settings_robots';
 
-	public $settings;
+	private $settings;
+
+
+	/**
+	 * The pages.
+	 */
+	private $pages = array();
 
 
 	/**
 	 * Hook into WP.
 	 */
 	public function __construct() {
+		if ( empty( $this->pages ) ) {
+			$this->pages = new Pages();
+		}
 		add_action( 'admin_init', array( &$this, 'register' ), 10, 0 );
 	}
 
@@ -58,7 +67,10 @@ class Settings_Page_Robots {
 				?>
 			</form>
 		<?php
-	}
+
+		// Output robots page information tables.
+		$this->do_robots_page_info();
+}
 
 
 	/**
@@ -172,6 +184,19 @@ class Settings_Page_Robots {
 			$setting,
 			$contents,
 		);
+	}
+
+
+	/**
+	 * Output robots page information.
+	 */
+	private function do_robots_page_info() {
+		$template_path    = BIGUPSEO_PATH . 'templates/robots-page-tables.php';
+		$passed_variables = array(
+			'seo_pages' => $this->pages->map,
+		);
+		$robots_page_info = Util::include_with_vars( $template_path, $passed_variables );
+		echo $robots_page_info;
 	}
 
 

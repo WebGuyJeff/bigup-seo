@@ -144,6 +144,13 @@ const metaEditInline = () => {
 			resetFlag.value = 1
 		}
 
+		// Get the form entries.
+		const formData = new FormData( form )
+
+		// Store the form entries.
+		const entries = {}
+		formData.forEach( ( value, key ) => entries[ key ] = value )
+
 		// Fetch params.
 		const { restSeoMetaURL, restNonce } = wpInlinedVars
 		const fetchOptions = {
@@ -152,13 +159,14 @@ const metaEditInline = () => {
 				"X-WP-Nonce"  : restNonce,
 				"Accept"      : "application/json"
 			},
-			body: new FormData( form ),
+			body: formData,
 		}
 		const controller = new AbortController()
 		const abort = setTimeout( () => controller.abort(), 6000 )
 
 		try {
 			submitButton.disabled = true
+			doFormNotice( form, 'notice-info', [ __( 'Please wait...', 'bigup-seo' ) ] )
 			const response = await fetch( restSeoMetaURL, { ...fetchOptions, signal: controller.signal } )
 			clearTimeout( abort )
 			const result = await response.json()
@@ -170,6 +178,18 @@ const metaEditInline = () => {
 					...result.messages
 				]
 				doFormNotice( form, 'notice-success', messages )
+
+				// Update the inline table row data.
+				const editRow         = form.closest( 'tr' )
+				const infoRow         = document.querySelector( '[data-edit-id="' + editRow.id + '"]' )
+				const inlineMetaTitle = infoRow.querySelector( '.inlineMetaTitle > span' )
+				const inlineMetaDesc  = infoRow.querySelector( '.inlineMetaDesc > span' )
+				if ( entries[ 'seo_title' ] ) {
+					inlineMetaTitle.textContent = entries[ 'seo_title' ]
+				}
+				if ( entries[ 'seo_description' ] ) {
+					inlineMetaDesc.textContent = entries[ 'seo_description' ]
+				}
 			} else {
 				const messages = [
 					__( 'Error', 'bigup-seo' ),

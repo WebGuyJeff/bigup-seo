@@ -149,7 +149,8 @@ class Pages {
 
 		// Build a map of all generated site pages.
 		$parse_robots = new Parse_Robots();
-		$bot          = 'Googlebot';
+		$googlebot    = 'Googlebot';
+		$bingbot      = 'Bingbot';
 		$map          = array();
 		foreach ( self::TYPES as $type ) {
 			switch ( $type ) {
@@ -163,8 +164,9 @@ class Pages {
 							'name'   => get_the_title( get_option( 'page_for_posts' ) ),
 							'url'    => $url,
 							'robots' => array(
-								'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
-								'status'         => $parse_robots->get_rules_report_for_url( $url ),
+								'googlebot_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $googlebot ),
+								'bingbot_allowed'   => $parse_robots->is_url_allowed_for_bot( $url, $bingbot ),
+								'status'            => $parse_robots->get_rules_report_for_url( $url ),
 							),
 						);
 					}
@@ -177,8 +179,9 @@ class Pages {
 								'name'   => get_bloginfo( 'name' ),
 								'url'    => $url,
 								'robots' => array(
-									'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
-									'status'         => $parse_robots->get_rules_report_for_url( $url ),
+									'googlebot_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $googlebot ),
+									'bingbot_allowed'   => $parse_robots->is_url_allowed_for_bot( $url, $bingbot ),
+									'status'            => $parse_robots->get_rules_report_for_url( $url ),
 								),
 							),
 							...$blog,
@@ -205,8 +208,9 @@ class Pages {
 							'name'   => $page->post_title,
 							'url'    => $url,
 							'robots' => array(
-								'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
-								'status'         => $parse_robots->get_rules_report_for_url( $url ),
+								'googlebot_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $googlebot ),
+								'bingbot_allowed'   => $parse_robots->is_url_allowed_for_bot( $url, $bingbot ),
+								'status'            => $parse_robots->get_rules_report_for_url( $url ),
 							),
 						);
 					}
@@ -236,8 +240,9 @@ class Pages {
 								'name'   => $post->post_title,
 								'url'    => $url,
 								'robots' => array(
-									'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
-									'status'         => $parse_robots->get_rules_report_for_url( $url ),
+									'googlebot_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $googlebot ),
+									'bingbot_allowed'   => $parse_robots->is_url_allowed_for_bot( $url, $bingbot ),
+									'status'            => $parse_robots->get_rules_report_for_url( $url ),
 								),
 							);
 						}
@@ -259,8 +264,9 @@ class Pages {
 								'name'   => $name,
 								'url'    => $url,
 								'robots' => array(
-									'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
-									'status'         => $parse_robots->get_rules_report_for_url( $url ),
+									'googlebot_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $googlebot ),
+									'bingbot_allowed'   => $parse_robots->is_url_allowed_for_bot( $url, $bingbot ),
+									'status'            => $parse_robots->get_rules_report_for_url( $url ),
 								),
 							);
 						}
@@ -291,8 +297,9 @@ class Pages {
 								'name'   => $name,
 								'url'    => $url,
 								'robots' => array(
-									'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
-									'status'         => $parse_robots->get_rules_report_for_url( $url ),
+									'googlebot_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $googlebot ),
+									'bingbot_allowed'   => $parse_robots->is_url_allowed_for_bot( $url, $bingbot ),
+									'status'            => $parse_robots->get_rules_report_for_url( $url ),
 								),
 							);
 						}
@@ -315,8 +322,9 @@ class Pages {
 							'name'   => $user->display_name,
 							'url'    => $url,
 							'robots' => array(
-								'google_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $bot ),
-								'status'         => $parse_robots->get_rules_report_for_url( $url ),
+								'googlebot_allowed' => $parse_robots->is_url_allowed_for_bot( $url, $googlebot ),
+								'bingbot_allowed'   => $parse_robots->is_url_allowed_for_bot( $url, $bingbot ),
+								'status'            => $parse_robots->get_rules_report_for_url( $url ),
 							),
 						);
 					}

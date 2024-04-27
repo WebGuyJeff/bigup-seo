@@ -20,12 +20,20 @@ class Settings_Page_Meta {
 	private $pages = array();
 
 	/**
+	 * Saved custom metadata from the database.
+	 */
+	private $meta = array();
+
+
+	/**
 	 * Hook into WP.
 	 */
 	public function __construct() {
-
 		if ( empty( $this->pages ) ) {
 			$this->pages = new Pages();
+		}
+		if ( empty( $this->meta ) ) {
+			$this->meta = Meta_Table::get_all_meta();
 		}
 		add_action( 'admin_init', array( &$this, 'register' ), 11, 0 ); // Must fire after Pages().
 	}
@@ -155,11 +163,12 @@ class Settings_Page_Meta {
 	 * Output seo meta options which interact with the bigup_seo_meta DB table.
 	 */
 	private function do_seo_meta_options() {
-		$template_path = BIGUPSEO_PATH . 'templates/meta-options-tables.php';
-		$variables     = array(
+		$template_path    = BIGUPSEO_PATH . 'templates/meta-page-tables.php';
+		$passed_variables = array(
+			'db_meta'   => $this->meta,
 			'seo_pages' => $this->pages->map,
 		);
-		$meta_options = Util::include_with_vars( $template_path, $variables );
+		$meta_options     = Util::include_with_vars( $template_path, $passed_variables );
 		echo $meta_options;
 	}
 

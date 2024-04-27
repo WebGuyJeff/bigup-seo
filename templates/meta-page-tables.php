@@ -2,10 +2,13 @@
 namespace BigupWeb\Bigup_Seo;
 
 /**
- * Meta Options Tables Template.
+ * Meta Page Tables Template.
  *
  * @package bigup-seo
  */
+
+// Variables passed by the calling function.
+[ 'db_meta' => $db_meta, 'seo_pages' => $seo_pages ] = $passed_variables;
 
 // $seo_pages is passed to this template by the calling function.
 foreach ( $seo_pages as $page_type => $page_type_data ) {
@@ -21,16 +24,16 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 	}
 
 	$strings = array(
-		'title'           => $page_type_data['label'],
-		'type'            => $page_type,
-		'th_page_title'   => __( 'Page Title', 'bigup-seo' ),
-		'th_page_type'    => __( 'Page Type', 'bigup-seo' ),
-		'th_key'          => __( 'Key', 'bigup-seo' ),
-		'th_crawlable'    => __( 'Googlebot Allowed', 'bigup-seo' ),
-		'th_robots_rules' => __( 'Bot Rules', 'bigup-seo' ),
+		'title'         => $page_type_data['label'],
+		'type'          => $page_type,
+		'th_page_title' => __( 'Page Title', 'bigup-seo' ),
+		'th_page_type'  => __( 'Page Type', 'bigup-seo' ),
+		'th_key'        => __( 'Key', 'bigup-seo' ),
+		'th_meta_title' => __( 'Meta Title', 'bigup-seo' ),
+		'th_meta_desc'  => __( 'Meta Description', 'bigup-seo' ),
 	);
 
-	/**
+	/** 
 	 * Generate a table for each page type.
 	 */
 	?>
@@ -38,20 +41,20 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 		<table id="metaOptions_<?php echo esc_attr( $strings['type'] ); ?>" role="presentation" class="wp-list-table widefat fixed striped table-view-list">
 			<thead>
 				<tr>
-					<th scope="col" id="title" class="manage-column column-primary">
+					<th scope="col" class="column-primary">
 						<span><?php echo esc_attr( $strings['th_page_title'] ); ?></span>
 					</th>
-					<th scope="col" id="type" class="manage-column column-primary">
+					<th scope="col">
 						<span><?php echo esc_attr( $strings['th_page_type'] ); ?></span>
 					</th>
-					<th scope="col" id="key" class="manage-column column-primary">
+					<th scope="col">
 						<span><?php echo esc_attr( $strings['th_key'] ); ?></span>
 					</th>
-					<th scope="col" id="crawlable" class="manage-column column-primary">
-						<span><?php echo esc_attr( $strings['th_crawlable'] ); ?></span>
+					<th scope="col">
+						<span><?php echo esc_attr( $strings['th_meta_title'] ); ?></span>
 					</th>
-					<th scope="col" id="crawlable" class="manage-column column-primary">
-						<span><?php echo esc_attr( $strings['th_robots_rules'] ); ?></span>
+					<th scope="col">
+						<span><?php echo esc_attr( $strings['th_meta_desc'] ); ?></span>
 					</th>
 				</tr>
 			</thead>
@@ -63,7 +66,10 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 				 */
 				foreach ( $page_type_data['pages'] as $key => $seo_page ) {
 
-					$page_type = $sub_type ? $sub_type : $page_type;
+					$page_type  = $sub_type ? $sub_type : $page_type;
+					$page_meta  = $db_meta->$page_type->$key ?? null;
+					$meta_title = $page_meta->seo_title ?? null;
+					$meta_desc  = $page_meta->seo_description ?? '';
 
 					$strings = array(
 
@@ -71,8 +77,8 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 						'title'                   => $seo_page['name'],
 						'type'                    => $page_type,
 						'key'                     => $key,
-						'crawlable'               => $seo_page['robots']['google_allowed'] ? '✅' : '❌',
-						'robots_rules'            => $seo_page['robots']['status'],
+						'meta_title'              => $meta_title ?? $seo_page['name'],
+						'meta_desc'               => $meta_desc,
 						'button_edit'             => __( 'Edit', 'bigup-seo' ),
 						'button_view'             => __( 'View Page', 'bigup-seo' ),
 						'button_view_url'         => $seo_page['url'],
@@ -80,24 +86,28 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 						'edit-id'                 => 'row-' . $strings['type'] . '-' . $key,
 
 						// Inline edit row.
-						'legend'                  => $page_type . ' ' . $page_type_data['key_type'] . ' ' . $key,
+						'subtitle'                => $page_type . ' ' . $page_type_data['key_type'] . ' ' . $key,
 						'button_save'             => __( 'Save', 'bigup-seo' ),
 						'button_cancel'           => __( 'Cancel', 'bigup-seo' ),
 						'title_label'             => __( 'Meta Title', 'bigup-seo' ),
+						'title_value'             => $meta_title ?? '',
 						'title_placeholder'       => __( 'Enter a title', 'bigup-seo' ),
 						'title_table_col'         => 'seo_title',
 						'description_label'       => __( 'Meta Description', 'bigup-seo' ),
+						'description_value'       => $meta_desc ?? '',
 						'description_placeholder' => __( 'Enter a description', 'bigup-seo' ),
 						'description_table_col'   => 'seo_description',
 						'canonical_label'         => __( 'Canonical URL', 'bigup-seo' ),
+						'canonical_value'         => $page_meta->seo_canonical ?? '',
 						'canonical_placeholder'   => __( 'Enter a URL', 'bigup-seo' ),
 						'canonical_table_col'     => 'seo_canonical',
-						'google_serp_title'       => __( 'Google SERP Preview', 'bigup-seo' ),
+						'serp_preview_title'      => __( 'SERP Preview', 'bigup-seo' ),
+						'serp_preview_meta_desc'  => ! empty( $meta_desc ) ? $meta_desc : __( 'No description to preview', 'bigup-seo' ),
 					);
 
 					?>
 						<tr class="infoRow" data-edit-id="<?php echo esc_attr( $strings['edit-id'] ); ?>">
-							<td>
+							<td class="has-row-actions column-primary">
 								<strong><?php echo esc_attr( $strings['title'] ); ?></strong>
 								<div class="row-actions hide-if-no-js">
 									<span>
@@ -138,11 +148,11 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 							<td>
 								<span><?php echo esc_attr( $strings['key'] ); ?></span>
 							</td>
-							<td>
-								<span><?php echo esc_attr( $strings['crawlable'] ); ?></span>
+							<td class="inlineMetaTitle">
+								<span><?php echo esc_attr( $strings['meta_title'] ); ?></span>
 							</td>
-							<td>
-								<span class="multiline"><?php echo esc_attr( $strings['robots_rules'] ); ?></span>
+							<td class="inlineMetaDesc">
+								<span><?php echo esc_attr( $strings['meta_desc'] ); ?></span>
 							</td>
 						</tr>
 
@@ -152,7 +162,7 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 								<form method="post">
 									<header class="editRow_header">
 										<span class="editRow_title"><?php echo esc_attr( $strings['title'] ); ?></span>
-										<span><?php echo esc_attr( $strings['legend'] ); ?></span>
+										<span><?php echo esc_attr( $strings['subtitle'] ); ?></span>
 									</header>
 									<div class="editRow_main">
 										<fieldset class="editRow_column">
@@ -166,9 +176,8 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 													class="regular-text serp_titleIn"
 													name="seo_title"
 													id=""
-													value="title"
+													value="<?php echo esc_attr( $strings['title_value'] ); ?>"
 													placeholder="<?php echo esc_attr( $strings['title_placeholder'] ); ?>"
-													data-validation-ref="title"
 												>
 											</label>
 											<label class="field">
@@ -179,8 +188,7 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 													name="seo_description"
 													id=""
 													placeholder="<?php echo esc_attr( $strings['description_placeholder'] ); ?>"
-													data-validation-ref="description"
-												>description</textarea>
+												><?php echo esc_attr( $strings['description_value'] ); ?></textarea>
 											</label>
 											<label class="field">
 												<span class="field_label"><?php echo esc_attr( $strings['canonical_label'] ); ?></span>
@@ -189,17 +197,16 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 													class="regular-text serp_urlIn"
 													name="seo_canonical"
 													id=""
-													value="canonical"
+													value="<?php echo esc_attr( $strings['canonical_value'] ); ?>"
 													placeholder="<?php echo esc_attr( $strings['canonical_placeholder'] ); ?>"
-													data-validation-ref="canonical"
 												>
 											</label>
 										</fieldset>
 										<div class="editRow_column editRow_preview">
 											<div class="serp">
-												<h3><?php echo esc_attr( $strings['google_serp_title'] ); ?></h3>
-												<div class="serp_title">No title to preview</div>
-												<div class="serp_description">No description to preview</div>
+												<h3><?php echo esc_html( $strings['serp_preview_title'] ); ?></h3>
+												<div class="serp_title"><?php echo esc_html( $strings['meta_title'] ); ?></div>
+												<div class="serp_description"><?php echo esc_html( $strings['serp_preview_meta_desc'] ); ?></div>
 											</div>
 										</div>
 									</div>

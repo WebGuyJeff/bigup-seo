@@ -50,6 +50,10 @@ class Meta {
 		$this->get_current_page_type();
 
 		// 2. Check for a saved title in setting.
+		$meta = Meta_Table::get_meta( 'page', '1493' );
+
+		// DEBUG.
+		error_log( json_encode( $meta ) );
 
 		// 3. Apply the title filter.
 	}

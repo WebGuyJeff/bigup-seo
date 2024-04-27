@@ -12,6 +12,8 @@ namespace BigupWeb\Bigup_Seo;
  */
 class Meta_Table {
 
+	const TABLE_SUFFIX = 'bigup_seo_meta';
+
 
 	/**
 	 * Create the database table.
@@ -31,7 +33,7 @@ class Meta_Table {
 
 		global $wpdb;
 
-		$table_name      = $wpdb->prefix . 'bigup_seo_meta';
+		$table_name      = $wpdb->prefix . self::TABLE_SUFFIX;
 		$charset_collate = $wpdb->get_charset_collate();
 
 		/*
@@ -44,7 +46,7 @@ class Meta_Table {
 		 * Column page_type_key will always be an ID number or a post type slug. The slug has a
 		 * limit of 20 chars set by WordPress, so our DB column is also limited to 20 characters.
 		 */
-		$create_meta_table = "
+		$create_meta_table_query = "
 			CREATE TABLE $table_name
 			(
 				id mediumint(9) NOT NULL AUTO_INCREMENT,
@@ -60,7 +62,7 @@ class Meta_Table {
 		";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		$create_table_result = dbDelta( $create_meta_table );
+		$create_table_result = dbDelta( $create_meta_table_query );
 
 		return $create_table_result;
 	}
@@ -116,7 +118,7 @@ class Meta_Table {
 		 * Note dbDelta() only returns message strings or empty array, so errors should be handled
 		 * with another method.
 		 */
-		$table_name   = $wpdb->prefix . 'bigup_seo_meta';
+		$table_name   = $wpdb->prefix . self::TABLE_SUFFIX;
 		$upsert_query = "
 			INSERT INTO $table_name ( $sql_columns )
 			VALUES ( $sql_values )
@@ -128,5 +130,59 @@ class Meta_Table {
 		$messages = dbDelta( $upsert_query_nulled );
 
 		return $messages;
+	}
+
+
+	/**
+	 * Get all meta rows.
+	 */
+	public static function get_all_meta() {
+
+		global $wpdb;
+
+		$table_name         = $wpdb->prefix . self::TABLE_SUFFIX;
+		$get_all_meta_query = $wpdb->prepare( 'SELECT * FROM %i', $table_name );
+		$results            = $wpdb->get_results( $get_all_meta_query );
+
+		// Structure the data.
+		$meta = new \stdClass();
+		foreach ( $results as $row ) {
+			$type = $row->page_type;
+			$key  = $row->page_type_key;
+			if ( ! property_exists( $meta, $type ) ) {
+				$meta->{$type} = new \stdClass();
+			}
+			if ( ! property_exists( $meta->{$type}, $key ) ) {
+				$meta->{$type}->{$key} = new \stdClass();
+			}
+			foreach ( $row as $column => $value ) {
+				$meta->{$type}->{$key}->{$column} = $value;
+			}
+		}
+
+		return $meta;
+	}
+
+
+	/**
+	 * Get meta row by index.
+	 */
+	public static function get_meta( $page_type, $page_type_key ) {
+
+		global $wpdb;
+
+		$table_name     = $wpdb->prefix . self::TABLE_SUFFIX;
+		$get_meta_query = $wpdb->prepare(
+			'SELECT * FROM %i WHERE (%i = %s AND %i = %s)',
+			$table_name,
+			'page_type',
+			$page_type,
+			'page_type_key',
+			$page_type_key
+		);
+
+		$meta = $wpdb->get_results( $get_meta_query );
+
+		return $meta;
 	}
 }
