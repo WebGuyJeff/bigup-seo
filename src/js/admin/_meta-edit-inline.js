@@ -184,11 +184,11 @@ const metaEditInline = () => {
 				const infoRow         = document.querySelector( '[data-edit-id="' + editRow.id + '"]' )
 				const inlineMetaTitle = infoRow.querySelector( '.inlineMetaTitle > span' )
 				const inlineMetaDesc  = infoRow.querySelector( '.inlineMetaDesc > span' )
-				if ( entries[ 'seo_title' ] ) {
-					inlineMetaTitle.textContent = entries[ 'seo_title' ]
+				if ( entries[ 'meta_title' ] ) {
+					inlineMetaTitle.textContent = entries[ 'meta_title' ]
 				}
-				if ( entries[ 'seo_description' ] ) {
-					inlineMetaDesc.textContent = entries[ 'seo_description' ]
+				if ( entries[ 'meta_description' ] ) {
+					inlineMetaDesc.textContent = entries[ 'meta_description' ]
 				}
 			} else {
 				const messages = [

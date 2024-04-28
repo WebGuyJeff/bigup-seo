@@ -8,24 +8,24 @@ namespace BigupWeb\Bigup_Seo;
  */
 
 // Variables passed by the calling function.
-[ 'db_meta' => $db_meta, 'seo_pages' => $seo_pages ] = $passed_variables;
+[ 'db_meta' => $db_meta, 'pages_map' => $pages_map ] = $passed_variables;
 
-// $seo_pages is passed to this template by the calling function.
-foreach ( $seo_pages as $page_type => $page_type_data ) {
+// $pages_map is passed to this template by the calling function.
+foreach ( $pages_map as $pages_type => $pages_data ) {
 
 	// Decode prefixes for post and tax types.
-	$sub_type = '';
-	if ( preg_match( '/post__.*/', $page_type ) ) {
-		$sub_type  = str_replace( 'post__', '', $page_type );
-		$page_type = 'post';
-	} elseif ( preg_match( '/tax__.*/', $page_type ) ) {
-		$sub_type  = str_replace( 'tax__', '', $page_type );
-		$page_type = 'tax';
+	$pages_sub_type = '';
+	if ( preg_match( '/post__.*/', $pages_type ) ) {
+		$pages_sub_type = str_replace( 'post__', '', $pages_type );
+		$pages_type     = 'post';
+	} elseif ( preg_match( '/tax__.*/', $pages_type ) ) {
+		$pages_sub_type = str_replace( 'tax__', '', $pages_type );
+		$pages_type     = 'tax';
 	}
 
 	$strings = array(
-		'title'         => $page_type_data['label'],
-		'type'          => $page_type,
+		'title'         => $pages_data['label'],
+		'type'          => $pages_type,
 		'th_page_title' => __( 'Page Title', 'bigup-seo' ),
 		'th_page_type'  => __( 'Page Type', 'bigup-seo' ),
 		'th_key'        => __( 'Key', 'bigup-seo' ),
@@ -33,7 +33,7 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 		'th_meta_desc'  => __( 'Meta Description', 'bigup-seo' ),
 	);
 
-	/** 
+	/**
 	 * Generate a table for each page type.
 	 */
 	?>
@@ -64,39 +64,39 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 				/**
 				 * Generate table rows for each page.
 				 */
-				foreach ( $page_type_data['pages'] as $key => $seo_page ) {
+				foreach ( $pages_data['pages'] as $key => $page_data ) {
 
-					$page_type  = $sub_type ? $sub_type : $page_type;
+					$page_type  = $pages_sub_type ? $pages_sub_type : $pages_type;
 					$page_meta  = $db_meta->$page_type->$key ?? null;
-					$meta_title = $page_meta->seo_title ?? null;
-					$meta_desc  = $page_meta->seo_description ?? '';
+					$meta_title = $page_meta->meta_title ?? null;
+					$meta_desc  = $page_meta->meta_description ?? '';
 
 					$strings = array(
 
 						// Visible row.
-						'title'                   => $seo_page['name'],
+						'title'                   => $page_data['name'],
 						'type'                    => $page_type,
 						'key'                     => $key,
-						'meta_title'              => $meta_title ?? $seo_page['name'],
+						'meta_title'              => $meta_title ?? $page_data['name'],
 						'meta_desc'               => $meta_desc,
 						'button_edit'             => __( 'Edit', 'bigup-seo' ),
 						'button_view'             => __( 'View Page', 'bigup-seo' ),
-						'button_view_url'         => $seo_page['url'],
+						'button_view_url'         => $page_data['url'],
 						'button_reset'            => __( 'Reset', 'bigup-seo' ),
 						'edit-id'                 => 'row-' . $strings['type'] . '-' . $key,
 
 						// Inline edit row.
-						'subtitle'                => $page_type . ' ' . $page_type_data['key_type'] . ' ' . $key,
+						'subtitle'                => $page_type . ' ' . $pages_data['key_type'] . ' ' . $key,
 						'button_save'             => __( 'Save', 'bigup-seo' ),
 						'button_cancel'           => __( 'Cancel', 'bigup-seo' ),
 						'title_label'             => __( 'Meta Title', 'bigup-seo' ),
 						'title_value'             => $meta_title ?? '',
 						'title_placeholder'       => __( 'Enter a title', 'bigup-seo' ),
-						'title_table_col'         => 'seo_title',
+						'title_table_col'         => 'meta_title',
 						'description_label'       => __( 'Meta Description', 'bigup-seo' ),
 						'description_value'       => $meta_desc ?? '',
 						'description_placeholder' => __( 'Enter a description', 'bigup-seo' ),
-						'description_table_col'   => 'seo_description',
+						'description_table_col'   => 'meta_description',
 						'canonical_label'         => __( 'Canonical URL', 'bigup-seo' ),
 						'canonical_value'         => $page_meta->seo_canonical ?? '',
 						'canonical_placeholder'   => __( 'Enter a URL', 'bigup-seo' ),
@@ -174,7 +174,7 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 												<input
 													type="text"
 													class="regular-text serp_titleIn"
-													name="seo_title"
+													name="meta_title"
 													id=""
 													value="<?php echo esc_attr( $strings['title_value'] ); ?>"
 													placeholder="<?php echo esc_attr( $strings['title_placeholder'] ); ?>"
@@ -185,7 +185,7 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 												<textarea
 													rows="3"
 													class="serp_descriptionIn"
-													name="seo_description"
+													name="meta_description"
 													id=""
 													placeholder="<?php echo esc_attr( $strings['description_placeholder'] ); ?>"
 												><?php echo esc_attr( $strings['description_value'] ); ?></textarea>

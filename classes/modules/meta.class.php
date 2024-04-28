@@ -18,6 +18,11 @@ class Meta {
 	private $settings;
 
 	/**
+	 * Meta data retrieved from the DB.
+	 */
+	private $tags;
+
+	/**
 	 * Hook the setup method.
 	 */
 	public function __construct() {
@@ -47,42 +52,62 @@ class Meta {
 		// NEW TITLE FUNCTIONALITY.
 
 		// 1. Get the current page.
-		$this->get_current_page_type();
+		$page_index = $this->get_current_page_index();
 
 		// 2. Check for a saved title in setting.
-		$meta = Meta_Table::get_meta( 'page', '1493' );
+		$this->tags = Meta_Table::get_meta( 'page', '1493' );
 
 		// DEBUG.
-		error_log( json_encode( $meta ) );
+		error_log( json_encode( $this->tags ) );
+		error_log( '###' );
 
 		// 3. Apply the title filter.
 	}
 
 
 	/**
-	 * Get the current page type.
+	 * Get the current page index (type and key).
 	 */
-	private function get_current_page_type() {
-		if ( is_front_page() || is_home() ) {
-			return 'site_index';
+	private function get_current_page_index() {
+		$type = '';
+		$key  = '';
+
+		if ( is_front_page() ) {
+			$type = 'site_index';
+			$key  = 'home';
+		} elseif ( is_home() ) {
+			$type = 'site_index';
+			$key  = 'blog_index';
 		} elseif ( is_page() ) {
-			return 'page';
+			$type = 'page';
+			$key  = get_queried_object_id();
 		} elseif ( is_single() ) {
-			return 'post__' . get_post_type();
+			global $post;
+			$type = 'post__' . get_post_type();
+			$key  = $post->ID;
 		} elseif ( is_post_type_archive() ) {
-			return 'post_archive';
+			$type = 'post_archive';
+			$key  = get_query_var( 'post_type' ) );
+			
 		} elseif ( is_tax() ) {
 			if ( is_category() ) {
-				return 'category';
+				$type = 'category';
 			} elseif ( is_tag() ) {
-				return 'post_tag';
+				$type = 'post_tag';
 			} else {
-				return 'custom_taxonomy';
+				$type = 'custom_taxonomy';
 			}
 		} elseif ( is_author() ) {
-			return 'author';
+			$type = 'author';
 		} else {
-			return false;
+			$type = false;
 		}
+
+		$page_index = array(
+			'type' => $type,
+			'key'  => $key,
+		);
+
+		return $page_index;
 	}
 }

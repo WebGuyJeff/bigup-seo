@@ -193,7 +193,7 @@ class Settings_Page_Robots {
 	private function do_robots_page_info() {
 		$template_path    = BIGUPSEO_PATH . 'templates/robots-page-tables.php';
 		$passed_variables = array(
-			'seo_pages' => $this->pages->map,
+			'pages_map' => $this->pages->map,
 		);
 		$robots_page_info = Util::include_with_vars( $template_path, $passed_variables );
 		echo $robots_page_info;

@@ -8,26 +8,26 @@ namespace BigupWeb\Bigup_Seo;
  */
 
 // Variables passed by the calling function.
-[ 'seo_pages' => $seo_pages ] = $passed_variables;
+[ 'pages_map' => $pages_map ] = $passed_variables;
 
 $site_url = get_site_url();
 
-// $seo_pages is passed to this template by the calling function.
-foreach ( $seo_pages as $page_type => $page_type_data ) {
+// $pages_map is passed to this template by the calling function.
+foreach ( $pages_map as $pages_type => $pages_data ) {
 
 	// Decode prefixes for post and tax types.
-	$sub_type = '';
-	if ( preg_match( '/post__.*/', $page_type ) ) {
-		$sub_type  = str_replace( 'post__', '', $page_type );
-		$page_type = 'post';
-	} elseif ( preg_match( '/tax__.*/', $page_type ) ) {
-		$sub_type  = str_replace( 'tax__', '', $page_type );
-		$page_type = 'tax';
+	$pages_sub_type = '';
+	if ( preg_match( '/post__.*/', $pages_type ) ) {
+		$pages_sub_type = str_replace( 'post__', '', $pages_type );
+		$pages_type     = 'post';
+	} elseif ( preg_match( '/tax__.*/', $pages_type ) ) {
+		$pages_sub_type = str_replace( 'tax__', '', $pages_type );
+		$pages_type     = 'tax';
 	}
 
 	$strings = array(
-		'title'           => $page_type_data['label'],
-		'type'            => $page_type,
+		'title'           => $pages_data['label'],
+		'type'            => $pages_type,
 		'th_page_title'   => __( 'Page Title', 'bigup-seo' ),
 		'th_page_url'     => __( 'URL', 'bigup-seo' ),
 		'th_googlebot'    => __( 'Googlebot Allowed', 'bigup-seo' ),
@@ -66,18 +66,17 @@ foreach ( $seo_pages as $page_type => $page_type_data ) {
 				/**
 				 * Generate table rows for each page.
 				 */
-				foreach ( $page_type_data['pages'] as $key => $seo_page ) {
+				foreach ( $pages_data['pages'] as $key => $page_data ) {
 
-					$page_type    = $sub_type ? $sub_type : $page_type;
-					$relative_url = str_replace( $site_url, '', $seo_page['url'] );
-
+					$page_type    = $pages_sub_type ? $pages_sub_type : $pages_type;
+					$relative_url = str_replace( $site_url, '', $page_data['url'] );
 
 					$strings = array(
-						'title'        => $seo_page['name'],
+						'title'        => $page_data['name'],
 						'relative_url' => empty( $relative_url ) ? '/' : $relative_url,
-						'googlebot'    => $seo_page['robots']['googlebot_allowed'] ? '✅' : '❌',
-						'bingbot'      => $seo_page['robots']['bingbot_allowed'] ? '✅' : '❌',
-						'robots_rules' => $seo_page['robots']['status'],
+						'googlebot'    => $page_data['robots']['googlebot_allowed'] ? '✅' : '❌',
+						'bingbot'      => $page_data['robots']['bingbot_allowed'] ? '✅' : '❌',
+						'robots_rules' => $page_data['robots']['status'],
 					);
 
 					?>

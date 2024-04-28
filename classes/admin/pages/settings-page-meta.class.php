@@ -166,7 +166,7 @@ class Settings_Page_Meta {
 		$template_path    = BIGUPSEO_PATH . 'templates/meta-page-tables.php';
 		$passed_variables = array(
 			'db_meta'   => $this->meta,
-			'seo_pages' => $this->pages->map,
+			'pages_map' => $this->pages->map,
 		);
 		$meta_options     = Util::include_with_vars( $template_path, $passed_variables );
 		echo $meta_options;

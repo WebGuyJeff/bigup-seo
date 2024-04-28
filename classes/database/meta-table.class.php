@@ -52,11 +52,11 @@ class Meta_Table {
 				id mediumint(9) NOT NULL AUTO_INCREMENT,
 				page_type varchar(20) NOT NULL,
 				page_type_key varchar(20) NOT NULL,
-				seo_title tinytext,
-				seo_description tinytext,
+				meta_title tinytext,
+				meta_description tinytext,
 				seo_canonical varchar(1855),
 				PRIMARY KEY  (id),
-				CONSTRAINT seo_page_index UNIQUE (page_type, page_type_key)
+				CONSTRAINT page_index UNIQUE (page_type, page_type_key)
 			)
 			$charset_collate;
 		";
