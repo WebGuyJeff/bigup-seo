@@ -54,7 +54,7 @@ class Meta_Table {
 				page_type_key varchar(20) NOT NULL,
 				meta_title tinytext,
 				meta_description tinytext,
-				seo_canonical varchar(1855),
+				meta_canonical varchar(1855),
 				PRIMARY KEY  (id),
 				CONSTRAINT page_index UNIQUE (page_type, page_type_key)
 			)
@@ -71,9 +71,9 @@ class Meta_Table {
 	/**
 	 * Upsert a row into the table .
 	 *
-	 * @param array $column_values Key/values to upsert.
+	 * @param array $data Key/values to upsert.
 	 */
-	public static function upsert( $column_values ) {
+	public static function upsert( $data ) {
 
 		global $wpdb;
 
@@ -84,14 +84,14 @@ class Meta_Table {
 		$columns_and_values = '';
 		$columns            = '';
 		$values             = '';
-		if ( array_key_exists( 'seo_reset_flag', $column_values ) ) {
+		if ( array_key_exists( 'seo_reset_flag', $data ) ) {
 			// Grab the reset flag if present and sepearate it from the table data.
-			if ( $column_values['seo_reset_flag'] ) {
+			if ( $data['seo_reset_flag'] ) {
 				$reset = true;
 			}
-			unset( $column_values['seo_reset_flag'] );
+			unset( $data['seo_reset_flag'] );
 		}
-		foreach ( $column_values as $key => $value ) {
+		foreach ( $data as $key => $value ) {
 			if ( 'page_type' === $key || 'page_type_key' === $key ) {
 				$columns .= $wpdb->prepare( '%i, ', $key );
 				$values  .= $wpdb->prepare( '%s, ', $value );
@@ -128,6 +128,26 @@ class Meta_Table {
 		$upsert_query_nulled = preg_replace( "/'NULL'/", 'NULL', $upsert_query );
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		$messages = dbDelta( $upsert_query_nulled );
+
+		// Test the retrieved row data matches our data.
+		$db_data = self::get_meta( $data['page_type'], $data['page_type_key'] );
+
+
+		// PROBLEM: Why is $db_data comsing back wrapped in []?
+
+		error_log( json_encode( $db_data ) );
+
+		$data_ok = true;
+		foreach ( $data as $key => $value ) {
+			$test_value = empty( $value ) ? null : $value;
+			if ( $db_data[0]->$key !== $test_value ) {
+				$data_ok = false;
+			}
+		}
+
+		$string_pass = __( 'Database updated successfully.', 'bigup-seo' );
+		$string_fail = __( 'Database update failure. Please check site logs.', 'bigup-seo' );
+		$messages    = array( $data_ok ? $string_pass : $string_fail );
 
 		return $messages;
 	}

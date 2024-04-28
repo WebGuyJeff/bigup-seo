@@ -10,32 +10,20 @@ namespace BigupWeb\Bigup_Seo;
 // Variables passed by the calling function.
 [ 'db_meta' => $db_meta, 'pages_map' => $pages_map ] = $passed_variables;
 
-// $pages_map is passed to this template by the calling function.
+/**
+ * Generate a table for each page type.
+ */
 foreach ( $pages_map as $pages_type => $pages_data ) {
-
-	// Decode prefixes for post and tax types.
-	$pages_sub_type = '';
-	if ( preg_match( '/post__.*/', $pages_type ) ) {
-		$pages_sub_type = str_replace( 'post__', '', $pages_type );
-		$pages_type     = 'post';
-	} elseif ( preg_match( '/tax__.*/', $pages_type ) ) {
-		$pages_sub_type = str_replace( 'tax__', '', $pages_type );
-		$pages_type     = 'tax';
-	}
 
 	$strings = array(
 		'title'         => $pages_data['label'],
 		'type'          => $pages_type,
 		'th_page_title' => __( 'Page Title', 'bigup-seo' ),
-		'th_page_type'  => __( 'Page Type', 'bigup-seo' ),
+		'th_page_type'  => __( 'Type', 'bigup-seo' ),
 		'th_key'        => __( 'Key', 'bigup-seo' ),
 		'th_meta_title' => __( 'Meta Title', 'bigup-seo' ),
 		'th_meta_desc'  => __( 'Meta Description', 'bigup-seo' ),
 	);
-
-	/**
-	 * Generate a table for each page type.
-	 */
 	?>
 		<h2><?php echo esc_attr( $strings['title'] ); ?></h2>
 		<table id="metaOptions_<?php echo esc_attr( $strings['type'] ); ?>" role="presentation" class="wp-list-table widefat fixed striped table-view-list">
@@ -65,17 +53,14 @@ foreach ( $pages_map as $pages_type => $pages_data ) {
 				 * Generate table rows for each page.
 				 */
 				foreach ( $pages_data['pages'] as $key => $page_data ) {
-
-					$page_type  = $pages_sub_type ? $pages_sub_type : $pages_type;
-					$page_meta  = $db_meta->$page_type->$key ?? null;
+					$page_meta  = $db_meta->$pages_type->$key ?? null;
 					$meta_title = $page_meta->meta_title ?? null;
 					$meta_desc  = $page_meta->meta_description ?? '';
-
-					$strings = array(
+					$strings    = array(
 
 						// Visible row.
 						'title'                   => $page_data['name'],
-						'type'                    => $page_type,
+						'type'                    => $pages_type,
 						'key'                     => $key,
 						'meta_title'              => $meta_title ?? $page_data['name'],
 						'meta_desc'               => $meta_desc,
@@ -86,7 +71,7 @@ foreach ( $pages_map as $pages_type => $pages_data ) {
 						'edit-id'                 => 'row-' . $strings['type'] . '-' . $key,
 
 						// Inline edit row.
-						'subtitle'                => $page_type . ' ' . $pages_data['key_type'] . ' ' . $key,
+						'subtitle'                => $pages_type . ' ' . $pages_data['key_type'] . ' ' . $key,
 						'button_save'             => __( 'Save', 'bigup-seo' ),
 						'button_cancel'           => __( 'Cancel', 'bigup-seo' ),
 						'title_label'             => __( 'Meta Title', 'bigup-seo' ),
@@ -98,13 +83,12 @@ foreach ( $pages_map as $pages_type => $pages_data ) {
 						'description_placeholder' => __( 'Enter a description', 'bigup-seo' ),
 						'description_table_col'   => 'meta_description',
 						'canonical_label'         => __( 'Canonical URL', 'bigup-seo' ),
-						'canonical_value'         => $page_meta->seo_canonical ?? '',
+						'canonical_value'         => $page_meta->meta_canonical ?? '',
 						'canonical_placeholder'   => __( 'Enter a URL', 'bigup-seo' ),
-						'canonical_table_col'     => 'seo_canonical',
+						'canonical_table_col'     => 'meta_canonical',
 						'serp_preview_title'      => __( 'SERP Preview', 'bigup-seo' ),
 						'serp_preview_meta_desc'  => ! empty( $meta_desc ) ? $meta_desc : __( 'No description to preview', 'bigup-seo' ),
 					);
-
 					?>
 						<tr class="infoRow" data-edit-id="<?php echo esc_attr( $strings['edit-id'] ); ?>">
 							<td class="has-row-actions column-primary">
@@ -195,7 +179,7 @@ foreach ( $pages_map as $pages_type => $pages_data ) {
 												<input
 													type="url"
 													class="regular-text serp_urlIn"
-													name="seo_canonical"
+													name="meta_canonical"
 													id=""
 													value="<?php echo esc_attr( $strings['canonical_value'] ); ?>"
 													placeholder="<?php echo esc_attr( $strings['canonical_placeholder'] ); ?>"

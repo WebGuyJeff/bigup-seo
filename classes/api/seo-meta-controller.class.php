@@ -29,6 +29,12 @@ class Seo_Meta_Controller {
 
 		$messages = Meta_Table::upsert( $form_values );
 
+
+		error_log( 'upsert $messages' );
+		error_log( json_encode( $messages ) );
+
+
+
 		$this->send_json_response(
 			// ToDo: Extend to better reflect DB errors.
 			200,

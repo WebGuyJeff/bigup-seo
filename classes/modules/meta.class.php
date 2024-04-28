@@ -29,7 +29,7 @@ class Meta {
 
 		$this->settings = get_option( Settings_Page_Meta::OPTION );
 
-		add_action( 'template_redirect', array( $this, 'do_head_meta' ), 1, 0 );
+		add_action( 'template_redirect', array( $this, 'do_head_meta' ), 10, 0 );
 	}
 
 
@@ -51,15 +51,19 @@ class Meta {
 
 		// NEW TITLE FUNCTIONALITY.
 
-		// 1. Get the current page.
-		$page_index = $this->get_current_page_index();
-
-		// 2. Check for a saved title in setting.
-		$this->tags = Meta_Table::get_meta( 'page', '1493' );
-
 		// DEBUG.
-		error_log( json_encode( $this->tags ) );
 		error_log( '###' );
+
+		// 1. Get the current page.
+		[ $type, $key ] = $this->get_current_page_index();
+
+		error_log( '$type: ' . $type );
+		error_log( '$key: ' . $key );
+
+
+		$this->tags = Meta_Table::get_meta( $type, $key );
+
+		error_log( json_encode( $this->tags ) );
 
 		// 3. Apply the title filter.
 	}
@@ -69,8 +73,8 @@ class Meta {
 	 * Get the current page index (type and key).
 	 */
 	private function get_current_page_index() {
-		$type = '';
-		$key  = '';
+		$type = null;
+		$key  = null;
 
 		if ( is_front_page() ) {
 			$type = 'site_index';
@@ -83,30 +87,20 @@ class Meta {
 			$key  = get_queried_object_id();
 		} elseif ( is_single() ) {
 			global $post;
-			$type = 'post__' . get_post_type();
+			$type = 'post__' . $post->post_type;
 			$key  = $post->ID;
 		} elseif ( is_post_type_archive() ) {
 			$type = 'post_archive';
-			$key  = get_query_var( 'post_type' ) );
-			
-		} elseif ( is_tax() ) {
-			if ( is_category() ) {
-				$type = 'category';
-			} elseif ( is_tag() ) {
-				$type = 'post_tag';
-			} else {
-				$type = 'custom_taxonomy';
-			}
+			$key  = get_query_var( 'post_type' );
+		} elseif ( is_category() || is_tag() || is_tax() ) {
+			$obj  = get_queried_object();
+			$type = 'tax__' . $obj->taxonomy;
+			$key  = $obj->term_id;
 		} elseif ( is_author() ) {
 			$type = 'author';
-		} else {
-			$type = false;
+			$key  = get_the_author_meta( 'ID' );
 		}
-
-		$page_index = array(
-			'type' => $type,
-			'key'  => $key,
-		);
+		$page_index = $type && $key ? array( $type, $key ) : false;
 
 		return $page_index;
 	}
