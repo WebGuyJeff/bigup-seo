@@ -25,19 +25,15 @@ class Seo_Meta_Controller {
 			exit; // Request handlers should exit() when done.
 		}
 
+		// Submit data to be inserted to the database.
 		$form_values = $request->get_body_params();
-
-		$messages = Meta_Table::upsert( $form_values );
-
-
-		error_log( 'upsert $messages' );
-		error_log( json_encode( $messages ) );
-
-
+		$data_ok     = Meta_Table::upsert( $form_values );
+		$string_pass = __( 'Database updated successfully.', 'bigup-seo' );
+		$string_fail = __( 'Database update failure. Please check site logs.', 'bigup-seo' );
+		$messages    = array( $data_ok ? $string_pass : $string_fail );
 
 		$this->send_json_response(
-			// ToDo: Extend to better reflect DB errors.
-			200,
+			$data_ok ? 200 : 500,
 			$messages,
 		);
 		exit; // Request handlers should exit() when done.
@@ -53,6 +49,9 @@ class Seo_Meta_Controller {
 	 * @param array $messages Array of message strings.
 	 */
 	private function send_json_response( $code, $messages ) {
+
+		error_log( 'send_json_response $messages' );
+		error_log( json_encode( $messages ) );
 
 		// Ensure response headers haven't already sent to browser.
 		if ( ! headers_sent() ) {

@@ -127,29 +127,32 @@ class Meta_Table {
 		// Replace placeholders with nulls.
 		$upsert_query_nulled = preg_replace( "/'NULL'/", 'NULL', $upsert_query );
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		$messages = dbDelta( $upsert_query_nulled );
+		/*
+		 * Messages are supposed to be returned by dbDelta(), but the array is almost always empty
+		 * even on failure. So we don't bother catching them.
+		 */
+		dbDelta( $upsert_query_nulled );
 
-		// Test the retrieved row data matches our data.
+		// Check for upsert success/fail by testing if the retrieved row data matches our input data.
 		$db_data = self::get_meta( $data['page_type'], $data['page_type_key'] );
 
-
 		// PROBLEM: Why is $db_data comsing back wrapped in []?
-
+		error_log( '### $db_data ###' );
 		error_log( json_encode( $db_data ) );
 
 		$data_ok = true;
-		foreach ( $data as $key => $value ) {
-			$test_value = empty( $value ) ? null : $value;
-			if ( $db_data[0]->$key !== $test_value ) {
-				$data_ok = false;
+		if ( empty( $db_data ) ) {
+			$data_ok = false;
+		} else {
+			foreach ( $data as $key => $value ) {
+				$test_value = empty( $value ) ? null : $value;
+				if ( $db_data[0]->$key !== $test_value ) {
+					$data_ok = false;
+				}
 			}
 		}
 
-		$string_pass = __( 'Database updated successfully.', 'bigup-seo' );
-		$string_fail = __( 'Database update failure. Please check site logs.', 'bigup-seo' );
-		$messages    = array( $data_ok ? $string_pass : $string_fail );
-
-		return $messages;
+		return $data_ok;
 	}
 
 

@@ -169,7 +169,23 @@ const metaEditInline = () => {
 			doFormNotice( form, 'notice-info', [ __( 'Please wait...', 'bigup-seo' ) ] )
 			const response = await fetch( restSeoMetaURL, { ...fetchOptions, signal: controller.signal } )
 			clearTimeout( abort )
-			const result = await response.json()
+			let result = {}
+			if ( ! isValidJSON( response ) ) {
+
+
+				console.log( '! isValidJSON' )
+				console.log( response )
+
+
+
+				// Catch errors caused by non-JSON response.
+				result = {
+					"ok": false,
+					"messages": [ __( 'Unexpected response from server.', 'bigup-seo' ) ]
+				}
+			} else {
+				result = await response.json()
+			}
 
 			// Display feedback.
 			if ( result.ok ) {
@@ -202,6 +218,22 @@ const metaEditInline = () => {
 		} finally {
 			resetFlag.value = ''
 			submitButton.disabled = false
+		}
+	}
+
+
+	/**
+	 * Test if a string is valid JSON.
+	 */
+	const isValidJSON = ( string ) => {
+		try {
+			const result = JSON.parse( string )
+			if ( result && typeof result === "object" ) {
+				return true
+			}
+		}
+		catch ( e ) {
+			return false
 		}
 	}
 
