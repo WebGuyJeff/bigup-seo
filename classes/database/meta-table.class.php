@@ -101,7 +101,8 @@ class Meta_Table {
 					 * $wpdb->prepare() currently doesn't support null values, so we use this
 					 * string placeholder which will then be replaced before passing to dbDelta().
 					 */
-					$value = 'NULL';
+					$value        = 'NULL';
+					$data[ $key ] = null; // We use $data to test against the DB after upsert.
 				}
 				$columns_and_values .= $wpdb->prepare( '%i = %s, ', $key, $value );
 				$columns            .= $wpdb->prepare( '%i, ', $key );
@@ -134,19 +135,14 @@ class Meta_Table {
 		dbDelta( $upsert_query_nulled );
 
 		// Check for upsert success/fail by testing if the retrieved row data matches our input data.
-		$db_data = self::get_meta( $data['page_type'], $data['page_type_key'] );
-
-		// PROBLEM: Why is $db_data comsing back wrapped in []?
-		error_log( '### $db_data ###' );
-		error_log( json_encode( $db_data ) );
-
+		$db_data = self::get_row( $data['page_type'], $data['page_type_key'] );
 		$data_ok = true;
 		if ( empty( $db_data ) ) {
 			$data_ok = false;
 		} else {
 			foreach ( $data as $key => $value ) {
-				$test_value = empty( $value ) ? null : $value;
-				if ( $db_data[0]->$key !== $test_value ) {
+				$test_value = ( empty( $value ) ) ? null : $value;
+				if ( $db_data->$key !== $test_value ) {
 					$data_ok = false;
 				}
 			}
@@ -159,13 +155,15 @@ class Meta_Table {
 	/**
 	 * Get all meta rows.
 	 */
-	public static function get_all_meta() {
+	public static function get_all_rows() {
 
 		global $wpdb;
 
 		$table_name         = $wpdb->prefix . self::TABLE_SUFFIX;
-		$get_all_meta_query = $wpdb->prepare( 'SELECT * FROM %i', $table_name );
-		$results            = $wpdb->get_results( $get_all_meta_query );
+		$get_all_rows_query = $wpdb->prepare( 'SELECT * FROM %i', $table_name );
+
+		// $wpdb->get_results( $query, OBJECT ) returns an array of object rows.
+		$results = $wpdb->get_results( $get_all_rows_query, OBJECT );
 
 		// Structure the data.
 		$meta = new \stdClass();
@@ -190,12 +188,12 @@ class Meta_Table {
 	/**
 	 * Get meta row by index.
 	 */
-	public static function get_meta( $page_type, $page_type_key ) {
+	public static function get_row( $page_type, $page_type_key ) {
 
 		global $wpdb;
 
-		$table_name     = $wpdb->prefix . self::TABLE_SUFFIX;
-		$get_meta_query = $wpdb->prepare(
+		$table_name    = $wpdb->prefix . self::TABLE_SUFFIX;
+		$get_row_query = $wpdb->prepare(
 			'SELECT * FROM %i WHERE (%i = %s AND %i = %s)',
 			$table_name,
 			'page_type',
@@ -204,8 +202,10 @@ class Meta_Table {
 			$page_type_key
 		);
 
-		$meta = $wpdb->get_results( $get_meta_query );
+		// $wpdb->get_results( $query, OBJECT ) returns an array of object rows.
+		$results = $wpdb->get_results( $get_row_query, OBJECT );
+		$row     = $results[0] ?? null;
 
-		return $meta;
+		return $row;
 	}
 }

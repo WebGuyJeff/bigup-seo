@@ -162,6 +162,7 @@ foreach ( $pages_map as $pages_type => $pages_data ) {
 													id=""
 													value="<?php echo esc_attr( $strings['title_value'] ); ?>"
 													placeholder="<?php echo esc_attr( $strings['title_placeholder'] ); ?>"
+													data-validation-ref="meta_title"
 												>
 											</label>
 											<label class="field">
@@ -172,6 +173,7 @@ foreach ( $pages_map as $pages_type => $pages_data ) {
 													name="meta_description"
 													id=""
 													placeholder="<?php echo esc_attr( $strings['description_placeholder'] ); ?>"
+													data-validation-ref="meta_description"
 												><?php echo esc_attr( $strings['description_value'] ); ?></textarea>
 											</label>
 											<label class="field">
@@ -183,6 +185,7 @@ foreach ( $pages_map as $pages_type => $pages_data ) {
 													id=""
 													value="<?php echo esc_attr( $strings['canonical_value'] ); ?>"
 													placeholder="<?php echo esc_attr( $strings['canonical_placeholder'] ); ?>"
+													data-validation-ref="meta_canonical"
 												>
 											</label>
 										</fieldset>

@@ -106,11 +106,8 @@ const metaEditInline = () => {
 		resizeObserver.observe( tr )
 		tr.querySelector( '.submitButton' ).addEventListener( 'click', metaRequest )
 		tr.querySelector( '.cancelButton' ).addEventListener( 'click', cancelButtonClick );
-		[
-			...tr.querySelectorAll( 'input' ),
-			...tr.querySelectorAll( 'textarea' )
-		].forEach ( input => {
-			attachValidationListener( input )
+		[ ...tr.querySelectorAll( ':is( input, textarea ):not( [type="hidden"] )' ) ].forEach ( field => {
+			attachValidationListener( field )
 		} )
 		// Google SERP preview.
 		registerSERP(
@@ -139,8 +136,9 @@ const metaEditInline = () => {
 		const submitButton = event.currentTarget
 		const form         = submitButton.closest( 'form' )
 		const resetFlag    = form.querySelector( '.resetFlag' )
+		const reset        = submitButton.classList.contains( 'reset' )
 
-		if ( submitButton.classList.contains( 'reset' ) ) {
+		if ( reset ) {
 			resetFlag.value = 1
 		}
 
@@ -164,36 +162,27 @@ const metaEditInline = () => {
 		const controller = new AbortController()
 		const abort = setTimeout( () => controller.abort(), 6000 )
 
+		let className = ''
+		let messages = []
+
 		try {
 			submitButton.disabled = true
 			doFormNotice( form, 'notice-info', [ __( 'Please wait...', 'bigup-seo' ) ] )
 			const response = await fetch( restSeoMetaURL, { ...fetchOptions, signal: controller.signal } )
 			clearTimeout( abort )
-			let result = {}
-			if ( ! isValidJSON( response ) ) {
+			let result = await response.json()
 
-
-				console.log( '! isValidJSON' )
-				console.log( response )
-
-
-
-				// Catch errors caused by non-JSON response.
-				result = {
-					"ok": false,
-					"messages": [ __( 'Unexpected response from server.', 'bigup-seo' ) ]
-				}
-			} else {
-				result = await response.json()
+			if ( result.messages === undefined ) {
+				throw new Error( result )
 			}
 
 			// Display feedback.
 			if ( result.ok ) {
-				const messages = [
+				className = 'notice-success'
+				messages = [
 					__( 'Saved', 'bigup-seo' ),
 					...result.messages
 				]
-				doFormNotice( form, 'notice-success', messages )
 
 				// Update the inline table row data.
 				const editRow         = form.closest( 'tr' )
@@ -206,34 +195,31 @@ const metaEditInline = () => {
 				if ( entries[ 'meta_description' ] ) {
 					inlineMetaDesc.textContent = entries[ 'meta_description' ]
 				}
+
+				// Clear the form inputs if they were reset.
+				if ( reset ) {
+					;[ ...form.querySelectorAll( ':is( input ):not( [type="hidden"] )' ) ].forEach( ( input ) => input.value = '' )
+					;[ ...form.querySelectorAll( 'textarea' ) ].forEach( ( textarea ) => textarea.textContent = '' )
+				}
+
 			} else {
-				const messages = [
+				className = 'notice-error'
+				messages = [
 					__( 'Error', 'bigup-seo' ),
 					...result.messages
 				]
-				doFormNotice( form, 'notice-error', messages )
 			}
 		} catch ( error ) {
+			// Catch fetch and non-JSON response errors.
+			className = 'notice-error'
+			messages = [ __( 'Unexpected response from server.', 'bigup-seo' ) ]
 			console.error( error )
+
 		} finally {
+			// Display response and reset form.
+			doFormNotice( form, className, messages )
 			resetFlag.value = ''
 			submitButton.disabled = false
-		}
-	}
-
-
-	/**
-	 * Test if a string is valid JSON.
-	 */
-	const isValidJSON = ( string ) => {
-		try {
-			const result = JSON.parse( string )
-			if ( result && typeof result === "object" ) {
-				return true
-			}
-		}
-		catch ( e ) {
-			return false
 		}
 	}
 
@@ -251,24 +237,24 @@ const metaEditInline = () => {
 	/**
 	 * Attach a listener to validate input and display recommendations.
 	 *
-	 * @param {HTMLElement} input The form input element.
+	 * @param {HTMLElement} field The form control element.
 	 */
-	const attachValidationListener = ( input ) => {
-		const type = input.getAttribute( 'data-validation-ref' )
+	const attachValidationListener = ( field ) => {
+		const type = field.getAttribute( 'data-validation-ref' )
 		let regex
 		let message
 		switch ( type ) {
-			case 'title':
+			case 'meta_title':
 				regex = new RegExp( regexPatterns.seoTitle, 'u' )
 				message = __( 'To ensure titles are long enough for Google to consider using them, between 30 and 60 characters is recommended. Google starts to cut off the title tag after 50-60 characters.', 'bigup-seo' )
 				break
 
-			case 'description':
+			case 'meta_description':
 				regex = new RegExp( regexPatterns.seoDescription, 'u' )
 				message = __( 'Google generally truncates snippets to ~155-160 characters. To keep descriptions sufficiently descriptive, between 50 and 160 characters is recommended.', 'bigup-seo' )
 				break
 
-			case 'canonical':
+			case 'meta_canonical':
 				regex = new RegExp( regexPatterns.url, 'u' )
 				message = __( 'The canonical URL must be a valid URL with the protocol (https) specified. SSL (https) is strongly recommended over plain "http".', 'bigup-seo' )
 				break
@@ -278,14 +264,14 @@ const metaEditInline = () => {
 				// Allow anything.
 		}
 
-		input.addEventListener(
+		field.addEventListener(
 			'keyup',
 			function () {
-				const string = input.value
+				const string = field.value
 				if ( regex.test( string ) || string === '' ) {
-					removeInputMessage( input )
+					removeInputMessage( field )
 				} else {
-					insertInputMessage( input, message )
+					insertInputMessage( field, message )
 				}
 			}
 		)

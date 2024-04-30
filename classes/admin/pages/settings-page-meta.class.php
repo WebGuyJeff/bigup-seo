@@ -33,7 +33,7 @@ class Settings_Page_Meta {
 			$this->pages = new Pages();
 		}
 		if ( empty( $this->meta ) ) {
-			$this->meta = Meta_Table::get_all_meta();
+			$this->meta = Meta_Table::get_all_rows();
 		}
 		add_action( 'admin_init', array( &$this, 'register' ), 11, 0 ); // Must fire after Pages().
 	}

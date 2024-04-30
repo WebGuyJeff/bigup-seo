@@ -50,8 +50,11 @@ class Seo_Meta_Controller {
 	 */
 	private function send_json_response( $code, $messages ) {
 
-		error_log( 'send_json_response $messages' );
-		error_log( json_encode( $messages ) );
+		/*
+		 * Clean output buffer to ensure we only include what we want in the response. Note that
+		 * without this, WP HTML errors may be included breaking the response formatting.
+		 */
+		ob_clean();
 
 		// Ensure response headers haven't already sent to browser.
 		if ( ! headers_sent() ) {

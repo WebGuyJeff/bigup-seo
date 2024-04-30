@@ -29,7 +29,7 @@ class Meta {
 
 		$this->settings = get_option( Settings_Page_Meta::OPTION );
 
-		add_action( 'template_redirect', array( $this, 'do_head_meta' ), 10, 0 );
+		add_action( 'template_redirect', array( $this, 'do_all_tags' ), 10, 0 );
 	}
 
 
@@ -41,31 +41,48 @@ class Meta {
 	 * Removing theme support 'title-tag' and 'wp_head' title action in order to implement our own
 	 * was unreliable, so we're filtering the WP core document_title instead.
 	 */
-	public function do_head_meta() {
-
-		// ORIGINAL FUNCTIONALITY.
+	public function do_all_tags() {
 
 		$Head = new Head();
-		add_filter( 'document_title', array( &$Head, 'get_title_tag_text' ), 1 );
 		add_action( 'wp_head', array( &$Head, 'print_markup' ), 2, 0 );
 
-		// NEW TITLE FUNCTIONALITY.
-
-		// DEBUG.
-		error_log( '###' );
+		// NEW STUFF.
 
 		// 1. Get the current page.
 		[ $type, $key ] = $this->get_current_page_index();
 
-		error_log( '$type: ' . $type );
-		error_log( '$key: ' . $key );
+		// 2. Get metadata from DB if any is saved.
+		// object || null.
+		$this->tags = Meta_Table::get_row( $type, $key );
+
+		if ( $this->tags === null ) {
+			return;
+		}
+
+		// DEBUG.
+		error_log( '###' );
+		error_log( json_encode( $this->tags->meta_title ) );
+
+		// Hook the title tag.
+		// Do not use 'wp_title' hook.
+		add_filter( 'document_title_parts', array( &$this, 'filter_title' ), 10, 1 );
+	}
 
 
-		$this->tags = Meta_Table::get_meta( $type, $key );
+	/**
+	 * Filter Meta Title.
+	 *
+	 * @param array $title_parts The meta title parts.
+	 */
+	public function filter_title( $title_parts ) {
+		if ( $this->tags->meta_title ) {
+			$title_parts['title']   = $this->tags->meta_title;
 
-		error_log( json_encode( $this->tags ) );
-
-		// 3. Apply the title filter.
+			// We want complete control so we empty the other parts.
+			$title_parts['tagline'] = '';
+			$title_parts['site']    = '';
+		}
+		return $title_parts;
 	}
 
 
