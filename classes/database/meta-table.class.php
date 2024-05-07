@@ -130,7 +130,8 @@ class Meta_Table {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		/*
 		 * Messages are supposed to be returned by dbDelta(), but the array is almost always empty
-		 * even on failure. So we don't bother catching them.
+		 * even on failure. These aren't reliable for error feedback. To check for errors we
+		 * manually query the database to confirm the newly added data is present (see below).
 		 */
 		dbDelta( $upsert_query_nulled );
 

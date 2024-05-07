@@ -47,7 +47,7 @@ class Init {
 		$this->meta    = new Meta();
 
 		if ( is_admin() ) {
-			// Robots is implimented by a static file, so skip loading class for front-end requests.
+			// The robots class only handles admin configuration of the robots.txt static file.
 			$this->robots = new Robots();
 		}
 	}
@@ -76,7 +76,7 @@ class Init {
 
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_and_styles' ), 10, 0 );
 
-			// Robots is implimented by a static file, so skip loading class for front-end requests.
+			// The robots class only handles admin configuration of the robots.txt static file.
 			$this->robots->apply_options();
 		}
 	}

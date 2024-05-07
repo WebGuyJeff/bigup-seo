@@ -76,7 +76,7 @@ class Meta {
 	 */
 	public function filter_title( $title_parts ) {
 		if ( $this->tags->meta_title ) {
-			$title_parts['title']   = $this->tags->meta_title;
+			$title_parts['title'] = $this->tags->meta_title;
 
 			// We want complete control so we empty the other parts.
 			$title_parts['tagline'] = '';
