@@ -12,11 +12,19 @@ const outputMeta = () => {
 
 	function showOverlay() {
 
+		// Grab the different tags and spread them to the tags array in the desired order.
 		const titleTags = document.querySelectorAll( 'title' )
-		const metaTags  = document.querySelectorAll( 'meta' )
+		const descTags  = document.querySelectorAll( 'meta[name="description"]' )
+		const metaTags  = document.querySelectorAll( 'meta:not([name="description"])' )
+		const canonTags = document.querySelectorAll( 'link[rel="canonical"]' )
+		const tags      = [
+			...titleTags,
+			...descTags,
+			...canonTags,
+			...metaTags
+		]
 
 		const panel  = document.createElement( 'div' )
-		const scroll = document.createElement( 'div' )
 		const print  = document.createElement( 'div' )
 		const header = document.createElement( 'header' )
 		const title  = document.createElement( 'h3' )
@@ -32,16 +40,9 @@ const outputMeta = () => {
 		close.innerText = 'Close'
 		close.addEventListener( 'click', () => panel.remove() )
 
-		titleTags.forEach( ( title ) => {
+		tags.forEach( ( tag ) => {
 			const p = document.createElement( 'p' )
-			const nodeString = title.outerHTML
-			p.innerText = nodeString
-			print.appendChild( p )
-		} )
-
-		metaTags.forEach( ( meta ) => {
-			const p = document.createElement( 'p' )
-			const nodeString = meta.outerHTML
+			const nodeString = tag.outerHTML
 			p.innerText = nodeString
 			print.appendChild( p )
 		} )

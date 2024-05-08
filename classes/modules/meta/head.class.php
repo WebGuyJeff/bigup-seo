@@ -13,19 +13,19 @@ namespace BigupWeb\Bigup_Seo;
 class Head {
 
 	/**
-	 * Meta variables scraped from the website.
+	 * Custom meta retrieved from the database.
 	 */
-	private array $meta = array();
+	private object $db_meta;
 
 	/**
-	 * Head meta tag markup.
+	 * All available meta variables.
 	 */
-	private string $markup = '';
+	public array $meta;
 
 	/**
-	 * Title tag text.
+	 * HTML markup ready for head.
 	 */
-	private string $title = '';
+	public string $markup;
 
 	/**
 	 * Constants (need a source like wp options perhaps).
@@ -37,35 +37,17 @@ class Head {
 
 
 	/**
-	 * Populate class properties.
+	 * Build the head meta HTML markup.
 	 *
 	 * Must be instantiated between the wp query and 'wp_head' hooks so conditionals work.
 	 * Hook 'template_redirect' seems to work nicely.
+	 *
+	 * @param {object} $db_meta Meta data object retrieved from the database.
 	 */
-	public function __construct() {
-		$this->meta   = $this->get_meta();
-		$this->markup = $this->get_markup( $this->meta );
-		$this->title  = $this->meta['title'];
-	}
-
-
-	/**
-	 * Return the current page title to filter WP document_title with.
-	 */
-	public function get_title_tag_text() {
-		return $this->title;
-	}
-
-
-	/**
-	 * Print the head meta.
-	 */
-	public function print_markup() {
-		$output  = "<!-- Bigup SEO: START -->\n";
-		$output .= $this->markup;
-		$output .= "<!-- Bigup SEO: END -->\n";
-
-		Escape::head( $output );
+	public function __construct( $db_meta ) {
+		$this->db_meta = $db_meta;
+		$this->meta    = $this->get_meta( $this->db_meta );
+		$this->markup  = $this->get_markup( $this->meta );
 	}
 
 
@@ -145,11 +127,11 @@ class Head {
 
 
 	/**
-	 * Populate the SEO meta variables.
+	 * Get an array of SEO meta.
 	 *
-	 * @return array Array of meta variables.
+	 * @param object $db_meta An object of meta data.
 	 */
-	private function get_meta() {
+	private function get_meta( $db_meta ) {
 
 		/* Sitewide */
 		$sitetitle  = wp_strip_all_tags( get_bloginfo( 'name', 'display' ) );
@@ -241,10 +223,10 @@ class Head {
 
 		$meta = array(
 			'warning'     => $warning,
-			'title'       => $title,
-			'desc'        => $desc,
+			'title'       => $db_meta->meta_title ?? $title,
+			'desc'        => $db_meta->meta_description ?? $desc,
 			'author'      => $author,
-			'canon'       => $canon,
+			'canon'       => $db_meta->meta_canonical ?? $canon,
 			'ogimage'     => $ogimage,
 			'ogtitle'     => $title,
 			'ogtype'      => self::SETTINGS['objecttype'],
@@ -268,20 +250,23 @@ class Head {
 	}
 
 	/**
-	 * Generate the SEO meta HTML.
+	 * Generate the meta tag HTML.
 	 *
-	 * @return string HTML to be inserted into head.
-	 * @param array $meta The array of SEO meta data variables.
+	 * @return string Meta tag HTML.
+	 * @param array $meta An array of SEO meta data.
 	 */
 	private function get_markup( $meta ) {
 
-		$markup = '';
-
-		if ( $meta['warning'] ) {
-			$markup .= $meta['warning'];
-		}
+		$markup = "<!-- Bigup SEO: START -->\n";
 
 		$markup .=
+			'<meta data-plugin="TRUE" name="description" content="' . $meta['desc'] . '">' .
+			'<link data-plugin="TRUE" rel="canonical" href="' . $meta['canon'] . '">';
+
+		$markup .= "<!-- Bigup SEO: END -->\n";
+
+		// TODO: These tags need migrating to the new functionality above.
+		$old =
 			'<meta name="description" content="' . $meta['desc'] . '">' .
 			'<meta name="author" content="' . $meta['author'] . '">' .
 			'<link rel="canonical" href="' . $meta['canon'] . '">' .
@@ -308,6 +293,7 @@ class Head {
 			'<link rel="icon" type="image/png" href="' . $meta['icon32'] . '" sizes="32x32">' .
 			'<link rel="apple-touch-icon" href="' . $meta['icon180'] . '">' .
 			'<meta name="msapplication-TileImage" content="' . $meta['icon270'] . '">';
+
 		return $markup;
 	}
 }
