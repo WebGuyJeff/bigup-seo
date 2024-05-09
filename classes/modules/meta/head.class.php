@@ -174,7 +174,7 @@ class Head {
 			$thumbnail   = esc_url( get_the_post_thumbnail_url( $postid ) );
 		}
 
-		$warning = false;
+		$canon = trailingslashit( $permalink );
 
 		/* choose the most suitable scraped value with preference order by page type */
 		if ( is_front_page() ) {
@@ -188,41 +188,36 @@ class Head {
 			$title   = ucwords( $this->first_not_empty( array( $blogtitle, $sitetitle ) ) . ' - ' . $sitedesc );
 			$desc    = ucfirst( $this->first_not_empty( array( $postexcerpt, $sitedesc ) ) );
 			$author  = ucwords( $this->first_not_empty( array( $siteauthor, $postauthor ) ) );
-			$canon   = trailingslashit( $permalink );
 			$ogimage = $this->first_not_empty( array( $thumbnail, $sitelogo, $postimage ) );
 
 		} elseif ( is_category() ) {
 			$title   = ucwords( $this->first_not_empty( array( $archivetitle, $posttitle ) ) );
 			$desc    = ucfirst( $this->first_not_empty( array( $catexcerpt, $postexcerpt, $sitedesc ) ) );
 			$author  = ucwords( $this->first_not_empty( array( $postauthor, $siteauthor ) ) );
-			$canon   = trailingslashit( $permalink );
 			$ogimage = $this->first_not_empty( array( $thumbnail, $postimage, $sitelogo ) );
 
 		} elseif ( is_archive() ) {
 			$title   = ucwords( $this->first_not_empty( array( $archivetitle, $posttitle ) ) );
 			$desc    = ucfirst( $this->first_not_empty( array( $catexcerpt, $postexcerpt, $sitedesc ) ) );
 			$author  = ucwords( $this->first_not_empty( array( $postauthor, $siteauthor ) ) );
-			$canon   = trailingslashit( $permalink );
 			$ogimage = $this->first_not_empty( array( $thumbnail, $postimage, $sitelogo ) );
 
 		} elseif ( is_singular() ) {
 			$title   = ucwords( $posttitle );
 			$desc    = ucfirst( $postexcerpt );
 			$author  = ucwords( $postauthor );
-			$canon   = trailingslashit( $permalink );
 			$ogimage = $this->first_not_empty( array( $postimage, $thumbnail, $sitelogo ) );
 
 		} else {
 			$warning = "<!-- NOTICE: Fallback meta in use as template not matched for this page -->\n";
-			$title   = ucwords( $this->first_not_empty( array( $posttitle, $archivetitle, $sitetitle ) ) );
-			$desc    = ucfirst( $this->first_not_empty( array( $postexcerpt, $catexcerpt, $sitedesc ) ) );
-			$author  = ucwords( $this->first_not_empty( array( $postauthor, $siteauthor ) ) );
-			$canon   = trailingslashit( $permalink );
+			$title   = ucwords( $this->first_not_empty( array( $posttitle, $archivetitle ) ) );
+			$desc    = ucfirst( $this->first_not_empty( array( $postexcerpt, $catexcerpt ) ) );
+			$author  = $postauthor;
 			$ogimage = $this->first_not_empty( array( $thumbnail, $postimage, $sitelogo ) );
 		}
 
 		$meta = array(
-			'warning'     => $warning,
+			'warning'     => $warning ?? '',
 			'title'       => $db_meta->meta_title ?? $title,
 			'desc'        => $db_meta->meta_description ?? $desc,
 			'author'      => $author,
@@ -257,19 +252,12 @@ class Head {
 	 */
 	private function get_markup( $meta ) {
 
-		$markup = "<!-- Bigup SEO: START -->\n";
+		$markup  = "<!-- Bigup SEO: START -->\n";
+		$markup .= $meta['warning'];
 
 		$markup .=
 			'<meta data-plugin="TRUE" name="description" content="' . $meta['desc'] . '">' .
-			'<link data-plugin="TRUE" rel="canonical" href="' . $meta['canon'] . '">';
-
-		$markup .= "<!-- Bigup SEO: END -->\n";
-
-		// TODO: These tags need migrating to the new functionality above.
-		$old =
-			'<meta name="description" content="' . $meta['desc'] . '">' .
-			'<meta name="author" content="' . $meta['author'] . '">' .
-			'<link rel="canonical" href="' . $meta['canon'] . '">' .
+			'<link data-plugin="TRUE" rel="canonical" href="' . $meta['canon'] . '">' .
 			'<!-- Open Graph Meta -->' .
 			'<meta property="og:title" content="' . $meta['ogtitle'] . '">' .
 			'<meta property="og:type" content="' . $meta['ogtype'] . '">' . // HTML tag namespace must match og:type.
