@@ -16,9 +16,14 @@ namespace BigupWeb\Bigup_Seo;
 class Init {
 
 	/**
-	 * Settings for this plugin.
+	 * Settings pages for this plugin.
 	 */
 	public $admin_settings;
+
+	/**
+	 * Saved settings for this plugin.
+	 */
+	private $meta_settings;
 
 	/**
 	 * Bigup sitemap.
@@ -43,8 +48,12 @@ class Init {
 
 		new Install();
 
-		$this->sitemap = new Sitemap();
-		$this->meta    = new Meta();
+		$this->sitemap       = new Sitemap();
+
+		$this->meta_settings = get_option( Settings_Page_Meta::OPTION );
+		if ( isset( $this->meta_settings['generate_title_tags'] ) && $this->meta_settings['generate_title_tags'] ) {
+			$this->meta = new Meta();
+		}
 
 		if ( is_admin() ) {
 			// The robots class only handles admin configuration of the robots.txt static file.
