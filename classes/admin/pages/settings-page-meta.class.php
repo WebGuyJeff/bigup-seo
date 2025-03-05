@@ -12,6 +12,9 @@ class Settings_Page_Meta {
 	public const GROUP  = 'bigupseo_group_meta';
 	public const OPTION = 'bigupseo_settings_meta';
 
+	/**
+	 * Settings retrieved from database.
+	 */
 	private $settings;
 
 	/**
@@ -29,6 +32,7 @@ class Settings_Page_Meta {
 	 * Hook into WP.
 	 */
 	public function __construct() {
+		$this->settings = get_option( self::OPTION );
 		if ( empty( $this->pages ) ) {
 			$this->pages = new Pages();
 		}
@@ -43,16 +47,11 @@ class Settings_Page_Meta {
 	 * Register the settings.
 	 */
 	public function register() {
-
-		$this->settings = get_option( self::OPTION );
-
-		// A single serialised array holds all tab settings.
 		register_setting(
 			self::GROUP,               // option_group.
 			self::OPTION,              // option_name.
 			array( $this, 'sanitise' ) // sanitise_callback.
 		);
-
 		$this->register_section_meta();
 	}
 
@@ -167,11 +166,10 @@ class Settings_Page_Meta {
 		$enabled = isset( $this->settings['generate_title_tags'] ) && $this->settings['generate_title_tags'];
 		$setting = self::OPTION . '[browser_theme_colour_hex]';
 		printf(
-			'<input class="regular-text" type="text" id="%s" name="%s" value="%s" %s>',
+			'<input class="regular-text" type="text" id="%s" name="%s" value="%s">',
 			$setting,
 			$setting,
-			$this->settings['browser_theme_colour_hex'] ?? '',
-			$enabled ? '' : 'disabled',
+			$this->settings['browser_theme_colour_hex'] ?? ''
 		);
 	}
 
