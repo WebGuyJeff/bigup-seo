@@ -2,5 +2,6 @@
 ./dashicons
 ./data
 ./plugin-entry.php
+./templates
 ./license.md
 ./readme.md
