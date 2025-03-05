@@ -30,7 +30,7 @@ class Head {
 	/**
 	 * Constants (need a source like wp options perhaps).
 	 */
-	private const SETTINGS = array(
+	private const SETTINGS_STATIC = array(
 		'localealt'  => 'en_US',
 		'objecttype' => 'website',
 	);
@@ -45,9 +45,9 @@ class Head {
 	 * @param {object} $db_meta Meta data object retrieved from the database.
 	 */
 	public function __construct( $db_meta ) {
-		$this->db_meta = $db_meta;
-		$this->meta    = $this->get_meta( $this->db_meta );
-		$this->markup  = $this->get_markup( $this->meta );
+		$this->db_meta  = $db_meta;
+		$this->meta     = $this->get_meta( $this->db_meta );
+		$this->markup   = $this->get_markup( $this->meta );
 	}
 
 
@@ -61,7 +61,7 @@ class Head {
 		$string = '';
 		if ( is_array( $array ) ) {
 			foreach ( $array as &$value ) {
-				$trimmed = trim( $value, ' ' );
+				$trimmed = isset( $value ) && 0 < strlen( $value ) ? trim( $value ) : '';
 				if ( ! empty( $trimmed ) ) {
 					$string = $trimmed;
 					goto end;
@@ -133,6 +133,10 @@ class Head {
 	 */
 	private function get_meta( $db_meta ) {
 
+		$settings            = get_option( Settings_Page_Meta::OPTION );
+		$settings_colour     = isset( $settings['browser_theme_colour_hex'] ) ? $settings['browser_theme_colour_hex'] : null;
+		$wp_theme_background = get_background_color() ? '#' . get_background_color() : null;
+
 		/* Sitewide */
 		$sitetitle  = wp_strip_all_tags( get_bloginfo( 'name', 'display' ) );
 		$blogtitle  = wp_strip_all_tags( get_the_title( get_option( 'page_for_posts', true ) ) );
@@ -142,7 +146,7 @@ class Head {
 		$themeuri   = trailingslashit( get_template_directory_uri() );
 		$sitelogo   = esc_url( wp_get_attachment_url( get_theme_mod( 'custom_logo' ) ) );
 		$locale     = wp_strip_all_tags( get_bloginfo( 'language' ) );
-		$colour     = get_background_color() ? '#' . get_background_color() : '#ebe8e6';
+		$colour     = $this->first_not_empty( array( $settings_colour, $wp_theme_background, '' ) );
 		$icon512    = $this->get_favicon_url( 512 );
 		$icon270    = $this->get_favicon_url( 270 );
 		$icon192    = $this->get_favicon_url( 192 );
@@ -224,10 +228,10 @@ class Head {
 			'canon'       => $db_meta->meta_canonical ?? $canon,
 			'ogimage'     => $ogimage,
 			'ogtitle'     => $db_meta->meta_title ?? $title,
-			'ogtype'      => self::SETTINGS['objecttype'],
+			'ogtype'      => self::SETTINGS_STATIC['objecttype'],
 			'ogurl'       => $canon,
 			'oglocale'    => $locale,
-			'oglocalealt' => self::SETTINGS['localealt'],
+			'oglocalealt' => self::SETTINGS_STATIC['localealt'],
 			'ogdesc'      => $db_meta->meta_description ?? $desc,
 			'ogsitename'  => $sitetitle,
 			'url'         => $url,
@@ -257,7 +261,7 @@ class Head {
 
 		$markup .=
 			'<meta name="description" content="' . $meta['desc'] . '">' .
-			'<link data-plugin="TRUE" rel="canonical" href="' . $meta['canon'] . '">' .
+			'<link rel="canonical" href="' . $meta['canon'] . '">' .
 			'<!-- Open Graph Meta -->' .
 			'<meta property="og:title" content="' . $meta['ogtitle'] . '">' .
 			'<meta property="og:type" content="' . $meta['ogtype'] . '">' . // HTML tag namespace must match og:type.
@@ -268,9 +272,9 @@ class Head {
 			'<meta property="og:description" content="' . $meta['ogdesc'] . '">' .
 			'<meta property="og:site_name" content="' . $meta['ogsitename'] . '">' .
 			'<!-- Browser Colours -->' .
-			'<meta name="theme-color" content="' . $meta['colour'] . '">' .
+			( ! empty( $meta['colour'] ) ? '<meta name="theme-color" content="' . $meta['colour'] . '">' : '' ) .
+			( ! empty( $meta['colour'] ) ? '<meta name="apple-mobile-web-app-status-bar-style" content="' . $meta['colour'] . '">' : '' ) .
 			'<meta name="apple-mobile-web-app-capable" content="yes">' .
-			'<meta name="apple-mobile-web-app-status-bar-style" content="' . $meta['colour'] . '">' .
 			'<!-- Favicons -->' .
 			'<link rel="icon" type="image/png" href="' . $meta['icon512'] . '" sizes="512x512">' .
 			'<link rel="icon" type="image/png" href="' . $meta['icon270'] . '" sizes="270x270">' .

@@ -132,6 +132,7 @@ class Settings_Page_Meta {
 		$section = 'meta_settings';
 		add_settings_section( $section, 'Meta', array( $this, 'echo_section_intro_meta' ), self::PAGE );
 		add_settings_field( 'generate_title_tags', 'Generate title tags', array( &$this, 'echo_field_enable_plugin_title_tags' ), self::PAGE, $section );
+		add_settings_field( 'browser_theme_colour_hex', 'Browser Theme Colour Hex Value', array( &$this, 'echo_field_browser_theme_colour_hex' ), self::PAGE, $section );
 	}
 
 
@@ -160,6 +161,22 @@ class Settings_Page_Meta {
 
 
 	/**
+	 * Output option to set browser theme colour meta tag.
+	 */
+	public function echo_field_browser_theme_colour_hex() {
+		$enabled = isset( $this->settings['generate_title_tags'] ) && $this->settings['generate_title_tags'];
+		$setting = self::OPTION . '[browser_theme_colour_hex]';
+		printf(
+			'<input class="regular-text" type="text" id="%s" name="%s" value="%s" %s>',
+			$setting,
+			$setting,
+			$this->settings['browser_theme_colour_hex'] ?? '',
+			$enabled ? '' : 'disabled',
+		);
+	}
+
+
+	/**
 	 * Output seo meta options which interact with the bigup_seo_meta DB table.
 	 */
 	private function do_seo_meta_options() {
@@ -182,6 +199,11 @@ class Settings_Page_Meta {
 		if ( isset( $input['generate_title_tags'] ) ) {
 			$sanitised['generate_title_tags'] = Sanitise_Setting::checkbox( $input['generate_title_tags'] );
 		}
+
+		if ( isset( $input['browser_theme_colour_hex'] ) ) {
+			$sanitised['browser_theme_colour_hex'] = Sanitise_Setting::hex_colour( $input['browser_theme_colour_hex'] );
+		}
+
 		return $sanitised;
 	}
 }
