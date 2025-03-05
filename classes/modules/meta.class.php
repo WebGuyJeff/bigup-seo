@@ -65,6 +65,9 @@ class Meta {
 		// Hook the title tag to override WP (Do not use 'wp_title' hook!).
 		add_filter( 'document_title_parts', array( &$this, 'filter_title' ), 10, 1 );
 
+		// Hook into wp_head to stop WP generating a canonical link tag.
+		remove_action( 'wp_head', 'rel_canonical' );
+
 		// Hook into wp_head and do all other meta tags.
 		$this->head = new Head( $this->db_meta );
 		add_action( 'wp_head', array( &$this, 'print_meta_markup' ), 2, 0 );

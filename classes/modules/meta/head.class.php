@@ -223,12 +223,12 @@ class Head {
 			'author'      => $author,
 			'canon'       => $db_meta->meta_canonical ?? $canon,
 			'ogimage'     => $ogimage,
-			'ogtitle'     => $title,
+			'ogtitle'     => $db_meta->meta_title ?? $title,
 			'ogtype'      => self::SETTINGS['objecttype'],
 			'ogurl'       => $canon,
 			'oglocale'    => $locale,
 			'oglocalealt' => self::SETTINGS['localealt'],
-			'ogdesc'      => $desc,
+			'ogdesc'      => $db_meta->meta_description ?? $desc,
 			'ogsitename'  => $sitetitle,
 			'url'         => $url,
 			'themeuri'    => $themeuri,
@@ -256,7 +256,7 @@ class Head {
 		$markup .= $meta['warning'];
 
 		$markup .=
-			'<meta data-plugin="TRUE" name="description" content="' . $meta['desc'] . '">' .
+			'<meta name="description" content="' . $meta['desc'] . '">' .
 			'<link data-plugin="TRUE" rel="canonical" href="' . $meta['canon'] . '">' .
 			'<!-- Open Graph Meta -->' .
 			'<meta property="og:title" content="' . $meta['ogtitle'] . '">' .
@@ -281,6 +281,8 @@ class Head {
 			'<link rel="icon" type="image/png" href="' . $meta['icon32'] . '" sizes="32x32">' .
 			'<link rel="apple-touch-icon" href="' . $meta['icon180'] . '">' .
 			'<meta name="msapplication-TileImage" content="' . $meta['icon270'] . '">';
+
+		$markup .= "<!-- Bigup SEO: END -->\n";
 
 		return $markup;
 	}

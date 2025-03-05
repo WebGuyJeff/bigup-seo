@@ -26,7 +26,7 @@ class Util {
 			return false;
 		}
 		$wp_filesystem = new \WP_Filesystem_Direct( null );
-		$string		= $wp_filesystem->get_contents( $path );
+		$string        = $wp_filesystem->get_contents( $path );
 		return $string;
 	}
 
@@ -37,7 +37,7 @@ class Util {
 	 * @param string $needle The string to search for.
 	 */
 	public static function theme_files_contain( $needle ) {
-		$theme_dir	 = get_template_directory() . '/';
+		$theme_dir     = get_template_directory() . '/';
 		$theme_files   = array();
 		$matched_files = array();
 		foreach ( glob( $theme_dir . '*.php' ) as $file ) {
