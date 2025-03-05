@@ -31,7 +31,13 @@ class Meta {
 	 * Hook the setup method.
 	 */
 	public function __construct() {
-		$this->settings = get_option( Settings_Page_Meta::OPTION );
+		$settings  = get_option( Settings_Page_Meta::OPTION );
+
+		if ( isset( $settings ) && is_array( $settings ) ) {
+			$this->settings = $settings;
+		} else {
+			$this->settings = array();
+		}
 
 		add_action( 'template_redirect', array( $this, 'do_all_tags' ), 10, 0 );
 	}
