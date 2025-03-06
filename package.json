@@ -3,12 +3,13 @@
 	"version": "0.1.1",
 	"description": "Bigup your SEO game.",
 	"dependencies": {
-		"@wordpress/block-editor": "^12.10.0",
-		"@wordpress/blocks": "^12.19.0",
-		"@wordpress/i18n": "^4.42.0"
+		"@wordpress/block-editor": "^14.14.0",
+		"@wordpress/blocks": "^14.8.0",
+		"@wordpress/i18n": "^5.19.0",
+		"caniuse-lite": "^1.0.30001702"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^26.16.0",
+		"@wordpress/scripts": "^30.12.0",
 		"browser-sync-webpack-plugin": "^2.3.0"
 	},
 	"scripts": {

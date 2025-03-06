@@ -2,10 +2,10 @@
  * Webpack entry point.
  */
 
-@import './admin/_reset.scss';
-@import './admin/_layout.scss';
-@import './admin/_components.scss';
-@import './admin/_sitemap-viewer.scss';
-@import './admin/_robots-editor.scss';
-@import './admin/_meta-editor.scss';
-@import './admin/_google-serp.scss';
+@use 'admin/_reset.scss';
+@use 'admin/_layout.scss';
+@use 'admin/_components.scss';
+@use 'admin/_sitemap-viewer.scss';
+@use 'admin/_robots-editor.scss';
+@use 'admin/_meta-editor.scss';
+@use 'admin/_google-serp.scss';

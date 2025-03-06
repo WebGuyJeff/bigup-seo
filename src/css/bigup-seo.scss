@@ -2,4 +2,4 @@
  * Webpack entry point.
  */
 
-@import './frontend/_output-meta.scss';
+@use 'frontend/_output-meta.scss';
