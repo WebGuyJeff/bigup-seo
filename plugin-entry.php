@@ -3,18 +3,18 @@ namespace BigupWeb\Bigup_Seo;
 
 /**
  * Plugin Name: Bigup Web: Bigup SEO
- * Plugin URI: https://jeffersonreal.uk
+ * Plugin URI: https://webguyjeff.com
  * Description: Bigup your SEO game.
  * Version: 0.1.1
  * Author: Jefferson Real
- * Author URI: https://jeffersonreal.uk
+ * Author URI: https://webguyjeff.com
  * License: GPL3+
  *
  * @package bigup-seo
- * @author Jefferson Real <me@jeffersonreal.uk>
+ * @author Jefferson Real <jeff@webguyjeff.com>
  * @copyright Copyright (c) 2024, Jefferson Real
  * @license GPL3+
- * @link https://jeffersonreal.uk
+ * @link https://webguyjeff.com
  */
 
 $enable_debug = true;

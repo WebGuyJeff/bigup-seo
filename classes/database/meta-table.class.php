@@ -5,10 +5,10 @@ namespace BigupWeb\Bigup_Seo;
  * Bigup SEO - Meta Table DB Dandler.
  *
  * @package bigup-forms
- * @author Jefferson Real <me@jeffersonreal.uk>
+ * @author Jefferson Real <jeff@webguyjeff.com>
  * @copyright Copyright (c) 2024, Jefferson Real
  * @license GPL3+
- * @link https://jeffersonreal.uk
+ * @link https://webguyjeff.com
  */
 class Meta_Table {
 

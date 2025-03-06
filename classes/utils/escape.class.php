@@ -5,10 +5,10 @@ namespace BigupWeb\Bigup_Seo;
  * Escape filters and args for use with wp_kses().
  *
  * @package bigup-seo
- * @author Jefferson Real <me@jeffersonreal.uk>
+ * @author Jefferson Real <jeff@webguyjeff.com>
  * @copyright Copyright (c) 2024, Jefferson Real
  * @license GPL3+
- * @link https://jeffersonreal.uk
+ * @link https://webguyjeff.com
  */
 class Escape {
 

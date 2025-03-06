@@ -4,7 +4,7 @@
  * Scrapes head meta and displays in-page for inspection.
  *
  * @package lonewolf
- * @author Jefferson Real <me@jeffersonreal.uk>
+ * @author Jefferson Real <jeff@webguyjeff.com>
  * @copyright Copyright 2023 Jefferson Real
  */
 

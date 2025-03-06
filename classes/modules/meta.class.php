@@ -5,10 +5,10 @@ namespace BigupWeb\Bigup_Seo;
  * Meta Data Handling
  *
  * @package bigup-seo
- * @author Jefferson Real <me@jeffersonreal.uk>
+ * @author Jefferson Real <jeff@webguyjeff.com>
  * @copyright Copyright (c) 2024, Jefferson Real
  * @license GPL3+
- * @link https://jeffersonreal.uk
+ * @link https://webguyjeff.com
  */
 class Meta {
 
@@ -31,7 +31,7 @@ class Meta {
 	 * Hook the setup method.
 	 */
 	public function __construct() {
-		$settings  = get_option( Settings_Page_Meta::OPTION );
+		$settings = get_option( Settings_Page_Meta::OPTION );
 
 		if ( isset( $settings ) && is_array( $settings ) ) {
 			$this->settings = $settings;

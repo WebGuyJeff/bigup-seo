@@ -6,10 +6,10 @@
  * - Classes are denoted by the suffix .class.php.
  *
  * @package bigup-seo
- * @author Jefferson Real <me@jeffersonreal.uk>
+ * @author Jefferson Real <jeff@webguyjeff.com>
  * @copyright Copyright (c) 2024, Jefferson Real
  * @license GPL3+
- * @link https://jeffersonreal.uk
+ * @link https://webguyjeff.com
  *
  * @param string $full_classname A fully-qualified class name e.g. 'Brand\\Project\\Class'.
  * @param string $namespace The namespace e.g. 'Brand\\Project\\'.
