@@ -29,8 +29,8 @@ module.exports = {
 			files: [
 				'src/**',
 				'classes/**',
-				'patterns/**',
-				'parts/**',
+				'dashicons/**',
+				'data/**',
 				'templates/**',
 				'**/**.json'
 			]
