@@ -274,7 +274,7 @@ class Head {
 			'<!-- Browser Colours -->' .
 			( ! empty( $meta['colour'] ) ? '<meta name="theme-color" content="' . $meta['colour'] . '">' : '' ) .
 			( ! empty( $meta['colour'] ) ? '<meta name="apple-mobile-web-app-status-bar-style" content="' . $meta['colour'] . '">' : '' ) .
-			'<meta name="apple-mobile-web-app-capable" content="yes">' .
+			'<meta name="mobile-web-app-capable" content="yes">' .
 			'<!-- Favicons -->' .
 			'<link rel="icon" type="image/png" href="' . $meta['icon512'] . '" sizes="512x512">' .
 			'<link rel="icon" type="image/png" href="' . $meta['icon270'] . '" sizes="270x270">' .
